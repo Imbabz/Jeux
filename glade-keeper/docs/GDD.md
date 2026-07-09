@@ -1,90 +1,102 @@
 # Glade Keeper — Game Design Doc (living document)
 
 ## One-line pitch
-A cozy, low-stakes third-person game about a young hedge-wizard tending a
-small valley during its last peaceful spring, helping woodland animals with
-small, gentle troubles.
+A cozy, low-stakes third-person game where you are a gentle woodland wizard
+caring for a small glade and its whimsical stilt-village — helping animals
+and neighbors with small troubles and coaxing the withered world back into
+bloom, at your own unhurried pace.
 
-## Premise
-Emberglade is a quiet valley, the kind of place stories forget because
-nothing bad ever happens there — yet. You play **Wren**, an apprentice
-warden left in charge of the glade for a season while the elder warden is
-away. There's no danger, no combat, no fail state. Just a valley, its
-animals, and small problems that a little patience and a little magic can
-fix. (The "last peaceful spring" framing is pure mood — we are not building
-a war game. It never has to be shown or explained beyond a wistful vibe.)
+## The feeling (north star)
+Unhurried, warm, safe, softly magical, a touch wistful. **No danger, no
+combat, no clock you can fail, no death.** The emotional promise:
+> *"Leave the world a little more alive than you found it."*
+You arrive at a sleepy, half-asleep glade; through small kindnesses it
+slowly becomes vibrant, glowing, and populated. Dusk is the magic hour.
+Ni no Kuni's color, Journey's light and hush.
 
-## Core loop (v1)
-1. Walk through the glade (third-person, camera orbits with the mouse).
-2. Notice an animal in trouble (a floating name label, a short line of text
-   when you're close).
-3. Walk up, press **E** to help.
-4. A small warm VFX burst plays, the animal's line changes to a thank-you.
-5. Repeat, at your own pace — no timer, no score, no lose condition.
+## Cast
+- **Wren** — the player; a gentle young hedge-wizard/caretaker with a
+  glowing staff.
+- **Animals** — foxes, rabbits, deer, birds… each with small, gentle
+  troubles (the Mend loop). Some become regulars around your cottage.
+- **Nature-spirits** — small, glowing, mostly wordless creatures (the
+  fairies of the reference art). More VFX than character.
+- **A few forest-folk neighbors** — a small cast (start with ~3–5) of gentle
+  villagers with light personalities and simple requests. Warmth, not
+  quest-grind.
 
-## Controls
-- `WASD` — move
-- Mouse — look / orbit camera
-- `E` — help the nearest animal
-- `Esc` — release/recapture the mouse cursor
+## Core verbs (what the wizard actually does)
+1. **Mend** — approach an animal/neighbor in need, cast, and resolve a small
+   trouble (thorn, lost creature, blocked path). Warm VFX + a thank-you.
+2. **Tend & grow** — target a grey, withered spot, wave the staff, and watch
+   it bloom: grass greens, flowers open, a dead tree buds. Instant, visible,
+   satisfying. This drives the restoration arc.
 
-## Art direction pillars
-- **"Lofi but living."** Geometry stays deliberately simple (primitives:
-  capsules, boxes, cones) — this keeps performance high and lets a solo
-  dev/small team ship fast. The *feeling* of quality comes from lighting,
-  color, fog, glow, and particle VFX carrying the atmosphere, not polycount.
-- Warm, soft directional light + sky ambient, gentle fog, filmic tonemap,
-  light bloom/glow.
-- VFX should read as small, precious, and warm: pollen, fireflies, sparkle
-  bursts on "helped," soft light shafts later.
+*(Deliberately NOT in scope: brewing/crafting, lantern-lighting chores,
+relationship grinds, gathering economies. Kept out to protect the serene
+pace. Can revisit later.)*
+
+## Pacing & progression
+- **Gentle day→dusk cycle:** a soft ambient time-of-day loop. Dusk turns the
+  light gold and is the world's most beautiful moment — but it's always
+  optional; nothing is gated on time, nothing fails.
+- **Restoration arc:** the glade visibly heals as you Tend and Mend — more
+  color, more bloom, more animals and neighbors present over time. Progress
+  *is* the reward (no score, no timer). New areas open gently as the world
+  revives (a revived path reveals a new grove).
+
+## Session loop
+Wander → notice something needing care (an animal in trouble, a withered
+patch) → Mend / Tend → the glade grows a little more alive → drift on. A
+session can be 5 minutes or an hour; both feel complete.
+
+## Controls (current)
+- `WASD` — move · Mouse — look/orbit · `E` — Mend/Tend the nearest target ·
+  `Esc` — release/recapture cursor. *(To be moved to a remappable Input Map.)*
+
+## Art direction
+Blend of **Journey** (atmosphere, light, vistas) and **Ni no Kuni / Studio
+Ghibli** (saturated storybook palette, painterly skies, soft **cel-shading**).
+Geometry stays low-poly/stylized; the "graphical" quality comes from shading,
+color, light, and VFX — not polycount. Reference renders shared in chat.
 
 ## Technical pillars
-- **Engine:** Godot 4.3+ (GDScript), Forward+ features available but using
-  the `mobile` renderer by default for performance headroom.
-- **No physics-heavy simulation.** Animals are static (`StaticBody3D`); the
-  player is the only moving physics body. Keeps the sim cheap and bug
-  surface small.
-- Placeholder art is 100% procedural (built in code, no imported meshes),
-  so there's zero external-asset pipeline to manage yet. Swapping in real
-  models later only means changing what a scene instantiates.
+- **Engine:** Godot 4.3+ (GDScript), `mobile` renderer for perf headroom.
+- **Cheap simulation:** the player is the main moving physics body; animals
+  and props are static or lightly animated. No heavy physics.
+- **Placeholder-then-swap:** the world is currently 100% procedural
+  primitives built in code. Real assets (Quaternius/Kenney `.glb`, later
+  AI-3D/commissioned heroes) drop into `assets/models/` and replace the
+  primitive builders without changing layout/logic. See `assets/README.md`.
+- **Restoration via shader, not duplicate meshes:** "withered vs. bloomed"
+  is driven by a per-material vitality parameter (desaturate/regrow) where
+  possible, so we don't need dead+alive copies of every prop.
 
-## What exists right now (v1 — first playable slice)
-- Emberglade hub scene: ground, a pond, 8 trees, sky/fog/glow environment,
-  ambient firefly/pollen particles.
+## What exists right now
+- Enclosed forest-glade hub: two-ring tree wall, undergrowth, stream+pond,
+  cottage (lit window + smoke), placeholder stilted treehouse + rope bridge,
+  ferns/toadstools/flowers/rocks, day-ish warm lighting, fog god-rays,
+  fireflies + green fairy motes.
 - Wren: third-person walk/run + mouse-look camera.
-- 3 animals (Fox, Rabbit, Deer), each with a one-line problem, a proximity
-  prompt, and a sparkle VFX + thank-you line on interact.
-- Minimal HUD: contextual "Press E" prompt + controls reminder.
+- 3 animals with a proximity prompt + sparkle VFX + thank-you on interact.
+- Minimal HUD.
 
-## Art-direction target
-Aiming for a blend of **Journey** (atmosphere, light, grand vistas) and
-**Ni no Kuni / Studio Ghibli** (saturated storybook palette, painterly
-skies, soft **cel-shading**). Geometry stays simple; the "graphical" quality
-comes from shading, color, and light. See the design preview renders shared
-in chat for the reference look.
-
-## Backlog / next passes (roughly in order of "most bang for the buck")
-0. **VFX/Shading — cel/toon shader (TOP PRIORITY):** the single biggest lever
-   toward the Ni no Kuni look. Write a Godot `.gdshader` (banded diffuse ramp
-   + optional rim + outline via inverted-hull or edge-detect) and apply it to
-   the world materials. This is the one piece that can't be verified in the
-   dev sandbox, so it needs a test run on real hardware once available.
-1. **World/Narrative:** more animals + varied problems; a couple of small
-   multi-step quests instead of single-interact ones.
-2. **UX/UI:** proper dialogue box (not just a floating label), a subtle
-   "glade is fully tended" completion moment, pause/settings menu.
-3. **VFX:** swap flat sparkle quads for a soft radial-gradient sparkle
-   texture; add light shafts through the trees; day/night or golden-hour
-   lighting cycle.
-4. **Systems/Gameplay:** a real Godot Input Map (Project Settings → Input
-   Map) instead of hardcoded keys, so controls are remappable and
-   controller-friendly.
-5. **Art:** first real low-poly character/animal models once the loop is
-   validated (placeholders are intentionally disposable).
-6. **Audio:** ambient soundscape + a couple of gentle SFX (the biggest
-   "cozy" upgrade for the least effort).
-7. Save/checkpoint, main menu, title screen.
+## Backlog (roughly by bang-for-buck)
+0. **Cel/toon shader** (TOP visual lever) — Godot `.gdshader`: banded diffuse
+   ramp + rim + optional outline. Needs a hardware test run to verify.
+1. **Asset integration** — import the free nature/animal packs and swap
+   placeholders (see `docs/ASSETS.md`).
+2. **Tend & grow verb** — target a withered patch → bloom transition (shader
+   vitality param + bloom VFX).
+3. **Day→dusk cycle** — animate sun/sky/fog between morning and gold dusk;
+   lantern/window emissives ramp up at dusk.
+4. **UX/UI** — dialogue box + speaker portraits, a subtle "glade vitality"
+   meter, pause/settings, remappable Input Map.
+5. **NPC neighbors** — a few forest-folk with idle/walk + simple requests.
+6. **Audio** — ambient forest/dusk beds + gentle SFX (huge cozy ROI).
+7. **Restoration systems** — track tended spots, reveal new areas, populate
+   the glade over time. Save/checkpoint, title screen.
 
 ## Explicit non-goals (for now)
-No combat, no fail states, no inventory grind, no crafting complexity.
-Anything that adds stress cuts against the pitch.
+No combat, fail states, inventory grind, or crafting complexity. Anything
+that adds stress cuts against the pitch.
