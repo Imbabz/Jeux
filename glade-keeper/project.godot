@@ -1,0 +1,20 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Glade Keeper"
+config/description="A cozy low-poly game about a young hedge-wizard tending Emberglade valley in its last peaceful spring, helping woodland animals with small troubles."
+run/main_scene="res://scenes/world/emberglade.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+
+[rendering]
+
+renderer/rendering_method="mobile"
