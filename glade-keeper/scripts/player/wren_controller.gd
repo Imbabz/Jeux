@@ -5,7 +5,7 @@ const RUN_SPEED := 7.0
 const GRAVITY := 9.8
 const MOUSE_SENSITIVITY := 0.003
 
-@onready var body_mesh: Node3D = $MeshInstance3D
+@onready var body_mesh: Node3D = $Model
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
 @onready var interact_zone: Area3D = $InteractZone
@@ -72,6 +72,8 @@ func _physics_process(delta: float) -> void:
 		body_mesh.rotation.y = lerp_angle(body_mesh.rotation.y, target_angle, 10.0 * delta)
 
 	move_and_slide()
+	if body_mesh.has_method("set_move_speed"):
+		body_mesh.set_move_speed(Vector2(velocity.x, velocity.z).length())
 	_handle_interact()
 
 func _handle_interact() -> void:
@@ -83,6 +85,8 @@ func _handle_interact() -> void:
 func _try_interact() -> void:
 	var target = _nearest_target()
 	if target and target.has_method("interact"):
+		if body_mesh.has_method("play_cast"):
+			body_mesh.play_cast()
 		target.interact()
 		# Refresh the prompt: it may have resolved (helped/tended).
 		nearby_targets.erase(target)
