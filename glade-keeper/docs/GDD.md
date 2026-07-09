@@ -56,7 +56,19 @@ a war game. It never has to be shown or explained beyond a wistful vibe.)
   prompt, and a sparkle VFX + thank-you line on interact.
 - Minimal HUD: contextual "Press E" prompt + controls reminder.
 
+## Art-direction target
+Aiming for a blend of **Journey** (atmosphere, light, grand vistas) and
+**Ni no Kuni / Studio Ghibli** (saturated storybook palette, painterly
+skies, soft **cel-shading**). Geometry stays simple; the "graphical" quality
+comes from shading, color, and light. See the design preview renders shared
+in chat for the reference look.
+
 ## Backlog / next passes (roughly in order of "most bang for the buck")
+0. **VFX/Shading — cel/toon shader (TOP PRIORITY):** the single biggest lever
+   toward the Ni no Kuni look. Write a Godot `.gdshader` (banded diffuse ramp
+   + optional rim + outline via inverted-hull or edge-detect) and apply it to
+   the world materials. This is the one piece that can't be verified in the
+   dev sandbox, so it needs a test run on real hardware once available.
 1. **World/Narrative:** more animals + varied problems; a couple of small
    multi-step quests instead of single-interact ones.
 2. **UX/UI:** proper dialogue box (not just a floating label), a subtle
