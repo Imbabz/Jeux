@@ -45,6 +45,7 @@ const COTTAGE_POS := Vector3(-8, 0, -2)
 
 func _ready() -> void:
 	_setup_environment()
+	_build_mountains()
 	_build_ground()
 	_build_pond()
 	_build_path()
@@ -67,20 +68,28 @@ func _ready() -> void:
 	_spawn_animals()
 
 func _setup_environment() -> void:
-	# Golden-hour "Journey" light: low, warm, long shadows.
-	sun.rotation_degrees = Vector3(-20, -50, 0)
-	sun.light_energy = 1.4
-	sun.light_color = Color(1.0, 0.83, 0.6)
+	# Warm key sun: low, warm, long shadows (Journey).
+	sun.rotation_degrees = Vector3(-25, -50, 0)
+	sun.light_energy = 1.35
+	sun.light_color = Color(1.0, 0.88, 0.66)
 	sun.shadow_enabled = true
+
+	# Cool back "rim" light for Ni no Kuni-style edge separation.
+	var rim := DirectionalLight3D.new()
+	rim.rotation_degrees = Vector3(-30, 130, 0)
+	rim.light_energy = 0.5
+	rim.light_color = Color(0.55, 0.65, 1.0)
+	rim.shadow_enabled = false
+	add_child(rim)
 
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color(0.40, 0.52, 0.80)
-	sky_mat.sky_horizon_color = Color(0.95, 0.75, 0.55)
+	sky_mat.sky_top_color = Color(0.43, 0.62, 0.88)
+	sky_mat.sky_horizon_color = Color(0.85, 0.88, 0.95)
 	sky_mat.ground_bottom_color = Color(0.35, 0.32, 0.28)
-	sky_mat.ground_horizon_color = Color(0.95, 0.75, 0.55)
+	sky_mat.ground_horizon_color = Color(0.90, 0.82, 0.70)
 	sky_mat.sun_angle_max = 30.0
 
 	var sky := Sky.new()
@@ -89,16 +98,42 @@ func _setup_environment() -> void:
 
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_energy = 1.0
+	# Lighter distance-only haze so foreground colors stay saturated,
+	# while distant mountains fade into atmosphere.
 	env.fog_enabled = true
-	env.fog_light_color = Color(0.95, 0.8, 0.6)
-	env.fog_density = 0.015
+	env.fog_light_color = Color(0.86, 0.90, 0.98)
+	env.fog_density = 0.006
 	env.glow_enabled = true
 	env.glow_intensity = 0.8
 	env.glow_bloom = 0.15
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 1.05
+	# Linear tonemap keeps the flat, punchy, "graphic" color the
+	# Ni no Kuni look wants (filmic desaturates highlights).
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	env.tonemap_exposure = 1.0
 
 	world_env.environment = env
+
+func _build_mountains() -> void:
+	# Distant low-poly peaks; the fog fades them into a misty backdrop.
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.46, 0.52, 0.74)
+	mat.roughness = 1.0
+	var peaks := [
+		Vector4(-30, -42, 14, 11), Vector4(-8, -50, 20, 15),
+		Vector4(18, -46, 16, 12), Vector4(38, -40, 12, 10),
+		Vector4(-46, -30, 11, 9), Vector4(46, -26, 10, 8),
+	]
+	for p in peaks:
+		var peak := MeshInstance3D.new()
+		var cone := CylinderMesh.new()
+		cone.top_radius = 0.0
+		cone.bottom_radius = p.z
+		cone.height = p.w
+		cone.radial_segments = 7
+		peak.mesh = cone
+		peak.material_override = mat
+		peak.position = Vector3(p.x, p.w * 0.5 - 0.5, p.y)
+		add_child(peak)
 
 func _build_ground() -> void:
 	var ground := MeshInstance3D.new()
@@ -106,7 +141,7 @@ func _build_ground() -> void:
 	mesh.size = Vector2(60, 60)
 	ground.mesh = mesh
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.45, 0.56, 0.30)
+	mat.albedo_color = Color(0.34, 0.60, 0.22)
 	mat.roughness = 1.0
 	ground.material_override = mat
 	add_child(ground)
@@ -259,10 +294,16 @@ func _scatter_trees() -> void:
 		Vector3(11, 0, 3), Vector3(12, 0, -8), Vector3(2, 0, -10),
 		Vector3(-14, 0, -2), Vector3(14, 0, 5),
 	]
+	# Varied Ghibli-ish greens (plus a couple of warm-tinted ones) so the
+	# canopy reads painterly rather than uniform.
+	var canopy_colors := [
+		Color(0.18, 0.52, 0.20), Color(0.12, 0.44, 0.26),
+		Color(0.42, 0.62, 0.16), Color(0.24, 0.56, 0.30),
+		Color(0.60, 0.62, 0.18), Color(0.14, 0.48, 0.24),
+	]
 	var trunk_mat := StandardMaterial3D.new()
-	trunk_mat.albedo_color = Color(0.4, 0.28, 0.18)
-	var canopy_mat := StandardMaterial3D.new()
-	canopy_mat.albedo_color = Color(0.30, 0.48, 0.24)
+	trunk_mat.albedo_color = Color(0.45, 0.30, 0.20)
+	var idx := 0
 	for pos in positions:
 		var tree := Node3D.new()
 		add_child(tree)
@@ -278,14 +319,29 @@ func _scatter_trees() -> void:
 		trunk.position.y = 1.0
 		trunk.material_override = trunk_mat
 
+		var canopy_mat := StandardMaterial3D.new()
+		canopy_mat.albedo_color = canopy_colors[idx % canopy_colors.size()]
 		var canopy := MeshInstance3D.new()
 		tree.add_child(canopy)
 		var canopy_mesh := SphereMesh.new()
-		canopy_mesh.radius = 1.4
-		canopy_mesh.height = 2.6
+		canopy_mesh.radius = 1.5
+		canopy_mesh.height = 2.85
 		canopy.mesh = canopy_mesh
-		canopy.position.y = 2.6
+		canopy.position.y = 2.7
 		canopy.material_override = canopy_mat
+
+		# Second smaller clump for a fuller, hand-drawn silhouette.
+		var canopy2_mat := StandardMaterial3D.new()
+		canopy2_mat.albedo_color = canopy_colors[(idx + 2) % canopy_colors.size()]
+		var canopy2 := MeshInstance3D.new()
+		tree.add_child(canopy2)
+		var canopy2_mesh := SphereMesh.new()
+		canopy2_mesh.radius = 1.05
+		canopy2_mesh.height = 2.1
+		canopy2.mesh = canopy2_mesh
+		canopy2.position = Vector3(0.6, 3.3, -0.3)
+		canopy2.material_override = canopy2_mat
+		idx += 1
 
 		var body := StaticBody3D.new()
 		tree.add_child(body)
