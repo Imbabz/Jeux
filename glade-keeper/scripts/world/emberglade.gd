@@ -4,6 +4,41 @@ const PLAYER_SCENE := preload("res://scenes/player/wren.tscn")
 const ANIMAL_SCENE := preload("res://scenes/npc/animal_npc.tscn")
 const HUD_SCENE := preload("res://scenes/ui/hud.tscn")
 
+# --- Shared scatter data ------------------------------------------------
+# These positions are authored as explicit literals (not random) so the
+# layout is stable, reproducible, and matches the design-preview render
+# exactly. Keep them in sync with the browser preview if you regenerate it.
+# For hundreds of props later, switch these loops to MultiMeshInstance3D
+# for performance — see docs/GDD.md backlog.
+const FLOWERS := [
+	Vector2(-6, 3), Vector2(-5, 1), Vector2(-3, 2), Vector2(-2, 5),
+	Vector2(0, 3), Vector2(1, 6), Vector2(3, 2), Vector2(-8, 3),
+	Vector2(-9, 1.5), Vector2(-4, -2), Vector2(1, -8), Vector2(2, -9),
+	Vector2(11, -1), Vector2(10, 6), Vector2(-1, 8), Vector2(5, 7),
+]
+const FLOWER_COLORS := [
+	Color(1, 1, 1), Color(1, 0.85, 0.3), Color(1, 0.5, 0.6),
+	Color(0.7, 0.6, 0.95), Color(1, 0.45, 0.35),
+]
+const MUSHROOMS := [
+	Vector2(-11, -3), Vector2(-6, -5), Vector2(11, -6),
+	Vector2(12, -4), Vector2(-12, 4), Vector2(13, 8),
+]
+const ROCKS := [
+	Vector2(10, -8), Vector2(-11, -5), Vector2(3, 9),
+	Vector2(-3, -6), Vector2(12, 0),
+]
+const GRASS := [
+	Vector2(-2, -3), Vector2(1, 1), Vector2(5, 3), Vector2(-4, 6),
+	Vector2(8, 4), Vector2(-9, 6), Vector2(2, -8), Vector2(10, 2),
+	Vector2(-5, -4), Vector2(6, 1),
+]
+const PATH := [
+	Vector2(-8, -0.5), Vector2(-6, 1.5), Vector2(-4, 3), Vector2(-2, 4.5),
+	Vector2(0, 5.5), Vector2(2, 5.5), Vector2(4, 5),
+]
+const COTTAGE_POS := Vector3(-8, 0, -2)
+
 @onready var sun: DirectionalLight3D = $DirectionalLight3D
 @onready var world_env: WorldEnvironment = $WorldEnvironment
 @onready var player_spawn: Marker3D = $PlayerSpawn
@@ -12,7 +47,10 @@ func _ready() -> void:
 	_setup_environment()
 	_build_ground()
 	_build_pond()
+	_build_path()
+	_build_cottage()
 	_scatter_trees()
+	_scatter_flora()
 	_spawn_ambient_particles()
 
 	# hud/player kept untyped (plain "=") so their custom, non-engine
@@ -29,31 +67,36 @@ func _ready() -> void:
 	_spawn_animals()
 
 func _setup_environment() -> void:
-	sun.rotation_degrees = Vector3(-50, -30, 0)
-	sun.light_energy = 1.1
-	sun.light_color = Color(1.0, 0.95, 0.85)
+	# Golden-hour "Journey" light: low, warm, long shadows.
+	sun.rotation_degrees = Vector3(-20, -50, 0)
+	sun.light_energy = 1.4
+	sun.light_color = Color(1.0, 0.83, 0.6)
 	sun.shadow_enabled = true
 
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color(0.42, 0.62, 0.85)
-	sky_mat.sky_horizon_color = Color(0.75, 0.82, 0.78)
-	sky_mat.ground_bottom_color = Color(0.3, 0.35, 0.28)
-	sky_mat.ground_horizon_color = Color(0.75, 0.82, 0.78)
+	sky_mat.sky_top_color = Color(0.40, 0.52, 0.80)
+	sky_mat.sky_horizon_color = Color(0.95, 0.75, 0.55)
+	sky_mat.ground_bottom_color = Color(0.35, 0.32, 0.28)
+	sky_mat.ground_horizon_color = Color(0.95, 0.75, 0.55)
+	sky_mat.sun_angle_max = 30.0
 
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
 	env.sky = sky
 
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_energy = 1.0
 	env.fog_enabled = true
-	env.fog_light_color = Color(0.8, 0.85, 0.8)
-	env.fog_density = 0.01
+	env.fog_light_color = Color(0.95, 0.8, 0.6)
+	env.fog_density = 0.015
 	env.glow_enabled = true
-	env.glow_intensity = 0.6
+	env.glow_intensity = 0.8
+	env.glow_bloom = 0.15
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_exposure = 1.05
 
 	world_env.environment = env
 
@@ -63,7 +106,8 @@ func _build_ground() -> void:
 	mesh.size = Vector2(60, 60)
 	ground.mesh = mesh
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.42, 0.58, 0.32)
+	mat.albedo_color = Color(0.45, 0.56, 0.30)
+	mat.roughness = 1.0
 	ground.material_override = mat
 	add_child(ground)
 
@@ -83,14 +127,131 @@ func _build_pond() -> void:
 	mesh.bottom_radius = 5.0
 	mesh.height = 0.1
 	pond.mesh = mesh
-	pond.position = Vector3(6, 0.02, -4)
+	pond.position = Vector3(6, 0.03, -4)
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.25, 0.45, 0.55, 0.85)
+	mat.albedo_color = Color(0.28, 0.5, 0.62, 0.9)
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.metallic = 0.2
+	mat.metallic = 0.3
 	mat.roughness = 0.05
 	pond.material_override = mat
 	add_child(pond)
+
+func _build_path() -> void:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.62, 0.52, 0.38)
+	mat.roughness = 1.0
+	for i in range(PATH.size() - 1):
+		var a := PATH[i]
+		var b := PATH[i + 1]
+		var mid := (a + b) * 0.5
+		var seg := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(1.4, 0.06, a.distance_to(b) + 1.4)
+		seg.mesh = box
+		seg.material_override = mat
+		seg.position = Vector3(mid.x, 0.04, mid.y)
+		seg.rotation.y = -atan2(b.x - a.x, b.y - a.y)
+		add_child(seg)
+
+func _build_cottage() -> void:
+	var cottage := Node3D.new()
+	add_child(cottage)
+	cottage.position = COTTAGE_POS
+	cottage.rotation_degrees.y = 25.0
+
+	var wall_mat := StandardMaterial3D.new()
+	wall_mat.albedo_color = Color(0.90, 0.82, 0.66)
+	var roof_mat := StandardMaterial3D.new()
+	roof_mat.albedo_color = Color(0.60, 0.30, 0.24)
+	var wood_mat := StandardMaterial3D.new()
+	wood_mat.albedo_color = Color(0.35, 0.24, 0.15)
+
+	var walls := MeshInstance3D.new()
+	var wall_mesh := BoxMesh.new()
+	wall_mesh.size = Vector3(4.0, 2.6, 3.5)
+	walls.mesh = wall_mesh
+	walls.material_override = wall_mat
+	walls.position.y = 1.3
+	cottage.add_child(walls)
+
+	var roof := MeshInstance3D.new()
+	var roof_mesh := PrismMesh.new()
+	roof_mesh.size = Vector3(4.5, 1.6, 3.9)
+	roof.mesh = roof_mesh
+	roof.material_override = roof_mat
+	roof.position.y = 3.4
+	cottage.add_child(roof)
+
+	var door := MeshInstance3D.new()
+	var door_mesh := BoxMesh.new()
+	door_mesh.size = Vector3(0.9, 1.7, 0.15)
+	door.mesh = door_mesh
+	door.material_override = wood_mat
+	door.position = Vector3(0, 0.85, 1.78)
+	cottage.add_child(door)
+
+	# Warm lit window — a little glow that reads as "someone's home".
+	var window := MeshInstance3D.new()
+	var win_mesh := BoxMesh.new()
+	win_mesh.size = Vector3(0.9, 0.9, 0.15)
+	window.mesh = win_mesh
+	var win_mat := StandardMaterial3D.new()
+	win_mat.albedo_color = Color(1.0, 0.85, 0.5)
+	win_mat.emission_enabled = true
+	win_mat.emission = Color(1.0, 0.8, 0.4)
+	win_mat.emission_energy_multiplier = 2.5
+	window.material_override = win_mat
+	window.position = Vector3(1.3, 1.5, 1.78)
+	cottage.add_child(window)
+
+	var chimney := MeshInstance3D.new()
+	var chim_mesh := BoxMesh.new()
+	chim_mesh.size = Vector3(0.5, 1.2, 0.5)
+	chimney.mesh = chim_mesh
+	chimney.material_override = roof_mat
+	chimney.position = Vector3(-1.3, 3.6, 0)
+	cottage.add_child(chimney)
+
+	_add_smoke(cottage, Vector3(-1.3, 4.4, 0))
+
+	# Collision matches the wall box only (roof/props are decorative).
+	var body := StaticBody3D.new()
+	cottage.add_child(body)
+	var shape := CollisionShape3D.new()
+	var col := BoxShape3D.new()
+	col.size = Vector3(4.0, 2.6, 3.5)
+	shape.shape = col
+	shape.position.y = 1.3
+	body.add_child(shape)
+
+func _add_smoke(parent: Node3D, local_pos: Vector3) -> void:
+	var smoke := GPUParticles3D.new()
+	parent.add_child(smoke)
+	smoke.position = local_pos
+	smoke.amount = 16
+	smoke.lifetime = 4.0
+	smoke.preprocess = 4.0
+	smoke.emitting = true
+
+	var pm := ParticleProcessMaterial.new()
+	pm.direction = Vector3(0.2, 1, 0)
+	pm.spread = 10.0
+	pm.gravity = Vector3.ZERO
+	pm.initial_velocity_min = 0.4
+	pm.initial_velocity_max = 0.7
+	pm.scale_min = 0.3
+	pm.scale_max = 0.8
+	pm.scale_over_velocity_min = 0.0
+	smoke.process_material = pm
+
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.6, 0.6)
+	var vm := StandardMaterial3D.new()
+	vm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	vm.albedo_color = Color(0.85, 0.82, 0.8, 0.35)
+	vm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	quad.material = vm
+	smoke.draw_pass_1 = quad
 
 func _scatter_trees() -> void:
 	var positions := [
@@ -98,6 +259,10 @@ func _scatter_trees() -> void:
 		Vector3(11, 0, 3), Vector3(12, 0, -8), Vector3(2, 0, -10),
 		Vector3(-14, 0, -2), Vector3(14, 0, 5),
 	]
+	var trunk_mat := StandardMaterial3D.new()
+	trunk_mat.albedo_color = Color(0.4, 0.28, 0.18)
+	var canopy_mat := StandardMaterial3D.new()
+	canopy_mat.albedo_color = Color(0.30, 0.48, 0.24)
 	for pos in positions:
 		var tree := Node3D.new()
 		add_child(tree)
@@ -111,8 +276,6 @@ func _scatter_trees() -> void:
 		trunk_mesh.height = 2.0
 		trunk.mesh = trunk_mesh
 		trunk.position.y = 1.0
-		var trunk_mat := StandardMaterial3D.new()
-		trunk_mat.albedo_color = Color(0.4, 0.28, 0.18)
 		trunk.material_override = trunk_mat
 
 		var canopy := MeshInstance3D.new()
@@ -122,8 +285,6 @@ func _scatter_trees() -> void:
 		canopy_mesh.height = 2.6
 		canopy.mesh = canopy_mesh
 		canopy.position.y = 2.6
-		var canopy_mat := StandardMaterial3D.new()
-		canopy_mat.albedo_color = Color(0.28, 0.5, 0.25)
 		canopy.material_override = canopy_mat
 
 		var body := StaticBody3D.new()
@@ -135,6 +296,96 @@ func _scatter_trees() -> void:
 		shape.shape = col
 		shape.position.y = 1.0
 		body.add_child(shape)
+
+func _scatter_flora() -> void:
+	var stem_mat := StandardMaterial3D.new()
+	stem_mat.albedo_color = Color(0.3, 0.45, 0.22)
+
+	var idx := 0
+	for p in FLOWERS:
+		var flower := Node3D.new()
+		add_child(flower)
+		flower.position = Vector3(p.x, 0, p.y)
+
+		var stem := MeshInstance3D.new()
+		var stem_mesh := CylinderMesh.new()
+		stem_mesh.top_radius = 0.03
+		stem_mesh.bottom_radius = 0.03
+		stem_mesh.height = 0.4
+		stem.mesh = stem_mesh
+		stem.position.y = 0.2
+		stem.material_override = stem_mat
+		flower.add_child(stem)
+
+		var bloom := MeshInstance3D.new()
+		var bloom_mesh := SphereMesh.new()
+		bloom_mesh.radius = 0.12
+		bloom_mesh.height = 0.24
+		bloom.mesh = bloom_mesh
+		bloom.position.y = 0.45
+		var bloom_mat := StandardMaterial3D.new()
+		bloom_mat.albedo_color = FLOWER_COLORS[idx % FLOWER_COLORS.size()]
+		bloom.material_override = bloom_mat
+		flower.add_child(bloom)
+		idx += 1
+
+	var cap_mat := StandardMaterial3D.new()
+	cap_mat.albedo_color = Color(0.8, 0.3, 0.25)
+	var mush_stem_mat := StandardMaterial3D.new()
+	mush_stem_mat.albedo_color = Color(0.92, 0.88, 0.78)
+	for p in MUSHROOMS:
+		var mush := Node3D.new()
+		add_child(mush)
+		mush.position = Vector3(p.x, 0, p.y)
+		var stem := MeshInstance3D.new()
+		var sm := CylinderMesh.new()
+		sm.top_radius = 0.07
+		sm.bottom_radius = 0.09
+		sm.height = 0.3
+		stem.mesh = sm
+		stem.position.y = 0.15
+		stem.material_override = mush_stem_mat
+		mush.add_child(stem)
+		var cap := MeshInstance3D.new()
+		var cm := SphereMesh.new()
+		cm.radius = 0.18
+		cm.height = 0.24
+		cap.mesh = cm
+		cap.position.y = 0.3
+		cap.scale.y = 0.6
+		cap.material_override = cap_mat
+		mush.add_child(cap)
+
+	var rock_mat := StandardMaterial3D.new()
+	rock_mat.albedo_color = Color(0.55, 0.55, 0.58)
+	for p in ROCKS:
+		var rock := MeshInstance3D.new()
+		var rm := SphereMesh.new()
+		rm.radius = 0.35
+		rm.height = 0.5
+		rock.mesh = rm
+		rock.scale = Vector3(1.0, 0.6, 0.8)
+		rock.position = Vector3(p.x, 0.12, p.y)
+		rock.material_override = rock_mat
+		add_child(rock)
+
+	var grass_mat := StandardMaterial3D.new()
+	grass_mat.albedo_color = Color(0.38, 0.52, 0.26)
+	for p in GRASS:
+		var tuft := Node3D.new()
+		add_child(tuft)
+		tuft.position = Vector3(p.x, 0, p.y)
+		for j in range(3):
+			var blade := MeshInstance3D.new()
+			var bm := CylinderMesh.new()
+			bm.top_radius = 0.0
+			bm.bottom_radius = 0.06
+			bm.height = 0.5
+			blade.mesh = bm
+			blade.material_override = grass_mat
+			blade.position = Vector3((j - 1) * 0.1, 0.25, (j - 1) * 0.06)
+			blade.rotation.z = (j - 1) * 0.2
+			tuft.add_child(blade)
 
 func _spawn_ambient_particles() -> void:
 	var particles := GPUParticles3D.new()
