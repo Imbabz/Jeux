@@ -14,8 +14,10 @@ const MOUSE_SENSITIVITY := 0.003
 # (HUD, AnimalNPC) and calling their custom methods on a duck-typed var
 # avoids GDScript's static "unknown member" errors. See CLAUDE.md.
 var hud
-var nearby_animals: Array = []
+var nearby_targets: Array = []
 var interact_was_pressed := false
+
+const INTERACT_GROUPS := ["animal", "tendable"]
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -79,32 +81,47 @@ func _handle_interact() -> void:
 	interact_was_pressed = pressed
 
 func _try_interact() -> void:
-	var target = _nearest_animal()
+	var target = _nearest_target()
 	if target and target.has_method("interact"):
 		target.interact()
+		# Refresh the prompt: it may have resolved (helped/tended).
+		nearby_targets.erase(target)
+		_refresh_prompt()
 
-func _nearest_animal():
+func _nearest_target():
 	var nearest = null
 	var nearest_dist := INF
-	for animal in nearby_animals:
-		if not is_instance_valid(animal):
+	for t in nearby_targets:
+		if not is_instance_valid(t):
 			continue
-		var dist: float = global_position.distance_to(animal.global_position)
+		var dist: float = global_position.distance_to(t.global_position)
 		if dist < nearest_dist:
 			nearest_dist = dist
-			nearest = animal
+			nearest = t
 	return nearest
 
+func _is_interactable(body: Node3D) -> bool:
+	for g in INTERACT_GROUPS:
+		if body.is_in_group(g):
+			return true
+	return false
+
+func _refresh_prompt() -> void:
+	if not hud:
+		return
+	var target = _nearest_target()
+	if target and "problem_text" in target:
+		hud.show_prompt(target.problem_text)
+	elif target:
+		hud.show_prompt("help")
+	else:
+		hud.hide_prompt()
+
 func _on_interact_zone_body_entered(body: Node3D) -> void:
-	if body.is_in_group("animal"):
-		nearby_animals.append(body)
-		if hud:
-			var text := "help"
-			if "problem_text" in body:
-				text = body.problem_text
-			hud.show_prompt(text)
+	if _is_interactable(body):
+		nearby_targets.append(body)
+		_refresh_prompt()
 
 func _on_interact_zone_body_exited(body: Node3D) -> void:
-	nearby_animals.erase(body)
-	if hud and nearby_animals.is_empty():
-		hud.hide_prompt()
+	nearby_targets.erase(body)
+	_refresh_prompt()

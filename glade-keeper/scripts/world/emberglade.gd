@@ -3,6 +3,18 @@ extends Node3D
 const PLAYER_SCENE := preload("res://scenes/player/wren.tscn")
 const ANIMAL_SCENE := preload("res://scenes/npc/animal_npc.tscn")
 const HUD_SCENE := preload("res://scenes/ui/hud.tscn")
+const TEND_PATCH_SCENE := preload("res://scenes/world/tend_patch.tscn")
+const TOON_SHADER := preload("res://shaders/toon.gdshader")
+
+# Withered spots the wizard can Tend & grow back to life.
+const WITHERED := [Vector2(3, 1), Vector2(-4, -1), Vector2(0, -2)]
+
+# --- Day -> dusk cycle ---
+@export var day_cycle_speed := 0.05  # slow ping-pong morning <-> dusk
+var _phase := 0.6                    # start mid-morning
+var _env: Environment
+var _sky_mat: ProceduralSkyMaterial
+var _dusk_lights: Array = []
 
 # --- Shared scatter data (explicit literals so layout is stable and the
 # browser design-preview can reproduce it exactly). Trees are placed by a
@@ -55,6 +67,7 @@ func _ready() -> void:
 	_build_forest()
 	_build_undergrowth()
 	_scatter_flora()
+	_build_tend_patches()
 	_spawn_ambient_particles()
 	_spawn_fairy_motes()
 
@@ -69,6 +82,8 @@ func _ready() -> void:
 	player.hud = hud
 
 	_spawn_animals()
+	# Cel-shade every solid material now that the whole world exists.
+	_apply_toon_shading()
 
 func _setup_environment() -> void:
 	# Warm, low, dappled forest light (Radagast/Ni no Kuni mood).
@@ -120,6 +135,8 @@ func _setup_environment() -> void:
 	env.volumetric_fog_emission = Color(0.05, 0.05, 0.03)
 
 	world_env.environment = env
+	_env = env
+	_sky_mat = sky_mat
 
 func _build_mountains() -> void:
 	var mat := StandardMaterial3D.new()
@@ -369,6 +386,7 @@ func _build_cottage() -> void:
 	lamp.light_energy = 3.0
 	lamp.omni_range = 8.0
 	cottage.add_child(lamp)
+	_dusk_lights.append(lamp)
 
 	var chimney := MeshInstance3D.new()
 	var chim_mesh := BoxMesh.new()
@@ -675,6 +693,56 @@ func _spawn_fairy_motes() -> void:
 	vm.emission_energy_multiplier = 3.0
 	quad.material = vm
 	motes.draw_pass_1 = quad
+
+func _build_tend_patches() -> void:
+	for p in WITHERED:
+		var patch = TEND_PATCH_SCENE.instantiate()
+		patch.position = Vector3(p.x, 0.0, p.y)
+		add_child(patch)
+
+# --- Cel shading -------------------------------------------------------
+func _apply_toon_shading() -> void:
+	_toonify(self)
+
+func _toonify(node: Node) -> void:
+	for child in node.get_children():
+		if child is MeshInstance3D:
+			var m = child.material_override
+			# Only solid, lit, opaque surfaces get toon-shaded — leave
+			# emissive (windows, particles) and transparent (water) alone.
+			if m is StandardMaterial3D and not m.emission_enabled \
+					and m.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED:
+				var tm := ShaderMaterial.new()
+				tm.shader = TOON_SHADER
+				tm.set_shader_parameter("albedo", m.albedo_color)
+				child.material_override = tm
+		_toonify(child)
+
+# --- Day -> dusk cycle -------------------------------------------------
+func _process(delta: float) -> void:
+	if _sky_mat == null or day_cycle_speed <= 0.0:
+		return
+	_phase += delta * day_cycle_speed
+	# Smooth ping-pong between morning (0) and dusk (1).
+	var t := 0.5 - 0.5 * cos(_phase * TAU)
+	_apply_time_of_day(t)
+
+func _apply_time_of_day(t: float) -> void:
+	sun.rotation_degrees = Vector3(-45, -52, 0).lerp(Vector3(-12, -68, 0), t)
+	sun.light_color = Color(1.0, 0.94, 0.82).lerp(Color(1.0, 0.6, 0.35), t)
+	sun.light_energy = lerp(1.45, 1.05, t)
+
+	_sky_mat.sky_top_color = Color(0.35, 0.55, 0.78).lerp(Color(0.26, 0.28, 0.52), t)
+	_sky_mat.sky_horizon_color = Color(0.88, 0.90, 0.92).lerp(Color(1.0, 0.62, 0.42), t)
+	_sky_mat.ground_horizon_color = _sky_mat.sky_horizon_color
+
+	_env.fog_light_color = Color(0.90, 0.90, 0.92).lerp(Color(1.0, 0.72, 0.5), t)
+
+	# Windows/lanterns glow up as it gets dark.
+	var lamp_energy := lerp(0.6, 4.0, t)
+	for l in _dusk_lights:
+		if is_instance_valid(l):
+			l.light_energy = lamp_energy
 
 func _spawn_animals() -> void:
 	var configs := [
