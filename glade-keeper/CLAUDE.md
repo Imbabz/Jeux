@@ -1,7 +1,11 @@
 # Glade Keeper — project notes for Claude Code
 
-Godot 4.3+ project. See `docs/GDD.md` for design/scope, `README.md` for how
-to run it.
+Godot 4.3+ project.
+
+> **New here? Read `docs/HANDOFF.md` first** — it is the master brief (context,
+> vision, architecture, current state, success factors, roadmap). Then this
+> file for working conventions, `docs/GDD.md` for design, `docs/ASSETS.md` for
+> the asset plan, and `README.md` for how to run it.
 
 ## How "the studio" works here
 There's no real multi-person team — one Claude Code session plays every
