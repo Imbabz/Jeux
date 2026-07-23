@@ -679,5 +679,200 @@ window.SCENARIOS = [
       choix: []
     }
   ]
+},
+
+/* ==========================================================================
+   AVENTURE 2 — VERSION SOLO  (1 seul héros : Sylwen l'elfe + son loup Fenn)
+   Narration au singulier, rencontres allégées, choix prédéfinis.
+   ========================================================================== */
+{
+  id: "ton-solo",
+  titre: "Les Tours de la Nuit — Solo",
+  sousTitre: "Adaptation pour UN SEUL héros — Sylwen l'elfe",
+  niveau: "1 héroïne de niveau 3 (Sylwen) + son loup Fenn",
+  resume: "Version pensée pour jouer À DEUX PERSONNES SEULEMENT : un MJ et un seul joueur. Sylwen Feuille-d'Argent, rôdeuse elfe accompagnée de son loup Fenn, est envoyée par le camp de Loch Brech mettre fin à la vague de morts-vivants qui déferle des Tours de l'Attente. Rencontres allégées, narration à la 2ᵉ personne, et à chaque étape une série de choix clairs.",
+  auteur: "D'après Don Knight — World of Farland, adapté pour le jeu solo",
+  debut: "ts-intro",
+  scenes: [
+    {
+      id: "ts-intro", titre: "Mode solo — préparation", lieu: "Avant de commencer",
+      lecture: [],
+      mj: [
+        "★ COMMENT JOUER À DEUX : tu es le MJ, tu lis les encadrés bleus à voix haute et tu décris le monde. Ton unique joueur incarne SYLWEN (onglet Persos → « Sylwen Feuille-d'Argent »).",
+        "Sylwen n'est jamais vraiment seule : son loup FENN combat à ses côtés (fiche « Fenn » dans le Bestiaire). En combat, fais agir Fenn juste après Sylwen.",
+        "Rencontres ALLÉGÉES pour un seul héros : les nombres d'ennemis ont déjà été réduits dans chaque scène. Si Sylwen tombe à 0 PV, laisse-lui une chance (Fenn la traîne à l'abri, un JS de mort, etc.) — le but est de raconter une belle aventure, pas de la tuer.",
+        "Choisis une accroche à raconter : Sylwen fuyait une accusation d'« ambition illégale » ; ou elle cherchait un lieu tranquille ; ou elle passait simplement par là et le camp lui a demandé de l'aide."
+      ],
+      choix: [{ txt: "Arriver au camp de Loch Brech ▶", cible: "ts-camp" }]
+    },
+    {
+      id: "ts-camp", titre: "Le camp de Loch Brech", lieu: "Partie 1",
+      lecture: [
+        "Sous la grande tente centrale, trois chefs t'observent, Sylwen. Kieran, un vieux guerrier en cuir usé ; Ulica, une femme discrète chargée du renseignement ; et Nathi, un artisan au dos courbé par le travail. Ton loup Fenn reste collé à ta jambe, oreilles dressées.",
+        "Kieran te toise : « Une elfe et son loup, hein ? Écoute : il y a trop de morts-vivants ces temps-ci. Ils viennent du nord, de la Plaine des Batailles. Aucun de mes hommes ne peut y aller. Trouve la source, arrête-la, et tu auras ta place ici. »"
+      ],
+      mj: [
+        "Services du camp si Sylwen veut se préparer : Grand-mère Hawkins soigne (Soins niv 1) pour 30 pa ; le forgeron Tarlach vend armes/armures < 30 pa ; Peddler vend des biens < 30 pa. Pas d'objets magiques. (Étalon argent : 1 pa = 1 po du manuel.)",
+        "Ulica précise : la hausse vient exclusivement du nord ; personne n'ose entrer dans la Plaine."
+      ],
+      choix: [{ txt: "Partir vers la Plaine des Batailles ▶", cible: "ts-journey" }]
+    },
+    {
+      id: "ts-journey", titre: "Le voyage", lieu: "Partie 1",
+      lecture: [
+        "Cinq heures de marche. La lande grise s'étire, silencieuse. Fenn gronde par moments, le poil hérissé : quelque chose rôde."
+      ],
+      mj: [
+        "RENCONTRE ALLÉGÉE (solo) : jette 1d6 une seule fois pendant le trajet —",
+        "• 1-2 : 2 Squelettes sortent de la brume.",
+        "• 3 : 1 Goule affamée traque Sylwen.",
+        "• 4 : Une patrouille réduite de Hestor : 1 orc + 1 gobelin.",
+        "• 5-6 : Rien, le trajet est calme.",
+        "Astuce solo : Sylwen peut tirer à l'arc avant le contact (surprise si Discrétion réussie), et lancer Fenn pour prendre l'ennemi en tenaille."
+      ],
+      monstres: ["squelette", "goule", "orc", "gobelin"],
+      choix: [{ txt: "Arriver au pied des deux Tours ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-base", titre: "Le pied des Tours", lieu: "Partie 2",
+      lecture: [
+        "Deux tours de pierre se dressent sur la plaine. Entre elles, une grande bâche a été tendue. Dessous : deux squelettes armés de lames rouillées, et deux kobolds qui trient un tas d'ossements. Ils ne t'ont pas encore vue."
+      ],
+      mj: [
+        "ALLÉGÉ (solo) : 2 Squelettes + 2 Kobolds (au lieu de 3 + 4).",
+        "Les kobolds fuient dès que le combat tourne mal — ils ne préviennent pas leurs chefs.",
+        "Sylwen peut ouvrir avec une flèche + marque du chasseur ; Fenn charge un squelette (avantage)."
+      ],
+      monstres: ["squelette", "kobold", "fenn"],
+      choix: [
+        { txt: "Entrer dans la Tour de DROITE (le hobgobelin Drokag)", cible: "ts-d-bas" },
+        { txt: "Entrer dans la Tour de GAUCHE (le nécromancien Beryn)", cible: "ts-g-bas" }
+      ]
+    },
+
+    /* --- TOUR DE DROITE : Drokag --- */
+    {
+      id: "ts-d-bas", titre: "Tour de Droite — l'entrée", lieu: "Tour de Droite",
+      lecture: [
+        "Une lumière pâle éclaire une salle circulaire. En son centre, un grand trou béant cerné d'un garde-fou. Une échelle gît au sol, à demi engagée dans le trou. Un escalier monte le long du mur."
+      ],
+      mj: [
+        "Perception DC 12 : du mouvement en contrebas (des zombies piégés au niveau inférieur).",
+        "L'escalier monte vers Drokag (niveau supérieur). L'échelle descend vers les zombies."
+      ],
+      choix: [
+        { txt: "Descendre affronter ce qui bouge en bas ▼", cible: "ts-d-zombies" },
+        { txt: "Monter vers le sommet (Drokag) ▲", cible: "ts-d-drokag" }
+      ]
+    },
+    {
+      id: "ts-d-zombies", titre: "Tour de Droite — les zombies", lieu: "Tour de Droite",
+      lecture: [
+        "En bas, il fait sombre. Deux cadavres en décomposition titubent vers toi le long de l'étroite coursive qui cerne le trou."
+      ],
+      mj: [
+        "ALLÉGÉ (solo) : 2 Zombies (au lieu de 3). Terrain étroit : facile de les affronter un par un.",
+        "Rien d'autre d'utile ici : des planches, une scie, deux marteaux, une longue perche."
+      ],
+      monstres: ["zombie", "fenn"],
+      choix: [
+        { txt: "Remonter et monter vers Drokag ▲", cible: "ts-d-drokag" }
+      ]
+    },
+    {
+      id: "ts-d-drokag", titre: "Tour de Droite — Drokag le hobgobelin", lieu: "Tour de Droite",
+      lecture: [
+        "Une salle saccagée, jonchée de plaques de bois arrachées. Serrés sur la coursive : deux kobolds pillards et un grand hobgobelin en cotte de mailles, arbalète au poing. En te voyant, il aboie un ordre — les kobolds se ruent sur toi !"
+      ],
+      mj: [
+        "ALLÉGÉ (solo) : Drokag + 2 kobolds (au lieu de 4). Drokag se cache derrière les kobolds et tire à l'arbalète depuis l'autre bord du trou.",
+        "À la moitié de ses PV, il tente de fuir vers l'autre tour pour prévenir Beryn : Fenn peut le rattraper (course 12 m).",
+        "Sur son corps : la CLÉ DE CHIFFRE (permet plus tard de démasquer l'espionne du camp), 50 pa, une belle épée longue.",
+        "Fouille (Perception DC 12) : statuette d'ivoire de Bestra (50 pa) + un Casque de Mineur (lampe mains-libres)."
+      ],
+      monstres: ["drokag", "kobold", "fenn"],
+      tresor: ["Clé de Chiffre", "Statuette de Bestra (50 pa)", "Casque de Mineur", "50 pa, épée longue"],
+      choix: [
+        { txt: "Monter au toit neutraliser les archers ▲", cible: "ts-d-toit" },
+        { txt: "Passer directement à la Tour de Gauche (Beryn)", cible: "ts-g-bas" }
+      ]
+    },
+    {
+      id: "ts-d-toit", titre: "Tour de Droite — le toit", lieu: "Tour de Droite",
+      lecture: [
+        "Sur le toit balayé par le vent, deux vieux squelettes armés d'arcs longs se tiennent immobiles, tournés vers l'autre tour, comme des sentinelles."
+      ],
+      mj: [
+        "ALLÉGÉ (solo) : 2 Squelettes archers (au lieu de 3). Ils n'attaquent que si on les dérange… ou si Beryn est menacé.",
+        "IMPORTANT : les éliminer MAINTENANT évite qu'ils ne canardent Sylwen pendant le combat final contre Beryn (ils tirent d'une tour à l'autre)."
+      ],
+      monstres: ["squelette", "fenn"],
+      choix: [
+        { txt: "Rejoindre la Tour de Gauche affronter Beryn ▶", cible: "ts-g-bas" }
+      ]
+    },
+
+    /* --- TOUR DE GAUCHE : Beryn --- */
+    {
+      id: "ts-g-bas", titre: "Tour de Gauche — l'ascension", lieu: "Tour de Gauche",
+      lecture: [
+        "Une dalle gravée d'un soleil marque l'entrée. Comme dans l'autre tour, un grand trou occupe le centre. Un escalier grimpe vers les étages. D'en haut te parviennent de faibles bruits."
+      ],
+      mj: [
+        "Beryn est tout en haut, sur le toit, absorbé par son rituel. Entre toi et lui : une goule tapie au 4ᵉ niveau.",
+        "Perception DC 12 en montant : des bruits de mastication plus haut (la goule ronge des os)."
+      ],
+      choix: [
+        { txt: "Monter vers le sommet ▲", cible: "ts-g-goule" }
+      ]
+    },
+    {
+      id: "ts-g-goule", titre: "Tour de Gauche — la goule embusquée", lieu: "Tour de Gauche",
+      lecture: [
+        "Une salle avec une vieille grue de bois et huit fenêtres donnant sur d'énormes poutres. Des petits tas d'os marqués de coups de dents. Soudain, une forme grise et décharnée bondit d'une poutre : une goule aux griffes crochues !"
+      ],
+      mj: [
+        "1 Goule (rusée, elle sert de garde à Beryn). Discrétion DC 12 en montant permet de l'éviter/surprendre.",
+        "⚠ Ses griffes paralysent (JS Con DC 10) — mais Sylwen, elfe, est IMMUNISÉE au sommeil et résiste au charme ; la paralysie de goule, elle, la menace : garde Fenn prêt à intervenir.",
+        "L'éliminer ici l'empêche de rejoindre le combat contre Beryn."
+      ],
+      monstres: ["goule", "fenn"],
+      choix: [
+        { txt: "Monter sur le toit affronter Beryn ▲", cible: "ts-g-beryn" }
+      ]
+    },
+    {
+      id: "ts-g-beryn", titre: "Tour de Gauche — BERYN le nécromancien", lieu: "Combat final",
+      lecture: [
+        "Sur le toit, un homme en habits de paysan agite les mains au-dessus d'un parchemin, marmonnant des mots de pouvoir. Devant lui, quelques squelettes se dressent lentement. Il ne t'a pas encore remarquée, tout à son rituel macabre."
+      ],
+      mj: [
+        "COMBAT FINAL. Arcanes DC 15 : Sylwen comprend qu'il relève des morts. Une flèche + marque du chasseur avant qu'il ne réagisse = énorme avantage (surprise si Discrétion réussie).",
+        "ALLÉGÉ (solo) : Beryn + 2 Squelettes (au lieu de 3). Il s'en sert de boucliers et lance ses sorts par-derrière (projectile magique, rayon de maladie, image miroir).",
+        "⚠ SI tu n'as PAS nettoyé les archers du toit d'en face → ils tirent ici ; SI tu n'as PAS tué la goule → elle arrive en renfort. D'où l'intérêt d'avoir fait le ménage avant.",
+        "Attention à « Moisson sinistre » : s'il tue Fenn ou Sylwen avec un sort, il se soigne. Concentre le feu sur lui.",
+        "Butin : son grimoire, 50 pa, une bague d'argent (20 pa)."
+      ],
+      monstres: ["beryn", "squelette", "goule", "fenn"],
+      tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
+      choix: [
+        { txt: "Conclure l'aventure ▶", cible: "ts-fin" }
+      ]
+    },
+    {
+      id: "ts-fin", titre: "Conclusion", lieu: "Épilogue",
+      lecture: [
+        "Beryn et Drokag vaincus, le silence retombe sur la Plaine des Batailles. Fenn hurle une fois, vers la lune. Il ne reste qu'à rentrer au camp de Loch Brech, où Kieran t'attend pour tenir sa promesse : une place parmi eux, enfin."
+      ],
+      mj: [
+        "Récompense au choix (or, équipement, refuge). PX bonus solo si Sylwen a :",
+        "• remis les morts au repos dignement (+50 PX) ;",
+        "• rapporté la Clé de Chiffre et démasqué l'espionne Bebbin O'Nel via les notes de Drokag (+100 PX).",
+        "Prolongement : Bebbin, la sœur cadette de Kieran, s'enfuit pour vendre le camp à un autre pouvoir maléfique — Sylwen et Fenn pourraient la traquer.",
+        "Suite naturelle : enchaîner sur « Ce qui se cache à l'intérieur » (un cousin d'Eichen réclame de l'aide)."
+      ],
+      choix: []
+    }
+  ]
 }
 ];

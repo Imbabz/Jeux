@@ -131,5 +131,33 @@ window.PREGENS = [
     ],
     equipement: "Armure de cuir clouté, arc long + 20 flèches, 2 épées courtes, kit d'explorateur, 15 pa.",
     notes: "Éclaireur/archer polyvalent. Marque du chasseur pour piquer un boss."
+  },
+  {
+    id: "pg-sylwen",
+    nom: "Sylwen Feuille-d'Argent",
+    classe: "Rôdeuse niv. 3 (Maître des bêtes) — HÉROÏNE SOLO",
+    race: "Elfe des bois",
+    pv: 28, ca: 16, vitesse: "10,50 m", init: 3,
+    stats: { for: 12, dex: 17, con: 14, int: 10, sag: 15, cha: 11 },
+    maitrise: 2,
+    jetsSauv: ["for", "dex"],
+    competences: ["Perception", "Discrétion", "Survie", "Nature", "Dressage", "Investigation"],
+    dcSort: 13, attaqueSort: 5,
+    attaques: [
+      { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant (45/180 m)" },
+      { nom: "Deux épées courtes", bonus: 5, degats: "1d6+3 / 1d6 (att. bonus) tranchant" }
+    ],
+    sorts: [
+      "Niv 1 (3 empl.) : marque du chasseur (+1d6 dégâts sur une cible), soin des blessures (1d8+3), foulée prodigieuse, communication avec les animaux, saut."
+    ],
+    capacites: [
+      "🐺 Compagnon animal : FENN, un loup fidèle (fiche « Fenn » dans le Bestiaire). Il agit à ton tour — un vrai atout pour jouer SEULE.",
+      "Conscience du prédateur : avantage pour pister et se souvenir des morts-vivants.",
+      "Sang elfique : avantage contre le charme, immunité au sommeil magique, transe (repos en 4 h).",
+      "Masque de la nature : peut se cacher même à peine dissimulée par la végétation.",
+      "Vision dans le noir 18 m, pas légers."
+    ],
+    equipement: "Cuir clouté, arc long + 40 flèches, 2 épées courtes, cape elfique, 2 potions de soins, kit d'explorateur, 20 pa.",
+    notes: "★ HÉROÏNE CONÇUE POUR JOUER SEULE « Les Tours de la Nuit — Solo ». Robuste (28 PV), polyvalente (arc + lames + soins) et accompagnée de son loup Fenn. Tactique solo : marque du chasseur sur la cible, Fenn engage au corps-à-corps (avantage par tactique de meute), Sylwen tire à distance et soigne au besoin."
   }
 ];

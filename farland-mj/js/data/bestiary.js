@@ -309,5 +309,20 @@ window.BESTIARY = [
       "Cimeterre. +4 à toucher, allonge 1,50 m. Touché : 5 (1d6+2) tranchants.",
       "Arc court. +4 à toucher, 24/96 m. Touché : 5 (1d6+2) perforants."
     ]
+  },
+  {
+    id: "fenn", nom: "Fenn — loup de Sylwen (compagnon)", type: "Bête M, compagnon loyal",
+    cr: "1/4", tags: ["compagnon", "solo", "aventure2"],
+    ac: "13 (armure naturelle)", pv: "11 (2d8+2)", vitesse: "12 m",
+    stats: { for: 12, dex: 15, con: 12, int: 3, sag: 12, cha: 6 },
+    comp: "Perception +3, Discrétion +4", sens: "Perception passive 13", langues: "comprend Sylwen",
+    traits: [
+      "Tactique de meute. Avantage à l'attaque si un allié (Sylwen) est à 1,50 m de la cible.",
+      "Compagnon : agit au tour de Sylwen, sur ordre. Loyal et intelligent pour un loup — il n'abandonne jamais sa maîtresse."
+    ],
+    actions: [
+      "Morsure. +4 à toucher, allonge 1,50 m. Touché : 7 (2d4+2) perforants. JS Force DC 11 ou la cible tombe à terre."
+    ],
+    notes: "Le fidèle compagnon de Sylwen. En jeu solo, il double l'action économique : idéalement, Fenn engage au corps-à-corps (créant l'avantage) pendant que Sylwen tire à l'arc."
   }
 ];
