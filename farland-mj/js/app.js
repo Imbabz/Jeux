@@ -233,6 +233,18 @@
   function combatKey(sc, scene) { return `combat:${sc.id}:${scene.id}`; }
   function combatSig(scene) { return (scene.combat.ennemis || []).map((e) => e.ref + "x" + e.n).join(","); }
 
+  // Capacités de combat activables (par leur clé, cf. character.combatFeatures)
+  const FEATURES = {
+    mark: { label: "🎯 Marque du chasseur", cost: "bonus", meta: "action bonus · +1d6 sur la cible" },
+    cure: { label: "💚 Soin des blessures", cost: "action", meta: "action · 1 sort · +1d8+3 PV" }
+  };
+  function initHeroState(heroId) {
+    const h = heroId ? byId(allCharacters(), heroId) : null;
+    const hp = h ? (h.pv || 20) : 20;
+    return { hpMax: hp, hp: hp, action: true, bonus: true, reaction: true,
+      mark: null, markName: null, slots: h ? (h.combatSlots || 0) : 0 };
+  }
+
   function buildCombat(scene) {
     const enemies = [];
     (scene.combat.ennemis || []).forEach((grp) => {
@@ -251,9 +263,44 @@
     const saved = LS.get(combatKey(sc, scene), null);
     combat = (saved && saved.sig === combatSig(scene)) ? saved : buildCombat(scene);
     combat.heroId = sc.heros || null;
+    if (!combat.hero) combat.hero = initHeroState(combat.heroId);
     drawCombat(sc, scene);
   }
   function saveCombat(sc, scene) { LS.set(combatKey(sc, scene), combat); }
+
+  function applyHeroHp(sc, scene, delta) {
+    if (!combat.hero) return;
+    combat.hero.hp = Math.max(0, Math.min(combat.hero.hpMax, combat.hero.hp + delta));
+    saveCombat(sc, scene); drawCombat(sc, scene);
+  }
+  function newTurn(sc, scene) {
+    const hs = combat.hero; if (!hs) return;
+    hs.action = true; hs.bonus = true; hs.reaction = true;
+    saveCombat(sc, scene); drawCombat(sc, scene);
+    showCombatOut(`<div class="detail">🔄 Nouveau tour — Action, Action bonus et Réaction rechargées.</div>`);
+  }
+  function useFeature(sc, scene, fk) {
+    const hs = combat.hero; if (!hs) return;
+    if (fk === "mark") {
+      if (hs.mark != null) { hs.mark = null; hs.markName = null; saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(`<div class="detail">Marque du chasseur retirée.</div>`); return; }
+      if (!hs.bonus) { showCombatOut(`<div class="detail">⚠ Action bonus déjà utilisée ce tour.</div>`); return; }
+      const t = combat.target, e = combat.enemies[t];
+      if (t == null || !e || e.defeated) { showCombatOut(`<div class="detail">🎯 Cible d'abord un ennemi vivant.</div>`); return; }
+      hs.mark = t; hs.markName = e.nom; hs.bonus = false;
+      saveCombat(sc, scene); drawCombat(sc, scene);
+      showCombatOut(`<div class="act-verdict ok">🎯 Marque du chasseur sur ${esc(e.nom)}</div><div class="act-narr">+1d6 dégâts à chacune de tes attaques contre cette cible (tant que tu te concentres).</div>`);
+      return;
+    }
+    if (fk === "cure") {
+      if (!hs.action) { showCombatOut(`<div class="detail">⚠ Action déjà utilisée ce tour.</div>`); return; }
+      if (hs.slots <= 0) { showCombatOut(`<div class="detail">⚠ Plus d'emplacements de sort.</div>`); return; }
+      const r = Dice.rollExpr("1d8+3");
+      hs.hp = Math.min(hs.hpMax, hs.hp + r.total); hs.action = false; hs.slots--;
+      saveCombat(sc, scene); drawCombat(sc, scene);
+      showCombatOut(`<div class="act-verdict ok">💚 Soin des blessures : +${r.total} PV</div><div class="act-narr">Sylwen : ${hs.hp} / ${hs.hpMax} PV · emplacements restants : ${hs.slots}.</div>`);
+      renderLog();
+    }
+  }
 
   function attackRoll(hit, degExpr, targetAC, mode) {
     const r = Dice.d20(hit, mode);
@@ -307,7 +354,37 @@
 
     const tgtName = (tgt != null && combat.enemies[tgt] && !combat.enemies[tgt].defeated) ? esc(combat.enemies[tgt].nom) : "—";
 
+    // Panneau du héros : PV, économie de tour, capacités
+    const hs = combat.hero;
+    let heroPanel = "";
+    if (hs) {
+      const hpct = Math.max(0, Math.min(100, Math.round(hs.hp / hs.hpMax * 100)));
+      const hlvl = hs.hp === 0 ? "dead" : (hpct <= 33 ? "low" : (hpct <= 66 ? "mid" : "high"));
+      const econ = (k, lbl) => `<span class="econ ${hs[k] ? "on" : "off"}">${hs[k] ? "●" : "○"} ${lbl}</span>`;
+      const feats = (hero && hero.combatFeatures || []).map((fk) => {
+        const f = FEATURES[fk]; if (!f) return "";
+        const active = fk === "mark" && hs.mark != null;
+        const ok = active || (f.cost === "bonus" ? hs.bonus : (hs.action && (fk !== "cure" || hs.slots > 0)));
+        return `<button class="feat-btn ${active ? "active" : ""} ${ok ? "" : "disabled"}" data-feat="${fk}">
+          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${esc(f.meta)}${fk === "cure" ? " (" + hs.slots + ")" : ""}</span></button>`;
+      }).join("");
+      heroPanel = `
+        <div class="hero-panel ${hs.hp === 0 ? "down" : ""}">
+          <div class="hero-head"><span class="hero-name">🧝 ${esc(hero ? hero.nom.split(" ")[0] : "Héros")}</span>
+            ${hs.mark != null ? `<span class="mark-badge">🎯 ${esc(hs.markName || "")}</span>` : ""}</div>
+          <div class="hpbar"><div class="hpfill ${hlvl}" style="width:${hpct}%"></div><span class="hptxt">${hs.hp} / ${hs.hpMax} PV${hs.hp === 0 ? " — À TERRE !" : ""}</span></div>
+          <div class="hp-ctrl">
+            <button data-herohp="-5">−5</button><button data-herohp="-1">−1</button>
+            <button data-herohp="1">+1</button><button data-herohp="5">+5</button>
+          </div>
+          <div class="turn-strip">${econ("action", "Action")}${econ("bonus", "Bonus")}${econ("reaction", "Réaction")}
+            <button id="new-turn">🔄 Nouveau tour</button></div>
+          ${feats ? `<div class="feature-row">${feats}</div>` : ""}
+        </div>`;
+    }
+
     box.innerHTML = `
+      ${heroPanel}
       <div class="section-title" style="color:var(--accent-2)">⚔️ Combat ${allDead ? `— <span style="color:var(--ok)">ennemis vaincus ✔</span>` : "— suivi en direct"}</div>
       <div class="enemies">${enemiesHtml}</div>
       ${hero && !allDead ? `<div class="combat-sub">🗡️ Attaques de ${esc(hero.nom.split(" ")[0])} · cible : <b>${tgtName}</b></div>
@@ -327,7 +404,10 @@
     box.querySelectorAll("[data-heal]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.heal, +b.dataset.amt)));
     box.querySelectorAll("[data-heroatk]").forEach((b) => b.addEventListener("click", () => heroAttack(sc, scene, +b.dataset.heroatk)));
     box.querySelectorAll("[data-enemyatk]").forEach((b) => b.addEventListener("click", () => enemyAttack(sc, scene, +b.dataset.enemyatk)));
-    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; saveCombat(sc, scene); drawCombat(sc, scene); });
+    box.querySelectorAll("[data-herohp]").forEach((b) => b.addEventListener("click", () => applyHeroHp(sc, scene, +b.dataset.herohp)));
+    box.querySelectorAll("[data-feat]").forEach((b) => b.addEventListener("click", () => useFeature(sc, scene, b.dataset.feat)));
+    const nt = $("#new-turn"); if (nt) nt.addEventListener("click", () => newTurn(sc, scene));
+    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; combat.hero = initHeroState(sc.heros); saveCombat(sc, scene); drawCombat(sc, scene); });
   }
 
   function applyHp(sc, scene, i, delta) {
@@ -350,30 +430,45 @@
     const t = combat.target, e = combat.enemies[t];
     if (t == null || !e || e.defeated) { drawCombat(sc, scene); showCombatOut(`<div class="detail">🎯 Choisis d'abord une cible vivante (bouton « cibler »).</div>`); return; }
     const res = attackRoll(a.bonus, a.degR || a.degats, e.ac, d20mode);
+    const hs = combat.hero;
     let html = `<div class="total ${res.hitOk ? "crit" : "fail"}">${res.r.total}</div>
       <div class="detail">${esc(a.nom)} → ${esc(e.nom)} (CA ${e.ac}) · dé ${res.r.natural} +${a.bonus}${res.r.crit ? " ⭐CRIT" : res.r.fail ? " 💀" : ""}</div>`;
     if (res.hitOk) {
-      e.hp = Math.max(0, e.hp - res.dmg); e.defeated = e.hp === 0;
-      if (e.defeated && combat.target === t) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
-      html += `<div class="act-verdict ok">✓ TOUCHÉ — ${res.dmg} dégâts <span class="muted">${res.detail}</span></div>
+      let dmg = res.dmg, detail = res.detail;
+      if (hs && hs.mark === t) { const md = Dice.roll(res.r.crit ? 2 : 1, 6); dmg += md.sum; detail += ` +marque[${md.rolls.join(",")}]`; }
+      e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
+      if (e.defeated) {
+        if (hs && hs.mark === t) { hs.mark = null; hs.markName = null; }
+        if (combat.target === t) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
+      }
+      html += `<div class="act-verdict ok">✓ TOUCHÉ — ${dmg} dégâts <span class="muted">${detail}</span></div>
         <div class="act-narr">${esc(e.nom)} : ${e.hp} / ${e.hpMax} PV${e.defeated ? " — VAINCU 💀" : ""}</div>`;
-      pushLog(`${a.nom} → ${e.nom}`, res.r.total, `${res.dmg} dég.`);
+      pushLog(`${a.nom} → ${e.nom}`, res.r.total, `${dmg} dég.`);
     } else {
       html += `<div class="act-verdict ko">✗ RATÉ (il fallait ${e.ac} ou +)</div>`;
       pushLog(`${a.nom} → ${e.nom}`, res.r.total, "raté");
     }
+    if (hs) hs.action = false; // l'attaque consomme l'action du tour
     saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(html); renderLog();
   }
 
   function enemyAttack(sc, scene, i) {
     const e = combat.enemies[i]; if (!e || !e.atk) return;
+    const heroSheet = combat.heroId ? byId(allCharacters(), combat.heroId) : null;
+    const hAC = heroSheet ? heroSheet.ca : null;
     const r = Dice.d20(e.atk.hit, "normal");
     const dp = Dice.rollExpr(e.atk.deg) || { total: 0, rolls: [] };
-    const html = `<div class="total">${r.total}</div>
-      <div class="detail">${esc(e.nom)} attaque · dé ${r.natural} +${e.atk.hit}${r.crit ? " ⭐CRIT" : ""}</div>
-      <div class="act-narr">Touche si ≥ CA du héros. Dégâts si touché : <b>${dp.total}</b> (${esc(e.atk.deg)} = [${(dp.rolls || []).join(",")}]).${r.crit ? " Critique : double les dés !" : ""}</div>`;
+    const touche = hAC != null ? (r.crit || (!r.fail && r.total >= hAC)) : null;
+    const html = `<div class="total ${touche === true ? "fail" : ""}">${r.total}</div>
+      <div class="detail">${esc(e.nom)} attaque${hAC != null ? ` (CA de ${esc((heroSheet.nom || "").split(" ")[0])} : ${hAC})` : ""} · dé ${r.natural} +${e.atk.hit}${r.crit ? " ⭐CRIT" : ""}</div>
+      ${touche != null ? `<div class="act-verdict ${touche ? "ko" : "ok"}">${touche ? "✗ TOUCHE le héros" : "✓ raté"}</div>` : ""}
+      <div class="act-narr">Dégâts : <b>${dp.total}</b> (${esc(e.atk.deg)} = [${(dp.rolls || []).join(",")}]).${r.crit ? " Critique : pense à doubler les dés !" : ""}</div>
+      ${combat.hero && touche !== false ? `<button class="choice apply-hero" data-applyhero="${dp.total}"><span>💥 Infliger ${dp.total} PV à ${esc((heroSheet && heroSheet.nom || "Sylwen").split(" ")[0])}</span><span class="arrow">›</span></button>` : ""}`;
     pushLog(`${e.nom} attaque`, r.total, `${dp.total} dég.`);
-    drawCombat(sc, scene); showCombatOut(html); renderLog();
+    drawCombat(sc, scene); showCombatOut(html);
+    const ab = document.querySelector("#combat-out [data-applyhero]");
+    if (ab) ab.addEventListener("click", () => applyHeroHp(sc, scene, -(+ab.dataset.applyhero)));
+    renderLog();
   }
 
   function renderGameTab() {

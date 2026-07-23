@@ -138,6 +138,7 @@ window.PREGENS = [
     classe: "Rôdeuse niv. 3 (Maître des bêtes) — HÉROÏNE SOLO",
     race: "Elfe des bois",
     pv: 28, ca: 16, vitesse: "10,50 m", init: 3,
+    combatSlots: 3, combatFeatures: ["mark", "cure"],
     stats: { for: 12, dex: 17, con: 14, int: 10, sag: 15, cha: 11 },
     maitrise: 2,
     jetsSauv: ["for", "dex"],

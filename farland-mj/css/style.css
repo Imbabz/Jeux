@@ -264,3 +264,23 @@ hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
 .atk-row.hero .atk-btn .act-meta { color: #7fc47f; }
 .atk-row.foe .enemyatk-btn { background: #2a1614; border: 1px solid #8f3b34; }
 .atk-row.foe .enemyatk-btn .act-meta { color: var(--accent-2); }
+
+/* ---- Panneau du héros en combat ---- */
+.hero-panel { background: #17231b; border: 1px solid #3f7a3f; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
+.hero-panel.down { border-color: var(--danger); background: #241615; }
+.hero-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.hero-name { font-weight: 700; font-size: 16px; flex: 1; }
+.mark-badge { font-size: 12px; color: #221a08; background: var(--accent); border-radius: 8px; padding: 2px 8px; font-weight: 600; }
+.turn-strip { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0 2px; }
+.econ { font-size: 12px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); }
+.econ.on { color: var(--ok); border-color: #3f7a3f; background: #14231a; }
+.econ.off { color: var(--txt-dim); text-decoration: line-through; opacity: .7; }
+#new-turn { margin-left: auto; font-size: 13px; padding: 6px 12px; min-height: 40px; }
+.feature-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.feat-btn { width: 100%; justify-content: space-between; text-align: left; padding: 11px 14px;
+  background: #1d2a30; border: 1px solid #33475a; border-radius: 12px; }
+.feat-btn .act-meta { color: #a9cbe4; }
+.feat-btn.active { background: #2f2610; border-color: var(--accent); }
+.feat-btn.active .act-meta { color: var(--accent); }
+.feat-btn.disabled { opacity: .4; pointer-events: none; }
+.apply-hero { background: #2a1614; border-color: var(--danger); margin-top: 10px; }
