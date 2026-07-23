@@ -723,7 +723,109 @@ window.SCENARIOS = [
           reussite: "Ulica est franche : tout vient du nord, de la Plaine. Personne n'ose y entrer.",
           echec: "Elle reste vague ; rien de plus que la rumeur." }
       ],
-      choix: [{ txt: "Partir vers la Plaine des Batailles ▶", cible: "ts-journey" }]
+      choix: [
+        { txt: "🩹 Voir la soigneuse (Grand-mère Hawkins)", cible: "ts-camp-soins" },
+        { txt: "🔨 Voir le forgeron (Tarlach)", cible: "ts-camp-forge" },
+        { txt: "🛒 Voir le marchand (Peddler)", cible: "ts-camp-marche" },
+        { txt: "🔥 Traîner près du feu de camp", cible: "ts-camp-feu" },
+        { txt: "Partir vers la Plaine des Batailles ▶", cible: "ts-journey" }
+      ]
+    },
+    {
+      id: "ts-camp-soins", titre: "La tente de la soigneuse", lieu: "Camp de Loch Brech",
+      lecture: [
+        "Sous une toile ornée du symbole de Bestra, Grand-mère Hawkins broie des herbes en fredonnant. Une odeur de camomille et de sang séché flotte. Elle lève sur toi des yeux laiteux mais perçants : « Approche, l'elfe. Le nord a soif de vies, ces temps-ci. »"
+      ],
+      mj: [
+        "Grand-mère Hawkins (prêtresse de Bestra) lance Soins (1d8) pour 30 pa. Son apprenti Sabd peut suivre Sylwen contre une part du butin.",
+        "Actions : aider aux remèdes (soin gratuit possible), ou se faire lire l'avenir (bonus/ambiance)."
+      ],
+      actions: [
+        { txt: "🌿 Aider à préparer les baumes", carac: "Sagesse (Médecine)", dc: 12, mod: 2,
+          reussite: "Tes doigts d'elfe font merveille : Grand-mère te soigne gratuitement (1d8+2 PV) et te glisse un baume (avantage à ton 1er JS de mort).",
+          echec: "Tu écrases la mauvaise racine ; elle te chasse en riant. Rien de gagné." },
+        { txt: "🔮 Te faire lire l'avenir (fun)", die: 20, table: [
+            { max: 3,  txt: "Présage sombre : « Méfie-toi de ce qui tombe. » (Ambiance — à toi d'en jouer, MJ.)" },
+            { max: 8,  txt: "« La lune sourit à ton loup. » Fenn semble revigoré, plein d'entrain." },
+            { max: 14, txt: "« Un ami cache un couteau. » Un pressentiment : une taupe se terre au camp…" },
+            { max: 18, txt: "Bon présage : la prochaine fois que tu rates un jet important, tu peux le considérer comme réussi (1 fois)." },
+            { max: 20, txt: "★ Bénédiction de Bestra : +1d4 à ton prochain jet de dé, quel qu'il soit !" }
+          ] }
+      ],
+      choix: [
+        { txt: "◀ Retour au centre du camp", cible: "ts-camp" },
+        { txt: "Partir vers la Plaine ▶", cible: "ts-journey" }
+      ]
+    },
+    {
+      id: "ts-camp-forge", titre: "La forge de Tarlach", lieu: "Camp de Loch Brech",
+      lecture: [
+        "La chaleur de la forge te frappe. Tarlach, un colosse au tablier roussi, martèle une lame rougeoyante. « Besoin d'acier, l'archère ? J'ai ce qu'il faut, tant que ça coûte moins de 30 pièces d'argent. »"
+      ],
+      mj: [
+        "Tarlach vend armes/armures < 30 pa. Actions : affûter les lames (petit bonus), ou un bras de fer amical (fun social)."
+      ],
+      actions: [
+        { txt: "🗡️ Affûter tes épées courtes", carac: "Dextérité (métier)", dc: 10, mod: 3,
+          reussite: "Tranchant comme un rasoir : +1 aux dégâts de tes lames lors du PROCHAIN combat.",
+          echec: "Tu ébrèches un fil ; Tarlach reprend l'outil en grognant. Aucun effet." },
+        { txt: "💪 Bras de fer avec Tarlach (fun)", carac: "Force (Athlétisme)", dc: 14, mod: 1,
+          reussite: "Contre toute attente, tu plaques la main du colosse ! Le camp t'acclame, Tarlach t'offre 10 pa et son respect.",
+          echec: "Ton bras s'écrase en une seconde. Éclats de rire ; tu paies une tournée (−5 pa) mais tu t'es fait des amis." }
+      ],
+      choix: [
+        { txt: "◀ Retour au centre du camp", cible: "ts-camp" },
+        { txt: "Partir vers la Plaine ▶", cible: "ts-journey" }
+      ]
+    },
+    {
+      id: "ts-camp-marche", titre: "L'étal de Peddler", lieu: "Camp de Loch Brech",
+      lecture: [
+        "Sous une charrette bâchée, Peddler étale babioles, cordes, torches et fioles douteuses. « Tout à moins de 30 pièces d'argent, ma jolie. Et pour toi, un prix d'ami… ou presque. » Son sourire manque de dents."
+      ],
+      mj: [
+        "Peddler vend des biens courants < 30 pa. Actions : marchander, ou tenter la babiole mystère (fun)."
+      ],
+      actions: [
+        { txt: "💰 Marchander âprement", carac: "Charisme (Persuasion)", dc: 13, mod: 0,
+          reussite: "Peddler soupire et cède : −20 % sur tes achats du jour.",
+          echec: "« Le prix, c'est le prix, l'elfe. » Plein tarif." },
+        { txt: "🎁 Acheter la babiole mystère (5 pa, fun)", die: 6, table: [
+            { max: 2, txt: "Camelote : un caillou peint. Peddler hausse les épaules, l'air faussement navré." },
+            { max: 4, txt: "Une fiole d'huile et 3 torches — bien utile dans une tour sombre." },
+            { max: 5, txt: "Un porte-bonheur en os : 1 fois, tu peux relancer un dé raté." },
+            { max: 6, txt: "★ Une potion de soins (2d4+2) oubliée au fond du sac !" }
+          ] }
+      ],
+      choix: [
+        { txt: "◀ Retour au centre du camp", cible: "ts-camp" },
+        { txt: "Partir vers la Plaine ▶", cible: "ts-journey" }
+      ]
+    },
+    {
+      id: "ts-camp-feu", titre: "Le feu de camp", lieu: "Camp de Loch Brech",
+      lecture: [
+        "Autour du feu, des réfugiés partagent un ragoût maigre. Deux gardes lancent des dés sur une souche. Fenn se roule dans l'herbe, arrachant des sourires fatigués. Ici, un instant, la guerre semble loin."
+      ],
+      mj: [
+        "Moment de répit et de rumeurs. Actions sociales et un petit jeu d'argent."
+      ],
+      actions: [
+        { txt: "🎲 Jouer aux dés avec les gardes (mise 5 pa)", carac: "Chance — jet opposé", dc: 11, mod: 3,
+          reussite: "Tu rafles la mise : +5 pa, et les gardes t'adoptent (ils te souffleront un raccourci vers les tours).",
+          echec: "Les dés te trahissent : −5 pa, mais on rit de bon cœur." },
+        { txt: "👂 Tendre l'oreille aux rumeurs", carac: "Sagesse (Perspicacité)", dc: 10, mod: 2,
+          reussite: "On murmure que les os remontent du nord, portés par de petites créatures serviles, et que DEUX maîtres commandent là-bas. Bon à savoir.",
+          echec: "Des ragots sans intérêt sur le ragoût trop clair." },
+        { txt: "🐺 Laisser Fenn faire le clown (fun)", die: 6, table: [
+            { max: 4, txt: "Fenn fait le beau et vole un morceau de viande : rires généraux, le moral du camp remonte." },
+            { max: 6, txt: "Fenn déterre… un vieil os gravé d'une rune. Un enfant te l'échange contre 3 pa." }
+          ] }
+      ],
+      choix: [
+        { txt: "◀ Retour au centre du camp", cible: "ts-camp" },
+        { txt: "Partir vers la Plaine ▶", cible: "ts-journey" }
+      ]
     },
     {
       id: "ts-journey", titre: "Le voyage", lieu: "Partie 1",
@@ -768,7 +870,13 @@ window.SCENARIOS = [
           reussite: "Silencieuse, tu décoches avant qu'ils réagissent : SURPRISE, avantage au 1er tour, et Fenn charge.",
           echec: "Une brindille craque : pas de surprise, lancez l'initiative normalement." },
         { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "Touché : 1d8+3 perforants (+1d6 si marque du chasseur active)." },
-        { txt: "🐺 Attaque de Fenn (morsure)", roll: "1d20+4", note: "Touché : 2d4+2 perforants ; JS Force DC 11 ou la cible tombe à terre." }
+        { txt: "🐺 Attaque de Fenn (morsure)", roll: "1d20+4", note: "Touché : 2d4+2 perforants ; JS Force DC 11 ou la cible tombe à terre." },
+        { txt: "🦴 Renverser le tas d'ossements sur eux", carac: "Force (Athlétisme)", dc: 12, mod: 1,
+          reussite: "L'avalanche d'os ensevelit les deux kobolds : à terre et paniqués, ils décampent en couinant !",
+          echec: "Les os dégringolent sans effet — juste un vacarme sinistre." },
+        { txt: "🎪 Rabattre la grande bâche sur les squelettes", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
+          reussite: "La toile s'abat : les squelettes s'empêtrent (désavantage à leurs attaques le temps de se dégager).",
+          echec: "La bâche te résiste et retombe mollement." }
       ],
       choix: [
         { txt: "Entrer dans la Tour de DROITE (le hobgobelin Drokag)", cible: "ts-d-bas" },
@@ -835,7 +943,13 @@ window.SCENARIOS = [
         { txt: "🏃 Fenn poursuit Drokag qui fuit", carac: "Course de Fenn", dc: 12, mod: 4,
           reussite: "Fenn bondit et plaque le hobgobelin : il ne préviendra pas Beryn.",
           echec: "Drokag file vers l'autre tour — Beryn sera prévenu de ton arrivée." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Vise Drokag par-dessus les kobolds." }
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Vise Drokag par-dessus les kobolds." },
+        { txt: "🕳️ Repousser un kobold dans le trou central", carac: "Force (Athlétisme) opposée", dc: 12, mod: 1,
+          reussite: "Le kobold bascule dans le puits en hurlant — hors de combat !",
+          echec: "Il s'accroche au garde-fou et se rétablit de justesse." },
+        { txt: "🏛️ Faire s'effondrer une poutre sur Drokag", carac: "Dextérité (tir précis)", dc: 14, mod: 5,
+          reussite: "Ta flèche sectionne l'attache : la poutre s'écrase sur Drokag (3d6 contondants, à terre) !",
+          echec: "La poutre s'abat à côté dans un fracas de poussière." }
       ],
       choix: [
         { txt: "Monter au toit neutraliser les archers ▲", cible: "ts-d-toit" },
@@ -899,7 +1013,13 @@ window.SCENARIOS = [
         { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants." },
         { txt: "🛡️ Résister à la paralysie (griffes)", carac: "JS Constitution", dc: 10, mod: 2,
           reussite: "Tu encaisses sans être paralysée.",
-          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." }
+          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." },
+        { txt: "🪟 Précipiter la goule par une fenêtre", carac: "Force (Athlétisme) opposée", dc: 13, mod: 1,
+          reussite: "La goule bascule par l'ouverture et s'écrase sur les poutres en contrebas (2d6, étourdie) — un précieux répit.",
+          echec: "Elle plante ses griffes dans l'encadrement et résiste." },
+        { txt: "🏗️ Lâcher les cordages de la grue sur elle", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
+          reussite: "L'enchevêtrement de cordes s'effondre : la goule est entravée (désavantage, vitesse réduite).",
+          echec: "Les vieux cordages se coincent — rien à faire." }
       ],
       choix: [
         { txt: "Monter sur le toit affronter Beryn ▲", cible: "ts-g-beryn" }
@@ -927,8 +1047,33 @@ window.SCENARIOS = [
           reussite: "Il relève des squelettes : abats-le vite pour stopper le flot de morts.",
           echec: "Ces gestes te dépassent." },
         { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 (+1d6 marque). Concentre le feu sur Beryn (Moisson sinistre le soigne s'il tue)." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 ; envoie-le sur Beryn pendant que tu tires." }
+        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 ; envoie-le sur Beryn pendant que tu tires." },
+        { txt: "🕳️ Pousser Beryn dans le trou (pas de garde-fou !)", carac: "Force (Athlétisme) opposée", dc: 15, mod: 1,
+          reussite: "Tu le bouscules vers le vide : le nécromancien bascule dans le puits central en hurlant !",
+          echec: "Il se rattrape de justesse au bord, le regard fou de rage.",
+          cibleReussite: "ts-beryn-chute" },
+        { txt: "💨 Disperser ses parchemins de rituel", carac: "Dextérité (tir)", dc: 12, mod: 5,
+          reussite: "Tes flèches déchirent les parchemins : plus aucun squelette ne se relèvera. Beryn est seul.",
+          echec: "Les feuilles volètent mais tiennent bon sur l'autel." },
+        { txt: "🎭 Le narguer pour le déconcentrer (fun)", carac: "Charisme (Intimidation)", dc: 13, mod: 0,
+          reussite: "« C'est ça, ton armée ? Des tas d'os ? » Vexé, Beryn bafouille et rate sa prochaine incantation.",
+          echec: "Il ricane : « Tu rejoindras bientôt mes serviteurs, elfe. »" }
       ],
+      choix: [
+        { txt: "Conclure l'aventure ▶", cible: "ts-fin" }
+      ]
+    },
+    {
+      id: "ts-beryn-chute", titre: "La chute de Beryn", lieu: "Combat final",
+      lecture: [
+        "Un cri s'étrangle dans la gorge du nécromancien tandis qu'il bascule dans le puits qui traverse toute la tour. Son hurlement décroît… puis un choc mou, tout en bas, dans la fosse à ossements. Le silence retombe. Ses squelettes, privés de volonté, s'effondrent en tas d'os inertes."
+      ],
+      mj: [
+        "Chute de ~25 m dans la fosse à os (pieux) : environ 8d6 dégâts. Beryn (20 PV) n'y survit quasi jamais — laisse-lui au pire un dernier souffle pour une réplique finale.",
+        "Ses squelettes, liés à sa concentration, tombent inertes : fin spectaculaire !",
+        "Récupère son butin en bas : grimoire, 50 pa, bague d'argent (20 pa)."
+      ],
+      tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
       choix: [
         { txt: "Conclure l'aventure ▶", cible: "ts-fin" }
       ]

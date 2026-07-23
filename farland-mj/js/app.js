@@ -165,15 +165,23 @@
     window.scrollTo(0, 0);
   }
 
-  // Résout une action prédéfinie de scène (jet de dé + résultat lisible)
+  // Navigue vers une scène (utilisé par les choix ET les résultats d'action)
+  function navigateTo(t) {
+    if (t === "__list__") { renderScenarioList(); window.scrollTo(0, 0); return; }
+    gameState.sceneId = t; LS.set("gameState", gameState); renderScene(); window.scrollTo(0, 0);
+  }
+
+  // Résout une action prédéfinie de scène : lance le dé, montre le résultat,
+  // et — si l'action l'indique — propose un bouton « Continuer » vers la suite.
   function resolveSceneAction(a) {
     const el = $("#action-result"); if (!el || !a) return;
     el.style.display = "block";
-    let html = "";
+    let html = "", next = null;
     if (a.table) {
       const die = a.die || a.table[a.table.length - 1].max;
       const r = Dice.rollDie(die);
       const entry = a.table.find((e) => r <= e.max) || a.table[a.table.length - 1];
+      next = entry.cible || null;
       html = `<div class="total">${r}</div>
         <div class="detail">${esc(a.txt)} · 1d${die}</div>
         <div class="act-narr">${esc(entry.txt)}</div>`;
@@ -182,6 +190,7 @@
       const m = a.mod || 0;
       const r = Dice.d20(m, d20mode);
       const ok = r.total >= a.dc;
+      next = ok ? (a.cibleReussite || null) : (a.cibleEchec || null);
       html = `<div class="total ${ok ? "crit" : "fail"}">${r.total}</div>
         <div class="detail">${esc(a.txt)}${a.carac ? " · " + esc(a.carac) : ""} · dé ${r.natural}${m ? " " + signed(m) : ""} vs DC ${a.dc}</div>
         <div class="act-verdict ${ok ? "ok" : "ko"}">${ok ? "✓ RÉUSSITE" : "✗ ÉCHEC"}</div>
@@ -189,12 +198,16 @@
       pushLog(`${a.txt} (DC ${a.dc})`, r.total, ok ? "réussite" : "échec");
     } else if (a.roll) {
       const r = Dice.rollExpr(a.roll) || { total: 0, rolls: [] };
+      next = a.cible || null;
       html = `<div class="total">${r.total}</div>
         <div class="detail">${esc(a.txt)} · ${esc(a.roll)} : [${(r.rolls || []).join(", ")}]</div>
         ${a.note ? `<div class="act-narr">${esc(a.note)}</div>` : ""}`;
       pushLog(a.txt, r.total, esc(a.roll));
     }
+    if (next) html += `<button class="choice" data-next="${next}" style="margin-top:12px"><span>Continuer ▶</span><span class="arrow">›</span></button>`;
     el.innerHTML = html;
+    const nav = el.querySelector("[data-next]");
+    if (nav) nav.addEventListener("click", () => navigateTo(nav.dataset.next));
     renderLog();
     el.scrollIntoView({ behavior: "smooth", block: "center" });
   }
