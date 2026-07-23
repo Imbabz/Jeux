@@ -19,6 +19,71 @@
   }
   const byId = (arr, id) => arr.find((x) => x.id === id);
 
+  // ---------- Visualisations (jetons de créatures + plans schématiques, originaux) ----------
+  const CREATURE_EMOJI = {
+    vargouille: "🦇", "vargouille-reine": "🦑", "ours-squelette": "🐻", marnak: "🧙",
+    gregory: "🔪", victor: "🧎", "oscar-drok": "🧔", drokag: "👹", beryn: "🧙‍♂️",
+    cultiste: "🧎", fanatique: "🧎‍♂️", squelette: "💀", zombie: "🧟", "zombie-gobelours": "🧟",
+    goule: "🧟‍♂️", loup: "🐺", "rat-geant": "🐀", kobold: "🦎", orc: "👹", gobelin: "👺", fenn: "🐺"
+  };
+  function creatureRing(m) {
+    const t = (m && m.tags) || [];
+    if (t.includes("boss")) return "#c9a24b";
+    if (t.includes("mort-vivant")) return "#6f8f6f";
+    if (t.includes("compagnon")) return "#4a7a4a";
+    if (t.includes("bête")) return "#a9743a";
+    if (t.includes("monstre")) return "#8f5a3a";
+    if (t.includes("pnj")) return "#8a6a9a";
+    return "#a98b5a";
+  }
+  function creatureToken(id, cls) {
+    const m = byId(BESTIARY, id) || {};
+    const e = CREATURE_EMOJI[id] || "👹";
+    return `<span class="tok ${cls || ""}" style="border-color:${creatureRing(m)}">${e}</span>`;
+  }
+
+  // Plans schématiques originaux (pas des copies des cartes PDF)
+  const SCENE_VIZ = {
+    tour: `<svg viewBox="0 0 200 150" class="viz-svg" role="img" aria-label="Plan schématique d'une tour">
+      <rect width="200" height="150" fill="#141a20"/>
+      <circle cx="96" cy="78" r="62" fill="#1e2630" stroke="#4a6c86" stroke-width="3"/>
+      <circle cx="96" cy="78" r="32" fill="#0e1218" stroke="#8f3b34" stroke-width="3"/>
+      <text x="96" y="26" fill="#a9cbe4" font-size="10" text-anchor="middle">coursive</text>
+      <text x="96" y="82" fill="#d9773b" font-size="10" text-anchor="middle">le trou</text>
+      <rect x="158" y="64" width="26" height="28" fill="#2a2420" stroke="#c9a24b" stroke-width="2"/>
+      <text x="171" y="58" fill="#c9a24b" font-size="8" text-anchor="middle">escalier</text>
+      <rect x="20" y="68" width="16" height="20" fill="#2a2420" stroke="#4a6c86" stroke-width="2"/>
+      <text x="28" y="102" fill="#a9cbe4" font-size="8" text-anchor="middle">entrée</text>
+    </svg>`,
+    tours: `<svg viewBox="0 0 220 130" class="viz-svg" role="img" aria-label="Les deux tours">
+      <rect width="220" height="130" fill="#141a20"/>
+      <circle cx="55" cy="70" r="34" fill="#1e2630" stroke="#4a6c86" stroke-width="3"/>
+      <text x="55" y="74" fill="#a9cbe4" font-size="10" text-anchor="middle">Gauche</text>
+      <text x="55" y="118" fill="#8aa0b4" font-size="9" text-anchor="middle">Beryn</text>
+      <circle cx="165" cy="70" r="34" fill="#1e2630" stroke="#4a6c86" stroke-width="3"/>
+      <text x="165" y="74" fill="#a9cbe4" font-size="10" text-anchor="middle">Droite</text>
+      <text x="165" y="118" fill="#8aa0b4" font-size="9" text-anchor="middle">Drokag</text>
+      <rect x="120" y="52" width="40" height="30" fill="#2a2420" stroke="#c9a24b" stroke-width="2"/>
+      <text x="140" y="42" fill="#c9a24b" font-size="8" text-anchor="middle">bâche</text>
+    </svg>`,
+    camp: `<svg viewBox="0 0 220 150" class="viz-svg" role="img" aria-label="Camp de Loch Brech">
+      <rect width="220" height="150" fill="#141a20"/>
+      <circle cx="110" cy="78" r="10" fill="#d9773b"/><circle cx="110" cy="78" r="18" fill="none" stroke="#8f3b34" stroke-width="2"/>
+      <text x="110" y="112" fill="#d9773b" font-size="9" text-anchor="middle">feu</text>
+      <polygon points="40,40 62,72 18,72" fill="#2a2420" stroke="#c9a24b" stroke-width="2"/><text x="40" y="86" fill="#c9a24b" font-size="8" text-anchor="middle">soigneuse</text>
+      <polygon points="180,40 202,72 158,72" fill="#2a2420" stroke="#c9a24b" stroke-width="2"/><text x="180" y="86" fill="#c9a24b" font-size="8" text-anchor="middle">forge</text>
+      <polygon points="40,110 62,142 18,142" fill="#2a2420" stroke="#c9a24b" stroke-width="2"/><text x="40" y="112" fill="#c9a24b" font-size="8" text-anchor="middle">marchand</text>
+      <polygon points="180,110 202,142 158,142" fill="#2a2420" stroke="#4a6c86" stroke-width="2"/><text x="180" y="112" fill="#a9cbe4" font-size="8" text-anchor="middle">chefs</text>
+    </svg>`,
+    plaine: `<svg viewBox="0 0 220 120" class="viz-svg" role="img" aria-label="La Plaine des Batailles">
+      <rect width="220" height="120" fill="#141a20"/>
+      <path d="M0 92 Q55 78 110 90 T220 88" fill="none" stroke="#4a6c86" stroke-width="2"/>
+      <circle cx="70" cy="50" r="20" fill="#1e2630" stroke="#4a6c86" stroke-width="2"/>
+      <circle cx="150" cy="50" r="20" fill="#1e2630" stroke="#4a6c86" stroke-width="2"/>
+      <text x="110" y="112" fill="#8aa0b4" font-size="9" text-anchor="middle">les Tours de l'Attente au nord</text>
+    </svg>`
+  };
+
   // ---------- navigation onglets ----------
   const TABS = ["jeu", "des", "perso", "bestiaire", "univers"];
   function showTab(tab) {
@@ -90,6 +155,9 @@
         ${scene.lecture.map((p) => `<p>${esc(p)}</p>`).join("")}
       </div>` : "";
 
+    const vizBlock = (scene.viz && SCENE_VIZ[scene.viz]) ? `
+      <div class="viz">${SCENE_VIZ[scene.viz]}<div class="viz-cap">📐 Plan schématique (repère visuel)</div></div>` : "";
+
     const mjNotes = (scene.mj && scene.mj.length) ? `
       <div class="gmbox">
         <span class="label">🎭 Notes du MJ</span>
@@ -151,6 +219,7 @@
         <h2>${esc(scene.titre)}</h2>
       </div>
       <div class="scene-loc">📍 ${esc(scene.lieu || "")}</div>
+      ${vizBlock}
       ${lecture}
       ${mjNotes}
       ${mobs}
@@ -329,6 +398,7 @@
       const lvl = e.hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
       return `<div class="enemy ${e.defeated ? "ko" : ""} ${sel ? "sel" : ""}" data-enemy="${i}">
         <div class="enemy-head">
+          ${creatureToken(e.ref, "sm")}
           <span class="enemy-name">${e.defeated ? "💀 " : ""}${esc(e.nom)}</span>
           <span class="enemy-ac">🛡️ ${e.ac}</span>
           <button class="mini-fiche" data-fiche="${e.ref}">fiche ›</button>
@@ -743,7 +813,7 @@
     const traits = (m.traits&&m.traits.length)?`<div class="section-title">Traits</div><ul>${m.traits.map((t)=>`<li>${esc(t)}</li>`).join("")}</ul>`:"";
     const actions = (m.actions&&m.actions.length)?`<div class="section-title">Actions</div><ul>${m.actions.map((t)=>`<li>${esc(t)}</li>`).join("")}</ul>`:"";
     return `<details id="mob-${m.id}">
-      <summary>${esc(m.nom)} <span class="tag cr">FP ${esc(m.cr)}</span></summary>
+      <summary>${creatureToken(m.id, "sm")} ${esc(m.nom)} <span class="tag cr">FP ${esc(m.cr)}</span></summary>
       <div class="muted small">${esc(m.type)}</div>
       <div class="stat-line" style="margin-top:8px">
         <div class="box"><div class="k">CA</div><div class="v" style="font-size:16px">${esc(m.ac)}</div></div>

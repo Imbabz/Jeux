@@ -707,7 +707,7 @@ window.SCENARIOS = [
       choix: [{ txt: "Arriver au camp de Loch Brech ▶", cible: "ts-camp" }]
     },
     {
-      id: "ts-camp", titre: "Le camp de Loch Brech", lieu: "Partie 1",
+      id: "ts-camp", titre: "Le camp de Loch Brech", lieu: "Partie 1", viz: "camp",
       lecture: [
         "Sous la grande tente centrale, trois chefs t'observent, Sylwen. Kieran, un vieux guerrier en cuir usé ; Ulica, une femme discrète chargée du renseignement ; et Nathi, un artisan au dos courbé par le travail. Ton loup Fenn reste collé à ta jambe, oreilles dressées.",
         "Kieran te toise : « Une elfe et son loup, hein ? Écoute : il y a trop de morts-vivants ces temps-ci. Ils viennent du nord, de la Plaine des Batailles. Aucun de mes hommes ne peut y aller. Trouve la source, arrête-la, et tu auras ta place ici. »"
@@ -829,7 +829,7 @@ window.SCENARIOS = [
       ]
     },
     {
-      id: "ts-journey", titre: "Le voyage", lieu: "Partie 1",
+      id: "ts-journey", titre: "Le voyage", lieu: "Partie 1", viz: "plaine",
       lecture: [
         "Cinq heures de marche. La lande grise s'étire, silencieuse. Fenn gronde par moments, le poil hérissé : quelque chose rôde."
       ],
@@ -880,7 +880,7 @@ window.SCENARIOS = [
       choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
     },
     {
-      id: "ts-base", titre: "Le pied des Tours", lieu: "Partie 2",
+      id: "ts-base", titre: "Le pied des Tours", lieu: "Partie 2", viz: "tours",
       lecture: [
         "Deux tours de pierre se dressent sur la plaine. Entre elles, une grande bâche a été tendue. Dessous : deux squelettes armés de lames rouillées, et deux kobolds qui trient un tas d'ossements. Ils ne t'ont pas encore vue."
       ],
@@ -951,7 +951,7 @@ window.SCENARIOS = [
       ]
     },
     {
-      id: "ts-d-drokag", titre: "Tour de Droite — Drokag le hobgobelin", lieu: "Tour de Droite",
+      id: "ts-d-drokag", titre: "Tour de Droite — Drokag le hobgobelin", lieu: "Tour de Droite", viz: "tour",
       lecture: [
         "Une salle saccagée, jonchée de plaques de bois arrachées. Serrés sur la coursive : deux kobolds pillards et un grand hobgobelin en cotte de mailles, arbalète au poing. En te voyant, il aboie un ordre — les kobolds se ruent sur toi !"
       ],
@@ -1026,7 +1026,7 @@ window.SCENARIOS = [
       ]
     },
     {
-      id: "ts-g-goule", titre: "Tour de Gauche — la goule embusquée", lieu: "Tour de Gauche",
+      id: "ts-g-goule", titre: "Tour de Gauche — la goule embusquée", lieu: "Tour de Gauche", viz: "tour",
       lecture: [
         "Une salle avec une vieille grue de bois et huit fenêtres donnant sur d'énormes poutres. Des petits tas d'os marqués de coups de dents. Soudain, une forme grise et décharnée bondit d'une poutre : une goule aux griffes crochues !"
       ],
@@ -1056,7 +1056,7 @@ window.SCENARIOS = [
       ]
     },
     {
-      id: "ts-g-beryn", titre: "Tour de Gauche — BERYN le nécromancien", lieu: "Combat final",
+      id: "ts-g-beryn", titre: "Tour de Gauche — BERYN le nécromancien", lieu: "Combat final", viz: "tour",
       lecture: [
         "Sur le toit, un homme en habits de paysan agite les mains au-dessus d'un parchemin, marmonnant des mots de pouvoir. Devant lui, quelques squelettes se dressent lentement. Il ne t'a pas encore remarquée, tout à son rituel macabre."
       ],

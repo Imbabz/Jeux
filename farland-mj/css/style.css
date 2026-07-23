@@ -284,3 +284,15 @@ hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
 .feat-btn.active .act-meta { color: var(--accent); }
 .feat-btn.disabled { opacity: .4; pointer-events: none; }
 .apply-hero { background: #2a1614; border-color: var(--danger); margin-top: 10px; }
+
+/* ---- Jetons de créatures ---- */
+.tok { display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; border: 2px solid #a98b5a;
+  background: #14110f; font-size: 18px; line-height: 1; flex: 0 0 auto; }
+.tok.sm { width: 30px; height: 30px; font-size: 16px; }
+summary .tok { vertical-align: middle; margin-right: 4px; }
+
+/* ---- Plans schématiques ---- */
+.viz { margin: 10px 0; text-align: center; }
+.viz-svg { width: 100%; max-width: 340px; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #141a20; }
+.viz-cap { font-size: 12px; color: var(--txt-dim); margin-top: 4px; }
