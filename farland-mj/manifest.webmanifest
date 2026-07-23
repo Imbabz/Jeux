@@ -1,0 +1,16 @@
+{
+  "name": "Farland MJ — Compagnon de jeu de rôle",
+  "short_name": "Farland MJ",
+  "description": "Compagnon pour maîtriser des aventures du Monde de Farland : lecteur de scénarios, dés, fiches de personnage, bestiaire et univers. Pensé pour jouer à deux, y compris en voiture.",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14110f",
+  "theme_color": "#14110f",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

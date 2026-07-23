@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#14110f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Farland MJ — Compagnon de jeu de rôle</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <span class="logo">🐉</span>
+    <h1>Farland <span class="muted" style="font-weight:400;font-size:14px">— MJ</span></h1>
+    <span class="sub" id="topbar-sub">Compagnon de table</span>
+  </header>
+
+  <main>
+    <!-- ACCUEIL / SCÉNARIOS -->
+    <section id="view-jeu" class="view active"></section>
+    <!-- DÉS -->
+    <section id="view-des" class="view"></section>
+    <!-- PERSONNAGES -->
+    <section id="view-perso" class="view"></section>
+    <!-- BESTIAIRE -->
+    <section id="view-bestiaire" class="view"></section>
+    <!-- UNIVERS -->
+    <section id="view-univers" class="view"></section>
+  </main>
+
+  <div class="floating-hint" id="hint"></div>
+
+  <nav class="tabbar">
+    <button data-tab="jeu" class="active"><span class="ic">📖</span>Aventure</button>
+    <button data-tab="des"><span class="ic">🎲</span>Dés</button>
+    <button data-tab="perso"><span class="ic">🛡️</span>Persos</button>
+    <button data-tab="bestiaire"><span class="ic">👹</span>Bestiaire</button>
+    <button data-tab="univers"><span class="ic">🌍</span>Univers</button>
+  </nav>
+
+  <!-- Données -->
+  <script src="js/data/lore.js"></script>
+  <script src="js/data/bestiary.js"></script>
+  <script src="js/data/scenarios.js"></script>
+  <script src="js/data/characters.js"></script>
+  <!-- Logique -->
+  <script src="js/dice.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () =>
+        navigator.serviceWorker.register('sw.js').catch(()=>{}));
+    }
+  </script>
+</body>
+</html>

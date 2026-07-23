@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#14110f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Farland MJ — Compagnon de jeu de rôle</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSI5NiIgZmlsbD0iIzE0MTEwZiIvPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTI0YiIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgICA8cG9seWdvbiBwb2ludHM9IjI1Niw2NCA0MzIsMTY4IDQzMiwzNDQgMjU2LDQ0OCA4MCwzNDQgODAsMTY4IiBmaWxsPSIjMjIxZDFhIi8+CiAgICA8cG9seWdvbiBwb2ludHM9IjI1NiwxNDAgMzY2LDIwNCAzNjYsMzA4IDI1NiwzNzIgMTQ2LDMwOCAxNDYsMjA0IiBmaWxsPSIjMmIzYTRhIiBzdHJva2U9IiM0YTZjODYiLz4KICA8L2c+CiAgPHRleHQgeD0iMjU2IiB5PSIzMTIiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxNTAiIGZvbnQtd2VpZ2h0PSI3MDAiCiAgICAgICAgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2M5YTI0YiI+MjA8L3RleHQ+Cjwvc3ZnPgo=" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSI5NiIgZmlsbD0iIzE0MTEwZiIvPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTI0YiIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgICA8cG9seWdvbiBwb2ludHM9IjI1Niw2NCA0MzIsMTY4IDQzMiwzNDQgMjU2LDQ0OCA4MCwzNDQgODAsMTY4IiBmaWxsPSIjMjIxZDFhIi8+CiAgICA8cG9seWdvbiBwb2ludHM9IjI1NiwxNDAgMzY2LDIwNCAzNjYsMzA4IDI1NiwzNzIgMTQ2LDMwOCAxNDYsMjA0IiBmaWxsPSIjMmIzYTRhIiBzdHJva2U9IiM0YTZjODYiLz4KICA8L2c+CiAgPHRleHQgeD0iMjU2IiB5PSIzMTIiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxNTAiIGZvbnQtd2VpZ2h0PSI3MDAiCiAgICAgICAgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2M5YTI0YiI+MjA8L3RleHQ+Cjwvc3ZnPgo=" />
+<style>
+/* reset minimal */
+*{margin:0;padding:0;box-sizing:border-box}
+/* ===== Farland MJ — thème sombre, mobile-first, gros boutons ===== */
+:root {
+  --bg:        #14110f;
+  --bg-2:      #1e1a17;
+  --bg-3:      #2a2420;
+  --card:      #221d1a;
+  --line:      #3a322c;
+  --txt:       #ece3d8;
+  --txt-dim:   #b3a695;
+  --accent:    #c9a24b;   /* or vieilli */
+  --accent-2:  #d9773b;   /* braise */
+  --read:      #2b3a4a;   /* bleu lecture à voix haute */
+  --read-line: #4a6c86;
+  --danger:    #8f3b34;
+  --ok:        #4a7a4a;
+  --radius:    14px;
+  --tap:       52px;      /* cible tactile mini */
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--txt); }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px; line-height: 1.5;
+  padding-bottom: 84px;            /* place pour la nav */
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; line-height: 1.2; }
+a { color: var(--accent); }
+
+/* ---- En-tête ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: linear-gradient(180deg, #1e1a17, #14110f);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+}
+.topbar .logo { font-size: 22px; }
+.topbar h1 { font-size: 18px; margin: 0; color: var(--accent); font-weight: 600; }
+.topbar .sub { font-size: 12px; color: var(--txt-dim); margin-left: auto; }
+
+/* ---- Contenu ---- */
+main { padding: 14px; max-width: 820px; margin: 0 auto; }
+.view { display: none; animation: fade .18s ease; }
+.view.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+}
+.muted { color: var(--txt-dim); }
+.small { font-size: 14px; }
+.center { text-align: center; }
+.tag {
+  display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 20px;
+  background: var(--bg-3); color: var(--txt-dim); border: 1px solid var(--line);
+  margin: 2px 4px 2px 0;
+}
+.tag.cr { background: #3a2c1a; color: var(--accent); border-color: #5a4526; }
+
+/* ---- Boutons ---- */
+button, .btn {
+  font: inherit; cursor: pointer; border: 1px solid var(--line);
+  background: var(--bg-3); color: var(--txt);
+  border-radius: 12px; padding: 12px 14px; min-height: var(--tap);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+button:active, .btn:active { transform: scale(.97); }
+.btn-accent { background: var(--accent); color: #221a08; border-color: var(--accent); font-weight: 600; }
+.btn-block { display: flex; width: 100%; margin-bottom: 10px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-ghost { background: transparent; }
+
+/* ---- Navigation basse ---- */
+nav.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  display: flex; background: #171310; border-top: 1px solid var(--line);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+nav.tabbar button {
+  flex: 1; flex-direction: column; gap: 2px; background: none; border: none;
+  color: var(--txt-dim); min-height: 60px; padding: 4px; font-size: 11px; border-radius: 10px;
+}
+nav.tabbar button .ic { font-size: 22px; line-height: 1; }
+nav.tabbar button.active { color: var(--accent); background: #221d18; }
+
+/* ---- Lecture à voix haute (encadré joueur) ---- */
+.readbox {
+  background: var(--read); border-left: 5px solid var(--read-line);
+  border-radius: 10px; padding: 14px 16px; margin: 10px 0;
+  font-size: 19px; line-height: 1.6;
+}
+.readbox p { margin: 0 0 12px; }
+.readbox p:last-child { margin-bottom: 0; }
+.readbox .label { font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
+  color: #a9cbe4; font-family: sans-serif; display: block; margin-bottom: 8px; }
+
+/* ---- Notes MJ ---- */
+.gmbox { margin: 10px 0; }
+.gmbox .label { font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
+  color: var(--accent-2); display: block; margin-bottom: 6px; }
+.gmbox ul { margin: 0; padding-left: 18px; }
+.gmbox li { margin-bottom: 7px; }
+
+/* ---- Scène : titre / lieu ---- */
+.scene-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.scene-head h2 { margin: 0; font-size: 22px; color: var(--accent); }
+.scene-loc { font-size: 13px; color: var(--txt-dim); }
+.progress { font-size: 12px; color: var(--txt-dim); margin-bottom: 10px; }
+
+/* ---- Choix ---- */
+.choices { margin-top: 14px; }
+.choices .label { font-size: 12px; text-transform: uppercase; letter-spacing:.5px; color: var(--txt-dim); margin-bottom: 8px; display:block;}
+.choice {
+  width: 100%; justify-content: space-between; text-align: left;
+  background: var(--bg-2); border: 1px solid var(--line); font-size: 17px;
+  padding: 14px 16px; margin-bottom: 10px; border-radius: 12px;
+}
+.choice .arrow { color: var(--accent); font-size: 20px; }
+
+/* ---- Monstres liés dans une scène ---- */
+.mini-mob {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--bg-3);
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 3px 6px 3px 0;
+  font-size: 15px; color: var(--txt);
+}
+.mini-mob .cr { color: var(--accent); font-size: 12px; }
+
+/* ---- Trésor ---- */
+.loot { list-style: none; padding: 0; margin: 6px 0 0; }
+.loot li { padding: 6px 0 6px 24px; position: relative; border-bottom: 1px dashed var(--line); }
+.loot li:before { content: "◆"; position: absolute; left: 4px; color: var(--accent); }
+
+/* ---- Liste scénarios / cartes cliquables ---- */
+.pick {
+  display: block; width: 100%; text-align: left; background: var(--card);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 16px;
+  margin-bottom: 12px; color: var(--txt);
+}
+.pick h3 { margin: 0 0 4px; color: var(--accent); font-size: 20px; }
+.pick .meta { font-size: 13px; color: var(--txt-dim); margin-bottom: 8px; }
+.pick p { margin: 0; font-size: 15px; color: var(--txt); }
+
+/* ---- Dés ---- */
+.dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.dice-grid button { flex-direction: column; height: 76px; font-size: 20px; font-weight: 600; }
+.dice-grid button small { font-size: 11px; color: var(--txt-dim); font-weight: 400; }
+.dice-result {
+  text-align: center; padding: 18px; margin: 12px 0;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.dice-result .total { font-size: 56px; font-weight: 800; color: var(--accent); line-height: 1; }
+.dice-result .detail { color: var(--txt-dim); font-size: 15px; margin-top: 8px; }
+.dice-result .crit { color: var(--ok); } .dice-result .fail { color: var(--danger); }
+.d20-ctrl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+.d20-ctrl input { width: 64px; }
+.adv-toggle button { flex: 1; }
+.adv-toggle button.on { background: var(--accent); color: #221a08; border-color: var(--accent); }
+input[type=number], input[type=text] {
+  font: inherit; background: var(--bg); color: var(--txt); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 12px; min-height: var(--tap);
+}
+.roll-log { margin-top: 8px; }
+.roll-log .row { display: flex; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.roll-log .row b { color: var(--accent); }
+
+/* ---- Fiche perso ---- */
+.abil-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+.abil {
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px;
+  padding: 8px; text-align: center; cursor: pointer;
+}
+.abil .name { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; }
+.abil .score { font-size: 22px; font-weight: 700; }
+.abil .mod { font-size: 14px; color: var(--accent); }
+.stat-line { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.stat-line .box { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; flex: 1; text-align: center; min-width: 80px; }
+.stat-line .box .k { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; }
+.stat-line .box .v { font-size: 20px; font-weight: 700; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: var(--bg-3); border: 1px solid var(--line); border-radius: 20px; padding: 6px 12px; font-size: 14px; }
+.chip.roll { cursor: pointer; }
+.chip.roll:active { background: var(--accent); color: #221a08; }
+
+/* ---- Recherche ---- */
+.search { width: 100%; margin-bottom: 12px; }
+
+/* ---- Divers ---- */
+.section-title { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--accent-2); margin: 18px 0 8px; }
+details { border: 1px solid var(--line); border-radius: 10px; padding: 4px 12px; margin-bottom: 10px; background: var(--bg-2); }
+details summary { cursor: pointer; padding: 10px 0; font-weight: 600; color: var(--accent); }
+details[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.kv { margin: 4px 0; } .kv b { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
+.floating-hint { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color:#221a08; padding: 10px 18px; border-radius: 30px;
+  font-size: 14px; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,.4); z-index: 60;
+  opacity: 0; pointer-events: none; transition: opacity .2s; }
+.floating-hint.show { opacity: 1; }
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="logo">🐉</span>
+  <h1>Farland <span class="muted" style="font-weight:400;font-size:14px">— MJ</span></h1>
+  <span class="sub" id="topbar-sub">Compagnon de table</span>
+</header>
+<main>
+  <section id="view-jeu" class="view active"></section>
+  <section id="view-des" class="view"></section>
+  <section id="view-perso" class="view"></section>
+  <section id="view-bestiaire" class="view"></section>
+  <section id="view-univers" class="view"></section>
+</main>
+<div class="floating-hint" id="hint"></div>
+<nav class="tabbar">
+  <button data-tab="jeu" class="active"><span class="ic">📖</span>Aventure</button>
+  <button data-tab="des"><span class="ic">🎲</span>Dés</button>
+  <button data-tab="perso"><span class="ic">🛡️</span>Persos</button>
+  <button data-tab="bestiaire"><span class="ic">👹</span>Bestiaire</button>
+  <button data-tab="univers"><span class="ic">🌍</span>Univers</button>
+</nav>
+<script>
+/* ============================================================
+   UNIVERS DE FARLAND — Données de référence (World of Farland)
+   Source : farlandworld.com (setting gratuit, compatible D&D 5e)
+   Contenu résumé/adapté en français pour l'usage du MJ.
+   ============================================================ */
+
+window.FARLAND_LORE = {
+
+  intro: {
+    titre: "Le Monde de Farland",
+    texte: [
+      "Farland (le monde de Núrion) est un cadre de campagne de fantasy sombre, gratuit et compatible D&D 5e. On le décrit comme un mélange entre Le Seigneur des Anneaux et Le Trône de Fer : un monde héroïque classique auquel on a ajouté la noirceur, la trahison et le désespoir.",
+      "Il y a des siècles, le monde a été CONQUIS PAR LE MAL. Le dieu noir Vornoth et ses serviteurs ont soumis les peuples libres. Le continent central a été découpé en SEPT ROYAUMES, chacun gouverné par un Seigneur du Péché — l'incarnation vivante d'un des sept péchés capitaux.",
+      "Aujourd'hui, une Libération est en cours. Plusieurs royaumes se sont affranchis mais vacillent au bord de l'effondrement, et la guerre totale contre les puissances des ténèbres approche. C'est dans ce climat que les héros interviennent."
+    ],
+    monnaie: "IMPORTANT — Monnaie : Farland utilise l'ÉTALON ARGENT. Une pièce d'argent (pa) vaut ce que vaut une pièce d'or (po) dans le D&D standard. Ordre décroissant : platine (pp) > argent (pa) > cuivre (pc) > étain (pe / 'tp'). Si un prix du manuel dit « po », lisez « pa » dans Farland."
+  },
+
+  seigneursDuPeche: {
+    titre: "Les Sept Seigneurs du Péché",
+    texte: "Chaque royaume conquis est dominé par un Seigneur incarnant un péché capital, servant du dieu noir Vornoth.",
+    liste: [
+      { peche: "Orgueil (Pride)",      note: "Le plus arrogant des tyrans." },
+      { peche: "Envie (Envy)",         note: "Convoite ce que possèdent les autres." },
+      { peche: "Colère (Wrath)",       note: "Règne par la fureur et la guerre." },
+      { peche: "Paresse (Sloth)",      note: "Seigneur du royaume de ZELAND (cf. « Les Tours de la Nuit »). Sa négligence laisse pourrir la terre et prospérer les morts-vivants." },
+      { peche: "Avarice (Greed)",      note: "Amasse et affame ses sujets." },
+      { peche: "Gourmandise (Gluttony)", note: "Dévore les ressources de son royaume." },
+      { peche: "Luxure (Lust)",        note: "Corrompt par le désir et la manipulation." }
+    ]
+  },
+
+  royaumes: {
+    titre: "Royaumes cités dans ces aventures",
+    liste: [
+      {
+        nom: "Le Royaume de Daven",
+        texte: "Théâtre de « Ce qui se cache à l'intérieur ». Longtemps ravagé par le mal depuis la Libération, mais le village d'Eichen, isolé en bordure d'une grande forêt et loin des routes commerciales, avait été jusque-là épargné — avant que d'étranges disparitions et des cadavres décapités ne commencent."
+      },
+      {
+        nom: "Le Royaume de Zeland",
+        texte: "Théâtre de « Les Tours de la Nuit ». Gouverné par le Seigneur de la Paresse. Sa capitale des patrouilles est Hestor. Autrefois, les Zelandais enterraient leurs morts au sommet des Tours de l'Attente, sur la Plaine des Batailles (Battleplain), pendant un an, avant de jeter les os dans une fosse à la base de la tour. Le camp rebelle de Loch Brech survit au nord."
+      }
+    ]
+  },
+
+  dieux: {
+    titre: "Les Divinités de Farland",
+    texte: "Le panthéon (Grandes Divinités). Les prêtres et cultistes rencontrés dans ces aventures servent l'un de ces dieux.",
+    bons: {
+      titre: "Dieux BONS",
+      liste: [
+        { nom: "Heshtail", dom: "Le Père, dieu du soleil, de la lumière et des serments." },
+        { nom: "Bestra", dom: "Déesse de l'amour, de la beauté et de la nature. Très vénérée par les gens simples (symboles de Bestra apparaissent dans les deux aventures : prêtresse Katrina Rabe à Eichen, tente-temple au camp de Loch Brech)." },
+        { nom: "Kantor Tal-Allustiel", dom: "Dieu elfique de la magie, de la connaissance et de la musique. Jadis pair des dieux les plus anciens." },
+        { nom: "Khuldul Rockcarver", dom: "Dieu nain de la forge, de la pierre et de l'artisanat." },
+        { nom: "Khuckduck Gemcutter", dom: "Dieu gnome des gemmes, de l'ingéniosité et de l'invention." },
+        { nom: "Bunga Proudfoot", dom: "Dieu halfelin du foyer, du réconfort et de la chance." }
+      ]
+    },
+    neutres: {
+      titre: "Dieux NEUTRES",
+      liste: [
+        { nom: "Neltak", dom: "Dieu de la nature sauvage, des tempêtes et de la survie (prêtre Boris Whiteanvil à Eichen)." },
+        { nom: "Dekk", dom: "Dieu du voyage, du commerce et du hasard. Patron le plus courant des druides, qui prétendent avoir suivi l'exemple de neutralité absolue de Neltak." },
+        { nom: "Bel", dom: "Dieu de la guerre, de la loi et de l'ordre martial." }
+      ]
+    },
+    mauvais: {
+      titre: "Dieux MAUVAIS",
+      liste: [
+        { nom: "Vornoth", dom: "LE dieu noir, le plus jeune et le plus terrible des dieux du Mal. Dans la Langue Sombre : Vorna'ith, « Dieu des Dieux ». Né lorsque la Triade Voilée — Lagur l'Archtyran, Grlarshh le Malade, et Soggoth le Calamiteux — combina ses pouvoirs. Maître de tous les êtres les plus vils du plan mortel. Le monument orc de la tombe (aventure 1) lui est dédié." },
+        { nom: "Grlarshh (le Malade / le Diseur de Secrets Sombres)", dom: "Dieu déchu des secrets interdits, de la maladie et de la corruption. Jadis pair des plus anciens dieux, il a sombré à cause de sa longue guerre contre Vornoth. C'est LUI que sert le culte des Morgenstein dans « Ce qui se cache à l'intérieur »." }
+      ]
+    }
+  },
+
+  races: {
+    titre: "Peuples jouables",
+    texte: "Farland utilise les races classiques de D&D 5e avec une saveur sombre. Dans ces aventures on croise surtout des humains, quelques demi-orcs et nains.",
+    liste: [
+      "Humains — dominants dans les royaumes de Daven et Zeland (Eichen est humain à 95 %, demi-orc à 5 %).",
+      "Nains — artisans et ermites (ex. Oscar Drok, le chasseur reclus).",
+      "Demi-orcs — intégrés dans certains villages (ex. Conrad Smithstan, forgeron d'Eichen).",
+      "Elfes, Gnomes, Halfelins — présents dans le monde, chacun avec sa divinité tutélaire (voir panthéon).",
+      "Peuples sombres (« dark folk ») — orcs, gobelins, hobgobelins, kobolds : serviteurs des Seigneurs du Péché, croisés en patrouille."
+    ]
+  },
+
+  langues: {
+    titre: "Langues courantes",
+    liste: [
+      "Kelevan — le « commun » humain des royaumes.",
+      "Kingdom Common — langue commune des royaumes libres.",
+      "Dark Speech (Langue Sombre) — parlée par les serviteurs du mal et les orcs ; runes anciennes de la tombe orc.",
+      "Infernal — langue des cultes et des créatures extraplanaires (les prières à Grlarshh).",
+      "Nain, Elfique, etc. — langues raciales classiques."
+    ]
+  }
+};
+
+
+/* ============================================================
+   BESTIAIRE & PNJ — stat blocks
+   - Créatures propres à Farland : reprises fidèlement des PDF.
+   - Créatures « MM p. XXX » : statistiques du SRD 5.1 (OGL),
+     fournies pour rendre l'app autonome en voiture.
+   Chaque entrée : id, nom, type, cr, tags, ac, pv, vitesse,
+   stats{for,dex,con,int,sag,cha}, traits[], actions[], notes.
+   ============================================================ */
+
+window.BESTIARY = [
+
+  /* ---------- Aventure 1 : créatures spéciales ---------- */
+  {
+    id: "vargouille", nom: "Vargouille", type: "Monstruosité TP, Neutre Mauvais",
+    cr: "1/4", tags: ["aventure1", "monstre"],
+    ac: "12 (armure naturelle)", pv: "9 (3d6)", vitesse: "1,50 m, vol 9 m",
+    stats: { for: 12, dex: 14, con: 11, int: 6, sag: 11, cha: 8 },
+    sens: "Vision dans le noir, Perception passive 10", langues: "Kelevan/Infernal brisé",
+    traits: [
+      "Sensibilité à la lumière. En plein soleil, la vargouille a un désavantage aux jets d'attaque et aux jets de Perception (vue)."
+    ],
+    actions: [
+      "Morsure. +3 à toucher, allonge 1,50 m. Touché : 4 (1d4+2) perforants. La cible réussit un JS Constitution DC 10 ou ne peut plus soigner la morsure (naturellement ou magiquement). Restauration mineure/majeure, délivrance de malédiction, guérison, ou un repos long lève l'effet.",
+      "Cri (Recharge 5-6). Cri terrible touchant tout à moins de 18 m (sauf les vargouilles). JS Sagesse DC 10 ou paralysé par la peur. Nouveau JS à la fin de chaque tour. Une cible qui réussit est immunisée à ce cri pendant 24 h.",
+      "Baiser. Embrasse une victime paralysée adjacente : JS Constitution DC 12 ou infectée par une maladie qui la transforme en vargouille en 24 h (perte des cheveux en 6 h, oreilles pointues + crocs + tentacules en 12 h, léthargie en 18 h, la tête ailée se détache et tue la victime en 24 h). La lumière du soleil / sort lumière du jour suspend la maladie. Seule une restauration mineure/majeure ou guérison soigne définitivement."
+    ],
+    notes: "Têtes volantes ailées et tentaculaires, charognardes. Réputées venir des plans infernaux. Yeux verts luisants dans la nuit."
+  },
+  {
+    id: "vargouille-reine", nom: "La Reine Vargouille", type: "Monstruosité G, Neutre Mauvais",
+    cr: "4", tags: ["aventure1", "monstre", "boss"],
+    ac: "14 (armure naturelle)", pv: "98 (14d10+28)", vitesse: "1,50 m, vol 9 m",
+    stats: { for: 17, dex: 14, con: 14, int: 5, sag: 12, cha: 8 },
+    sens: "Vision dans le noir, Perception passive 11", langues: "Kelevan/Infernal brisé",
+    traits: [
+      "Mille yeux, mille oreilles. Grâce à ses multiples têtes, avantage aux jets de Perception quand elle (ou sa cible) n'est pas au soleil. Champ de vision à 360° : ne peut être prise en tenaille.",
+      "Créature clé de l'infestation : tant qu'elle vit, les vargouilles prolifèrent dans la région."
+    ],
+    actions: [
+      "Attaques multiples. Deux morsures (dans n'importe quelle direction, sans se retourner) ; OU une morsure + Sifflement de désespoir.",
+      "Morsure. +5 à toucher, allonge 1,50 m. Touché : 9 (1d12+3) perforants + JS Con DC 12 ou soins bloqués sur la plaie (mêmes remèdes que la vargouille).",
+      "Cri (Recharge 5-6). Comme la vargouille mais JS Sagesse DC 12, rayon 18 m.",
+      "Sifflement de désespoir. Tout à moins de 9 m (sauf vargouilles) : JS Sagesse DC 12 ou désavantage aux attaques et aux JS contre la peur. Nouveau JS chaque fin de tour.",
+      "Baiser multiple. Embrasse jusqu'à DEUX victimes paralysées adjacentes : JS Con DC 13 ou maladie de transformation (voir vargouille)."
+    ],
+    notes: "Masse flottante de tentacules de 2 m de large, chaque appendice terminé par une tête humanoïde déformée aux yeux verts. Asexuée, se reproduit par le baiser. « Reine » est un abus de langage. Tactique : jaillir, crier pour semer le chaos, puis déchirer. Combat jusqu'à la mort."
+  },
+  {
+    id: "ours-squelette", nom: "Ours brun squelettique", type: "Mort-vivant G, Loyal Mauvais",
+    cr: "1", tags: ["aventure1", "mort-vivant"],
+    ac: "13 (lambeaux de fourrure)", pv: "44 (6d10+12)", vitesse: "9 m",
+    stats: { for: 19, dex: 10, con: 16, int: 2, sag: 9, cha: 5 },
+    sens: "Vision dans le noir 18 m, Perception passive 9", langues: "—",
+    traits: [
+      "Vulnérabilité : contondant. Immunité : poison. Immunité aux états épuisement, empoisonné.",
+      "Mots de commande (dans l'aire A du manoir) : « nefarious » = attaque tout ce qui ne porte pas de robe rouge ; « dictum » = stop."
+    ],
+    actions: [
+      "Attaques multiples. Une morsure + une griffe.",
+      "Morsure. +5 à toucher, allonge 1,50 m. Touché : 8 (1d8+4) perforants.",
+      "Griffes. +5 à toucher, allonge 1,50 m. Touché : 11 (2d6+4) tranchants."
+    ]
+  },
+  {
+    id: "marnak", nom: "Marnak Morgenstein (le vieux)", type: "Humain (mage) M, Loyal Mauvais",
+    cr: "2", tags: ["aventure1", "pnj", "boss"],
+    ac: "12", pv: "24 (6d6+6)", vitesse: "9 m",
+    stats: { for: 9, dex: 14, con: 12, int: 14, sag: 10, cha: 14 },
+    comp: "Arcanes +3, Histoire +3, Intimidation +4",
+    sens: "Perception passive 10", langues: "Kelevan, Langue Sombre",
+    traits: [
+      "Incantation (mage niveau 4). Int, DC des sorts 11, +3 à l'attaque de sort.",
+      "Sorts préparés — Tours : lumière, main du mage, rayon de givre. Niv 1 (4) : mains brûlantes, armure du mage, projectile magique. Niv 2 (3) : nuée de dagues, invisibilité."
+    ],
+    actions: [
+      "Dague. +2 à toucher, allonge 1,50 m ou 6/18 m. Touché : 2 (1d4) perforants."
+    ],
+    notes: "Ex-aventurier de 54 ans, dos voûté, cheveux blancs clairsemés. Savant froid et calculateur, sujet à des crises meurtrières. Tactique : armure du mage au début, puis mains brûlantes / nuée de dagues sur les corps-à-corps, rayon de givre et projectile magique sur les lanceurs de sorts. Dès qu'il subit 12 PV ou perd 3 cultistes : invisibilité et fuite pour se venger plus tard."
+  },
+  {
+    id: "gregory", nom: "Gregory Morgenstein (Fanatique de secte)", type: "Humain M, Loyal Mauvais",
+    cr: "2", tags: ["aventure1", "pnj", "boss"],
+    ac: "13 (armure de cuir)", pv: "33 (6d8+6)", vitesse: "9 m",
+    stats: { for: 11, dex: 14, con: 12, int: 10, sag: 13, cha: 14 },
+    comp: "Tromperie +4, Persuasion +4, Religion +2",
+    sens: "Perception passive 11", langues: "Kelevan",
+    traits: [
+      "Incantation (prêtre niveau 4). Sag, DC 11, +3 à l'attaque de sort.",
+      "Sorts — Tours : lumière, réparation, thaumaturgie. Niv 1 (4) : blessure, bouclier de la foi, injonction. Niv 2 (3) : arme spirituelle, immobilisation de personne (hold person, DC 11)."
+    ],
+    actions: [
+      "Attaques multiples. Deux attaques de dague.",
+      "Dague. +4 à toucher, allonge 1,50 m ou 6/18 m. Touché : 4 (1d4+2) perforants."
+    ],
+    notes: "Fils de Marnak, aussi grand que corpulent (plus d'1,80 m), cheveux noirs gras, prend plaisir à tuer. Complètement fou : combat jusqu'à la mort. R1 : hold person sur le personnage le plus lourdement armuré et le moins intelligent, puis rejoint la mêlée."
+  },
+  {
+    id: "victor", nom: "Victor le Bossu", type: "Humain M, Loyal Neutre",
+    cr: "0", tags: ["aventure1", "pnj"],
+    ac: "10", pv: "8 (2d8)", vitesse: "9 m",
+    stats: { for: 11, dex: 10, con: 10, int: 11, sag: 11, cha: 9 },
+    sens: "Perception passive 10", langues: "Kelevan",
+    actions: [
+      "Gourdin. +2 à toucher, allonge 1,50 m. Touché : 2 (1d4) contondants.",
+      "Arc court. +2 à toucher, 24/96 m. Touché : 3 (1d6) perforants."
+    ],
+    notes: "Serviteur loyal mais non-mauvais des Morgenstein, parle avec un fort zozotement. Lâche : supplie pour sa vie. S'il est épargné, peut guider les héros vers la tombe. Ne se bat qu'à distance, jamais au corps-à-corps."
+  },
+  {
+    id: "oscar-drok", nom: "Oscar Drok (ermite fou)", type: "Nain M, Neutre",
+    cr: "1", tags: ["aventure1", "pnj"],
+    ac: "13 (cuir souillé)", pv: "50 (10d8+10)", vitesse: "9 m",
+    stats: { for: 12, dex: 14, con: 14, int: 11, sag: 10, cha: 11 },
+    comp: "Nature +4, Perception +5, Discrétion +6, Survie +5",
+    sens: "Perception passive 14", langues: "Nain, Kelevan",
+    traits: [
+      "Ouïe et vue aiguisées. Avantage aux jets de Perception (ouïe/vue)."
+    ],
+    actions: [
+      "Attaques multiples. Deux attaques au corps-à-corps ou deux à distance.",
+      "Gourdin. +5 à toucher, allonge 1,50 m. Touché : 5 (1d6+2) contondants.",
+      "Arc long. +4 à toucher, 45/180 m. Touché : 6 (1d8+2) perforants."
+    ],
+    notes: "Vieux nain chasseur devenu fou après avoir vu les vargouilles. Voit tout le monde comme des monstres aux yeux verts. Réduit à moins de la moitié de ses PV : s'effondre en sanglots. On peut le raisonner par des jours de réconfort, par calme (calm emotions) ou définitivement par restauration mineure."
+  },
+
+  /* ---------- Aventure 2 : PNJ spéciaux ---------- */
+  {
+    id: "drokag", nom: "Drokag le Hobgobelin", type: "Gobelinoïde M, Loyal Mauvais",
+    cr: "2", tags: ["aventure2", "pnj", "boss"],
+    ac: "18 (cotte de mailles, bouclier)", pv: "28 (4d8+8)", vitesse: "9 m",
+    stats: { for: 14, dex: 12, con: 14, int: 10, sag: 10, cha: 10 },
+    sens: "Vision dans le noir 18 m, Perception passive 10", langues: "Commun des Royaumes, Langue Sombre",
+    traits: [
+      "Avantage martial. 1×/tour, +7 (2d6) dégâts sur une attaque d'arme réussie si la cible est à 1,50 m d'un allié non neutralisé du hobgobelin."
+    ],
+    actions: [
+      "Épée longue. +5 à toucher, allonge 1,50 m. Touché : 6 (1d8+2) tranchants, ou 7 (1d10+2) à deux mains.",
+      "Arc long. +3 à toucher, 45/180 m. Touché : 6 (1d8+2) perforants."
+    ],
+    notes: "Ambitieux, rêve de gloire militaire. Se sert des kobolds comme boucliers vivants et tire à l'arbalète depuis l'autre côté du trou. À la moitié de ses PV, fuit vers l'autre tour pour prévenir Beryn. Porte la CLÉ DE CHIFFRE (déchiffre les notes de l'autel — révèle l'espionne Bebbin O'Nel)."
+  },
+  {
+    id: "beryn", nom: "Beryn le Nécromancien", type: "Humain M, Loyal Mauvais",
+    cr: "2", tags: ["aventure2", "pnj", "boss"],
+    ac: "11", pv: "20 (5d6+5)", vitesse: "9 m",
+    stats: { for: 10, dex: 12, con: 13, int: 15, sag: 12, cha: 11 },
+    comp: "Arcanes +4, Histoire +4",
+    sens: "Perception passive 11", langues: "Commun des Royaumes, Langue Sombre, Kelevan",
+    traits: [
+      "Moisson sinistre. 1×/tour, quand Beryn tue une créature avec un sort de niv 1+, il regagne des PV égaux au double du niveau du sort (triple si c'est un sort de nécromancie). Pas pour les morts-vivants/constructs.",
+      "Incantation (mage niveau 4). Int, DC 12, +4 à l'attaque de sort.",
+      "Sorts — Tours : contact glacial, réparation, rayon de givre. Niv 1 (4) : projectile magique, rayon de maladie, bouclier, trait ensorcelé. Niv 2 (3) : couronne de folie, image miroir."
+    ],
+    actions: [
+      "Bâton. +2 à toucher, allonge 1,50 m. Touché : 3 (1d6) contondants, ou 4 (1d8) à deux mains."
+    ],
+    notes: "Nécromancien de peu de renom. Absorbé par son rituel (lever des squelettes). Quand les héros approchent, 3 squelettes qu'il vient d'animer se dressent : il s'en sert comme boucliers et lance ses sorts par-derrière. Combat potentiellement mortel si le goule et les squelettes du toit voisin ne sont pas neutralisés."
+  },
+
+  /* ---------- Monstres SRD référencés (MM p. XXX) ---------- */
+  {
+    id: "cultiste", nom: "Cultiste", type: "Humanoïde M, tout alignement mauvais",
+    cr: "1/8", tags: ["srd", "humanoïde"],
+    ac: "12 (armure de cuir)", pv: "9 (2d8)", vitesse: "9 m",
+    stats: { for: 11, dex: 12, con: 10, int: 10, sag: 11, cha: 10 },
+    comp: "Tromperie +2, Religion +2",
+    sens: "Perception passive 10", langues: "une au choix",
+    actions: [
+      "Cimeterre. +3 à toucher, allonge 1,50 m. Touché : 4 (1d6+1) tranchants.",
+      "Variante armée (aventure 1) : Morgenstern, +3 à toucher, 5 (1d8+1) perforants ; CA 14 (cotte de mailles)."
+    ]
+  },
+  {
+    id: "fanatique", nom: "Fanatique de secte", type: "Humanoïde M, tout alignement mauvais",
+    cr: "2", tags: ["srd", "humanoïde"],
+    ac: "13 (armure de cuir)", pv: "33 (6d8+6)", vitesse: "9 m",
+    stats: { for: 11, dex: 14, con: 12, int: 10, sag: 13, cha: 14 },
+    comp: "Tromperie +4, Persuasion +4, Religion +2",
+    sens: "Perception passive 11", langues: "une au choix",
+    traits: [
+      "Incantation (prêtre niv 4). Sag, DC 11, +3. Tours : lumière, réparation, thaumaturgie. Niv 1 (4) : injonction, bouclier de la foi, blessure. Niv 2 (3) : immobilisation de personne, arme spirituelle."
+    ],
+    actions: [
+      "Attaques multiples. Deux attaques de dague.",
+      "Dague. +4 à toucher, allonge 1,50 m ou 6/18 m. Touché : 4 (1d4+2) perforants."
+    ]
+  },
+  {
+    id: "squelette", nom: "Squelette", type: "Mort-vivant M, Loyal Mauvais",
+    cr: "1/4", tags: ["srd", "mort-vivant"],
+    ac: "13 (débris d'armure)", pv: "13 (2d8+4)", vitesse: "9 m",
+    stats: { for: 10, dex: 14, con: 15, int: 6, sag: 8, cha: 5 },
+    sens: "Vision dans le noir 18 m, Perception passive 9", langues: "comprend ses langues de vivant",
+    traits: [
+      "Vulnérabilité : contondant. Immunité : poison. Immunité état empoisonné, épuisement.",
+      "Variantes de l'aventure : gardes du sanctuaire — CA 15 (chemise de mailles), épée longue 6 (1d8+2) tranchants ; archers — arc long +4, 6 (1d8+2)."
+    ],
+    actions: [
+      "Épée courte. +4 à toucher, allonge 1,50 m. Touché : 5 (1d6+2) perforants.",
+      "Arc court. +4 à toucher, 24/96 m. Touché : 5 (1d6+2) perforants."
+    ]
+  },
+  {
+    id: "zombie", nom: "Zombie", type: "Mort-vivant M, Neutre Mauvais",
+    cr: "1/4", tags: ["srd", "mort-vivant"],
+    ac: "8", pv: "22 (3d8+9)", vitesse: "6 m",
+    stats: { for: 13, dex: 6, con: 16, int: 3, sag: 6, cha: 5 },
+    sens: "Perception passive 8", langues: "comprend ses langues de vivant mais ne parle pas",
+    traits: [
+      "Ténacité des morts-vivants. Réduit à 0 PV, JS Con DC 5 + dégâts subis pour rester à 1 PV (sauf radiant ou coup critique)."
+    ],
+    actions: [
+      "Coup. +3 à toucher, allonge 1,50 m. Touché : 4 (1d6+1) contondants."
+    ]
+  },
+  {
+    id: "zombie-gobelours", nom: "Zombie gobelours", type: "Mort-vivant M, Neutre Mauvais",
+    cr: "1", tags: ["srd", "mort-vivant", "aventure1"],
+    ac: "8", pv: "27 (5d8+5)", vitesse: "9 m",
+    stats: { for: 15, dex: 8, con: 13, int: 3, sag: 6, cha: 5 },
+    sens: "Vision dans le noir 18 m, Perception passive 8", langues: "—",
+    traits: [
+      "Ténacité des morts-vivants (JS Con DC 5 + dégâts).",
+      "Garde une salle : n'attaque que si on entre sans frapper trois coups ; ne quitte pas la pièce sauf ordre de Marnak."
+    ],
+    actions: [
+      "Morgenstern. +4 à toucher, allonge 1,50 m. Touché : 9 (2d8) perforants."
+    ]
+  },
+  {
+    id: "goule", nom: "Goule", type: "Mort-vivant M, Chaotique Mauvais",
+    cr: "1", tags: ["srd", "mort-vivant"],
+    ac: "12", pv: "22 (5d8)", vitesse: "9 m",
+    stats: { for: 13, dex: 15, con: 10, int: 7, sag: 10, cha: 6 },
+    sens: "Vision dans le noir 18 m, Perception passive 10", langues: "Commun",
+    traits: [
+      "Immunité poison ; immunité états empoisonné, charmé, épuisement."
+    ],
+    actions: [
+      "Morsure. +2 à toucher, allonge 1,50 m. Touché : 9 (2d6+2) perforants.",
+      "Griffes. +4 à toucher, allonge 1,50 m. Touché : 7 (2d4+2) tranchants. JS Con DC 10 ou paralysie 1 min (nouveau JS chaque fin de tour ; les elfes y sont immunisés)."
+    ],
+    notes: "Aventure 2 : cette goule est rusée et parle. Elle s'allie à Beryn par intérêt (nourriture) et lui sert de garde. Tend une embuscade sur les poutres."
+  },
+  {
+    id: "loup", nom: "Loup (chien de garde enragé)", type: "Bête G, Non aligné",
+    cr: "1/4", tags: ["srd", "bête", "aventure1"],
+    ac: "13 (armure naturelle)", pv: "11 (2d8+2)", vitesse: "12 m",
+    stats: { for: 12, dex: 15, con: 12, int: 3, sag: 12, cha: 6 },
+    comp: "Perception +3, Discrétion +4",
+    sens: "Perception passive 13", langues: "—",
+    traits: [
+      "Tactique de meute. Avantage à l'attaque si un allié valide est à 1,50 m de la cible.",
+      "Chez Oscar Drok : 5 gros chiens affamés et terrorisés. Dressage animal DC 15 (avec nourriture) pour les calmer."
+    ],
+    actions: [
+      "Morsure. +4 à toucher, allonge 1,50 m. Touché : 7 (2d4+2) perforants. JS For DC 11 ou à terre."
+    ]
+  },
+  {
+    id: "rat-geant", nom: "Rat géant", type: "Bête P, Non aligné",
+    cr: "1/8", tags: ["srd", "bête", "aventure1"],
+    ac: "12", pv: "7 (2d6)", vitesse: "9 m",
+    stats: { for: 7, dex: 15, con: 11, int: 2, sag: 10, cha: 4 },
+    sens: "Vision dans le noir 18 m, Perception passive 10", langues: "—",
+    traits: ["Tactique de meute (avantage si allié adjacent à la cible)."],
+    actions: [
+      "Morsure. +4 à toucher, allonge 1,50 m. Touché : 3 (1d4+2) perforants."
+    ]
+  },
+  {
+    id: "kobold", nom: "Kobold", type: "Humanoïde P, Loyal Mauvais",
+    cr: "1/8", tags: ["srd", "humanoïde", "aventure2"],
+    ac: "12", pv: "5 (2d6-2)", vitesse: "9 m",
+    stats: { for: 7, dex: 15, con: 9, int: 8, sag: 7, cha: 8 },
+    sens: "Vision dans le noir 18 m, Perception passive 8", langues: "Commun, Draconique",
+    traits: [
+      "Tactique de meute. Sensibilité au soleil (désavantage en plein soleil).",
+      "Aventure 2 : non armés ou avec outils improvisés (scie 1d4 tranchant, marteau 1d6, perche 1d6, os lancés)."
+    ],
+    actions: [
+      "Dague. +4 à toucher, allonge 1,50 m ou 6/18 m. Touché : 4 (1d4+2) perforants.",
+      "Fronde. +4 à toucher, 9/36 m. Touché : 4 (1d4+2) contondants."
+    ]
+  },
+  {
+    id: "orc", nom: "Orc", type: "Humanoïde M, Chaotique Mauvais",
+    cr: "1/2", tags: ["srd", "humanoïde", "aventure2"],
+    ac: "13 (armure de cuir clouté)", pv: "15 (2d8+6)", vitesse: "9 m",
+    stats: { for: 16, dex: 12, con: 16, int: 7, sag: 11, cha: 10 },
+    comp: "Intimidation +2",
+    sens: "Vision dans le noir 18 m, Perception passive 10", langues: "Commun, Orc",
+    traits: ["Agressif. Action bonus : se déplacer vers un ennemi vu."],
+    actions: [
+      "Hache d'armes. +5 à toucher, allonge 1,50 m. Touché : 9 (1d12+3) tranchants.",
+      "Javeline. +5 à toucher, 1,50 m ou 9/36 m. Touché : 6 (1d6+3) perforants."
+    ]
+  },
+  {
+    id: "gobelin", nom: "Gobelin", type: "Humanoïde P, Neutre Mauvais",
+    cr: "1/4", tags: ["srd", "humanoïde", "aventure2"],
+    ac: "15 (armure de cuir, bouclier)", pv: "7 (2d6)", vitesse: "9 m",
+    stats: { for: 8, dex: 14, con: 10, int: 10, sag: 8, cha: 8 },
+    comp: "Discrétion +6",
+    sens: "Vision dans le noir 18 m, Perception passive 9", langues: "Commun, Gobelin",
+    traits: ["Attaque sournoise. Désengagement/Repli en action bonus."],
+    actions: [
+      "Cimeterre. +4 à toucher, allonge 1,50 m. Touché : 5 (1d6+2) tranchants.",
+      "Arc court. +4 à toucher, 24/96 m. Touché : 5 (1d6+2) perforants."
+    ]
+  }
+];
+
+
+/* ============================================================
+   SCÉNARIOS — structurés en scènes navigables (mode MJ)
+   Chaque scène :
+     id, titre, lieu,
+     lecture: []   -> texte À LIRE À VOIX HAUTE au joueur
+     mj: []        -> notes / mécaniques pour le MJ uniquement
+     monstres: []  -> ids du bestiaire présents
+     tresor: []    -> butin
+     choix: [{txt, cible}]  -> navigation
+   ============================================================ */
+
+window.SCENARIOS = [
+/* ==========================================================================
+   AVENTURE 1 — CE QUI SE CACHE À L'INTÉRIEUR  (What Lurks Within?)
+   ========================================================================== */
+{
+  id: "wlw",
+  titre: "Ce qui se cache à l'intérieur",
+  sousTitre: "Royaume de Daven — Village d'Eichen",
+  niveau: "Personnages de niveau 2 (4 à 5 joueurs)",
+  resume: "D'étranges disparitions et des cadavres décapités frappent le paisible village d'Eichen. Derrière tout cela : un culte de Grlarshh mené par la famille Morgenstein, et une monstruosité extraplanaire — la Reine Vargouille — tapie dans une ancienne tombe orc.",
+  auteur: "Martin McKenzie — World of Farland (2015)",
+  debut: "wlw-intro",
+  scenes: [
+    {
+      id: "wlw-intro", titre: "Introduction & accroches", lieu: "Avant de commencer",
+      lecture: [],
+      mj: [
+        "Rappel monnaie : Farland = étalon ARGENT. 1 pa = 1 po du D&D standard.",
+        "Le scénario est découpé par lieux : selon où les héros enquêtent, on saute d'une section à l'autre. Le but ultime est de les amener à la TOMBE ORC.",
+        "Choisis une accroche pour lancer les héros :",
+        "• Résidents : ils vivent à Eichen, on leur demande d'enquêter.",
+        "• Liens familiaux : un disparu est un proche d'un héros.",
+        "• Les Pourfendeurs : les héros sont une guilde secrète de chasseurs de morts-vivants.",
+        "• Voyage de hasard : ils passent, entendent parler du problème à la taverne + une affiche (250 pa de récompense).",
+        "• Aider le mage : un vieux mage les paie pour ramener une preuve de la créature extraplanaire.",
+        "• Suite de « Les Tours de la Nuit » : un cousin d'un chef de camp de Loch Brech réclame de l'aide."
+      ],
+      choix: [{ txt: "Arriver à Eichen ▶", cible: "wlw-eichen" }]
+    },
+    {
+      id: "wlw-eichen", titre: "Le village d'Eichen — les rumeurs", lieu: "Partie 1",
+      lecture: [
+        "Eichen est un petit village d'environ 500 âmes, presque tous humains, à la lisière de la forêt de Chênaie (Oaken Forest). Deux tavernes seulement : l'auberge « Le Gobelin Boiteux » et la taverne « Le Mage Joyeux ». Les gens sont inquiets : la nuit, on disparaît, et on retrouve parfois des corps… sans tête."
+      ],
+      mj: [
+        "Figures d'autorité : Arnulf Von Gerhan (maire/marchand), Hogan Von Feran (capitaine de la garde), shérif Bernard Hugo, prêtresse Katrina Rabe (Bestra), prêtre Boris Whiteanvil (Neltak), l'alchimiste Nebnel Luts Hiller.",
+        "Valeur max d'un objet acheté/vendu : 100 pa.",
+        "Distribue les RUMEURS (jet d'Investigation DC 5 à 15 chacune) — tu peux les lire directement :",
+        "• Chasseurs disparus : 2 chasseurs tués dans les bois il y a 3 semaines, retrouvés sans tête mais intacts pour le reste (DC 10).",
+        "• Garçon disparu : un jeune garçon parti promener son chien dans la forêt il y a 9 jours ; le chien est revenu terrorisé (DC 10).",
+        "• Le vieil ermite : Oscar Drok, nain reclus à ~1,5 km au nord, n'est plus venu au marché depuis un mois (DC 10).",
+        "• Le manoir Morgenstein : le vieux Morgenstein, sa femme et son fils invisibles depuis 3 mois ; le collecteur d'impôts n'en serait jamais revenu (DC 5).",
+        "• Secrets de famille : les Morgenstein sortent surtout la nuit ; on murmure des tunnels sous le domaine (DC 15).",
+        "• La tombe : on parle d'une tombe récemment découverte dans la forêt, maudite et piégée (DC 15).",
+        "URGENCE : si les héros tardent, de nouvelles victimes tombent (couple + fils fermiers dans 2 jours ; puis un PNJ ami ; puis l'auberge attaquée par 6 vargouilles). Ajoute 3 vargouilles supplémentaires quelque part."
+      ],
+      choix: [
+        { txt: "Aller au manoir Morgenstein", cible: "wlw-manoir-ext" },
+        { txt: "Aller à la cabane d'Oscar Drok", cible: "wlw-drok-ext" }
+      ]
+    },
+
+    /* --- MANOIR --- */
+    {
+      id: "wlw-manoir-ext", titre: "Le manoir Morgenstein — extérieur", lieu: "Partie 2",
+      lecture: [
+        "Le vieux manoir est délabré, jadis fastueux, aujourd'hui couvert de poussière. On y accède par un chemin de terre à travers des jardins envahis par la végétation."
+      ],
+      mj: [
+        "Victor le bossu surveille : 50 % à une fenêtre, 50 % à arpenter le parc. Perception DC 10 pour qu'il repère les héros de jour.",
+        "S'il les repère, il ne se bat pas : il court prévenir Gregory et verrouille derrière lui (crochetage DC 20). Casser une fenêtre sans précaution alerte tout le monde.",
+        "L'intérieur est vide (meubles vendus pour financer la magie noire), sauf le taudis de Victor. Le seul point d'intérêt : l'entrée de la cave, bien moins poussiéreuse."
+      ],
+      monstres: ["victor"],
+      choix: [
+        { txt: "Descendre l'escalier de la cave ▼", cible: "wlw-manoir-stairs" },
+        { txt: "◀ Retour au village", cible: "wlw-eichen" }
+      ]
+    },
+    {
+      id: "wlw-manoir-stairs", titre: "Cave — haut de l'escalier", lieu: "Sous-sol niveau 1",
+      lecture: [
+        "En bas de l'escalier de pierre humide et usé, à une dizaine de mètres, vacille une lueur de torche. Vous entendez le murmure d'une conversation… vous devinez la présence d'une demi-douzaine de voix différentes."
+      ],
+      mj: [
+        "Murs et sols glissants : tout PJ qui charge/court/saute/culbute fait un JS Dextérité DC 10 ou tombe à terre. Escalade avec désavantage.",
+        "La salle du bas sert de réfectoire aux cultistes. Ils jouent aux cartes entre deux rituels : sauf alerte, ils ne réagissent qu'à une charge frontale.",
+        "Toutes les descriptions supposent une approche DE JOUR, ennemis non alertés. Sinon, ajuste."
+      ],
+      choix: [{ txt: "Entrer — Aire A ▶", cible: "wlw-manoir-A" }]
+    },
+    {
+      id: "wlw-manoir-A", titre: "Aire A — le réfectoire", lieu: "Sous-sol niveau 1",
+      lecture: [
+        "Vous débouchez dans une salle éclairée aux torches. Au centre, trois humanoïdes en robe rouge foncé, d'âges variés, sont absorbés dans une partie de cartes autour d'une grande table de chêne. Dans un coin se dresse une vision glaçante : un ours squelettique de plus de deux mètres, aux orbites noires et vides, semble vous fixer !"
+      ],
+      mj: [
+        "Quelques secondes après l'entrée, les cultistes sont repérés : ils dégainent gourdins et dagues (action complète), et l'un crie le mot de commande « nefarious » — l'ours squelette attaque tout ce qui ne porte pas de robe rouge (« dictum » l'arrête).",
+        "L'un des cultistes court prévenir Gregory dans son sanctuaire (aire E).",
+        "Butin sur la table : lanterne à capote (30 min d'huile), cruche de bière, 17 pe + 18 pc. Dans un coin : 2 robes rouges, 2 torches neuves, 8 pintes d'huile."
+      ],
+      monstres: ["cultiste", "ours-squelette"],
+      tresor: ["17 pe, 18 pc", "2 robes de cultiste, 2 torches, 8 pintes d'huile"],
+      choix: [
+        { txt: "Porte vers l'Aire B (prison)", cible: "wlw-manoir-B" },
+        { txt: "Porte vers l'Aire C (cellier)", cible: "wlw-manoir-C" }
+      ]
+    },
+    {
+      id: "wlw-manoir-B", titre: "Aire B — la prison", lieu: "Sous-sol niveau 1",
+      lecture: [
+        "Un petit carrefour non éclairé : des portes à gauche, à droite et droit devant. De la porte de gauche vous parviennent des cris étouffés, comme quelqu'un bâillonné qui tente d'attirer votre attention…"
+      ],
+      mj: [
+        "Deux cellules. Celle de droite : vide, ouverte. Celle de gauche : verrouillée (crochetage DC 20, une clé sur un cultiste de l'aire A) — elle contient un prisonnier.",
+        "Prisonnier : Frederic Goldhorn, collecteur d'impôts, détenu 2 semaines, dénutri. Libéré, il révèle : il devait être sacrifié à Grlarshh ; il a entendu parler d'un passage secret vers le niveau inférieur, et d'une « bête reine » dans une tombe. Promet 25 pa à chacun s'il est ramené au village."
+      ],
+      choix: [
+        { txt: "◀ Retour Aire A", cible: "wlw-manoir-A" },
+        { txt: "Vers l'Aire C (cellier)", cible: "wlw-manoir-C" }
+      ]
+    },
+    {
+      id: "wlw-manoir-C", titre: "Aire C — le cellier & le passage secret", lieu: "Sous-sol niveau 1",
+      lecture: [
+        "Une pièce poussiéreuse de 3 m sur 9. Contre les murs, des rangées de casiers à vin vides. À environ 6 m, une porte robuste dans le mur de gauche."
+      ],
+      mj: [
+        "Porte de gauche PIÉGÉE : arbalète double de l'autre côté (déclenchée à l'ouverture). Un loquet au sol permet de passer sans déclencher. Perception DC 15 repère le piège, Investigation DC 5 le désarme.",
+        "  › Piège d'arbalète double : +4 à toucher, 2 cibles au hasard, 6 (1d8+2) perforants chacune.",
+        "Fouille (10 min) : 3 bouteilles de spiritueux (5 po chacune) derrière un casier — Perception DC 20.",
+        "PASSAGE SECRET vers le niveau 2 : porte dissimulée au mur nord (Perception DC 15 pour trouver, Investigation DC 10 pour ouvrir — pierre descellée à gauche).",
+        "Fosse piégée au sol à ~3 m de la porte secrète : bâche de cuir camouflée. Perception DC 15 (manque de passage) / Investigation DC 12. JS Dex DC 15 sinon chute : 6 (2d6) contondants + 5 (1d10) tranchants (verre brisé). Parois graissées : escalade avec désavantage."
+      ],
+      tresor: ["3 bouteilles de spiritueux (5 po ch.)"],
+      choix: [
+        { txt: "◀ Retour Aire A", cible: "wlw-manoir-A" },
+        { txt: "Descendre par le passage secret ▼ (Aire D)", cible: "wlw-manoir-D" }
+      ]
+    },
+    {
+      id: "wlw-manoir-D", titre: "Aire D — les gardes squelettes", lieu: "Sous-sol niveau 2",
+      lecture: [
+        "Vous débouchez dans une vaste salle pavée, anormalement froide. Trois squelettes armés et armurés se tiennent au garde-à-vous devant une grande double porte de bois. Une torche vacillante au-dessus des portes est le seul éclairage de cette pièce nue."
+      ],
+      mj: [
+        "Les 3 squelettes (CA 15 chemise de mailles, épée longue 6/1d8+2) attaquent quiconque entre sans dire le mot de passe « Mortis nu vigo ».",
+        "Si Gregory + ses 2 cultistes entendent le combat (très probable), ils viennent en renfort.",
+        "NOTE : tout ce niveau est impie — les morts-vivants ont AVANTAGE aux JS pour résister au Renvoi."
+      ],
+      monstres: ["squelette"],
+      choix: [{ txt: "Franchir la double porte — Aire E ▶", cible: "wlw-manoir-E" }]
+    },
+    {
+      id: "wlw-manoir-E", titre: "Aire E — le sanctuaire de Gregory", lieu: "Sous-sol niveau 2",
+      lecture: [
+        "Un énorme autel de granit taché de sang domine la pièce, sur une estrade. Derrière, un grand symbole de bois d'un dieu obscur ; sur l'autel, une dague courbe et dentelée croûtée de sang séché. Deux étagères débordent de vieux grimoires, un secrétaire couvert de plumes et d'encre. Debout devant l'autel : un prêtre en riches robes rouge et noir, jeune homme imposant à la peau blafarde, aux yeux fous. Deux cultistes l'encadrent et arment leurs arbalètes. Dans un coin, un bossu tremblant vous fixe, terrifié…"
+      ],
+      mj: [
+        "Gregory Morgenstein (stats Fanatique de secte). R1 : hold person (DC 11) sur le personnage le plus lourdement armuré / le moins intelligent, puis mêlée. Combat jusqu'à la mort.",
+        "Le bossu (Victor) reste prostré dans son coin toute la bataille. S'il est épargné, il peut ensuite guider vers la tombe.",
+        "Coffre verrouillé (crochetage DC 15, CA 15, 12 PV) : 7 pa, 258 pc, 34 pe, 2 ambres (10 pa ch.), bague argent+émeraude (10 pa), saphir (20 pa), chandeliers d'argent (10 pa), couverts d'argent (5 pa), bijoux femme (20 pa), potion de soins, et une CARTE grossière d'Eichen avec un grand X noir dans la forêt. (Si le coffre est fracassé, la potion se brise.)",
+        "Sur le secrétaire : notes de torture + LA LETTRE (voir ci-dessous) qui révèle « la Reine » et la nouvelle tombe."
+      ],
+      monstres: ["gregory", "cultiste"],
+      tresor: ["7 pa, 258 pc, 34 pe", "Gemmes & bijoux (~70 pa)", "Potion de soins", "Carte avec un X dans la forêt", "La Lettre du Père"],
+      choix: [
+        { txt: "Lire « La Lettre du Père » ▶", cible: "wlw-lettre" },
+        { txt: "Où aller ensuite ? (interroger Victor)", cible: "wlw-suite" }
+      ]
+    },
+    {
+      id: "wlw-lettre", titre: "La Lettre du Père", lieu: "Indice clé",
+      lecture: [
+        "« Mon cher fils, contrairement à nos doutes, le sujet s'est révélé une étude des plus intéressantes cette semaine. Créature peu intelligente mais d'une ruse animale, elle a déjà coûté la vie à deux de nos frères. Selon mes observations, cette créature et sa progéniture sont la cause des attaques dans Eichen, et je compte “acquérir” de nouveaux réceptacles humanoïdes pour notre Reine afin d'étudier son cycle de reproduction. Les travaux du nouveau repaire sont presque finis : un enclos sur mesure pour notre Reine et des logements pour dix de nos plus fidèles. As-tu pu communier avec le grand seigneur récemment ? Avec amour, Père. »",
+        "« P.S. — Garde l'œil sur Victor. Depuis un mois, je doute de sa loyauté. S'il le faut, réduis-le au silence : il en sait trop. »"
+      ],
+      mj: [
+        "Cette lettre pointe explicitement vers la TOMBE ORC dans la forêt (le X sur la carte). Si Victor est mort avant qu'on lise ceci, rends la carte plus détaillée pour trouver l'entrée."
+      ],
+      choix: [
+        { txt: "Interroger Victor / Où aller ▶", cible: "wlw-suite" },
+        { txt: "Aller directement à la tombe orc ▶", cible: "wlw-tombe-entree" }
+      ]
+    },
+    {
+      id: "wlw-suite", titre: "Où aller ensuite ? — Victor", lieu: "Transition",
+      lecture: [],
+      mj: [
+        "Si Victor a survécu et n'a pas été attaqué, on peut l'interroger. Il zozote fortement. Extraits de réponses :",
+        "• Qui es-tu ? — « Pitié, ne me tuez pas mêtres ! Je m'appelle Victor, humble serviteur et jardinier… »",
+        "• Que se passe-t-il ? — Il raconte la folie de Marnak, les squelettes, le sacrifice de Dame Henrietta et Miss Felicia à Grlarshh, la découverte d'une bête maléfique dans une tombe voisine où se trouve désormais Marnak.",
+        "• Nous aideras-tu ? — Si les héros comptent arrêter les meurtres, il accepte de les mener à la tombe (mais n'y entrera pas).",
+        "Si les héros n'ont pas encore visité la cabane d'Oscar Drok, ils peuvent aussi y aller. Sinon, direction la tombe."
+      ],
+      choix: [
+        { txt: "Aller à la cabane d'Oscar Drok", cible: "wlw-drok-ext" },
+        { txt: "Aller à la tombe orc ▶", cible: "wlw-tombe-entree" }
+      ]
+    },
+
+    /* --- CABANE DROK --- */
+    {
+      id: "wlw-drok-ext", titre: "Cabane d'Oscar Drok — extérieur", lieu: "Forêt de Chênaie",
+      lecture: [
+        "Vous approchez une vieille cabane dans une clairière. À moins de 60 m, portes et volets sont clos, aucune fumée ne s'élève de la cheminée. De grands chenils semblent vides. On dirait qu'il n'y a personne."
+      ],
+      mj: [
+        "À 18 m : Perception passive DC 12 pour remarquer du mouvement dans les chenils. À 12 m : lecture ci-dessous.",
+        "5 gros chiens affamés et terrorisés (stats loups) chargent. Surprise si tout le groupe rate la Perception passive.",
+        "Dressage animal DC 15 (en leur jetant de la nourriture) pour les calmer ; une tentative de plus possible avec plus de nourriture.",
+        "Fouille de la cabane sans jet : 8 pa, 67 pc, 34 pe, 8 flèches. Perception DC 15 : bourse (2 po, émeraude brute 20 pa, topaze lisse 30 pc).",
+        "Porte solidement barrée de l'intérieur (crochetage DC 20 / enfoncer DC 20). Ou arracher un volet (Force DC 15)."
+      ],
+      monstres: ["loup"],
+      tresor: ["8 pa, 67 pc, 34 pe, 8 flèches", "Émeraude brute (20 pa), topaze (30 pc)"],
+      choix: [
+        { txt: "Entrer dans la cabane ▶", cible: "wlw-drok-int" },
+        { txt: "◀ Retour au village", cible: "wlw-eichen" }
+      ]
+    },
+    {
+      id: "wlw-drok-int", titre: "Cabane d'Oscar Drok — intérieur & cave", lieu: "Forêt de Chênaie",
+      lecture: [
+        "Bois brisé, vêtements déchirés, poteries fracassées. Une trappe cerclée de fer est à demi cachée sous les débris au centre. Une odeur âcre d'urine et d'excréments flotte dans l'air. Personne ici depuis des semaines. Sous la trappe, une cave sombre et exiguë."
+      ],
+      mj: [
+        "Cave : plafond bas (1,2 m), sol de terre. 8 RATS GÉANTS attaquent depuis les caisses (surprise si non détectés — Perception passive DC 12 pour entendre grattements/couinements).",
+        "Coffre cadenassé (crochetage DC 18) : Potion d'escalade + Potion de résistance. Lanterne sourde utilisable (sans huile).",
+        "OSCAR DROK, nain squelettique, épie par la porte de sa chambre-cellier. Il bondit, dague et gourdin en main, en hurlant « Vous ne m'aurez jamais, bâtards aux yeux verts ! » quand un héros descend la trappe ou approche de sa porte.",
+        "Réduit à < la moitié de ses PV, il s'effondre en sanglots. Il est fou : il prend les héros pour des vargouilles. On le raisonne par des jours de réconfort, un calm emotions (suppression temporaire) ou une restauration mineure (guérison définitive — dispo gratuitement au temple du village).",
+        "Guéri, Oscar accepte de mener les héros à l'ENTRÉE de la tombe (sans y entrer)."
+      ],
+      monstres: ["rat-geant", "oscar-drok"],
+      tresor: ["Potion d'escalade, Potion de résistance", "Lanterne sourde"],
+      choix: [
+        { txt: "Aller à la tombe orc ▶", cible: "wlw-tombe-entree" },
+        { txt: "Aller au manoir Morgenstein", cible: "wlw-manoir-ext" }
+      ]
+    },
+
+    /* --- Fil perdu --- */
+    {
+      id: "wlw-tombe-entree", titre: "Entrée de la tombe orc", lieu: "Partie 3 — Cimetière orc",
+      lecture: [
+        "Après une demi-heure à travers d'épais taillis, vous émergez dans une petite clairière. Face à vous, dans un tertre de terre de plus de 3 m de haut, se dresse une porte grossière faite de dalles de granit antiques gravées d'étranges glyphes. Les battants de pierre, brisés depuis longtemps, gisent dans l'herbe. Au-delà du seuil, un escalier ancien et brisé descend dans les ténèbres."
+      ],
+      mj: [
+        "Si les héros écoutent : gouttes d'eau + chants lointains en contrebas (Perception DC 15). Réussite +5 : c'est une prière en infernal à Grlarshh.",
+        "Runes en vieux dialecte orc (Langue Sombre, jet Int DC 15) : « Ici reposent les os des plus forts de Croc-Rouge. Que quiconque franchit ce seuil affronte le courroux des ancêtres ! »",
+        "Du bruit à la descente peut alerter les vargouilles (aires A/B/C)."
+      ],
+      choix: [{ txt: "Descendre dans la caverne ▼", cible: "wlw-tombe-caverne" }]
+    },
+    {
+      id: "wlw-tombe-caverne", titre: "La caverne inondée & la statue", lieu: "Cimetière orc",
+      lecture: [
+        "Au bas de l'escalier, l'endroit tient plus de la caverne souterraine que d'une salle. Le plafond de terre est hérissé de racines pendantes. À 6 m, le sol de terre plonge sous une eau sombre et boueuse. Plus loin, sur un îlot, se dresse un monument couvert de champignons de 3 m. Au loin, deux îlots plus grands hérissés de pierres tombales. À votre droite, une paroi récemment creusée : des patères avec des robes rouges, une table, deux chaises, un pot de chambre, une lanterne éteinte."
+      ],
+      mj: [
+        "Eau boueuse, 90 cm max de profondeur. Vargouilles en embuscade sur les îlots (yeux verts luisants). Perception DC 5 pour qu'elles entendent tout bruit fort.",
+        "Aire A : 1 vargouille cachée (Perception DC 14 pour la repérer) ; si attaque, 2 autres viennent de l'îlot opposé.",
+        "Aire B : 2 vargouilles cachées ; + celle de l'aire A en renfort.",
+        "Tout cri/bruit fort a 70 % de chances d'alerter les cultistes en prière (aire E) → embuscade.",
+        "STATUE (îlot proche) = dieu Vornoth. Gratter le champignon révèle 2 grosses émeraudes en guise d'yeux (100 pa chacune). Escalade DC 20 (glissant)."
+      ],
+      monstres: ["vargouille"],
+      tresor: ["2 émeraudes dans les yeux de la statue (100 pa ch.)"],
+      choix: [
+        { txt: "Franchir jusqu'à l'îlot B et le trou creusé ▶", cible: "wlw-tombe-corridor" }
+      ]
+    },
+    {
+      id: "wlw-tombe-corridor", titre: "Le corridor creusé", lieu: "Complexe souterrain",
+      lecture: [
+        "Un escalier de blocs de pierre descend sur 6 m vers un corridor de 1,5 m de large aux murs et sol de terre. Il file tout droit et, au loin, on distingue la lueur de torches et des portes à gauche et à droite, à une vingtaine de mètres."
+      ],
+      mj: [
+        "Corridor non gardé. Si les cultistes sont alertés, on peut en voir courir entre l'armurerie (D) et le temple (E). Attaqués dans le corridor, ils fuient vers le temple.",
+        "Portes à gauche et à droite = dortoirs (aire C). Droit devant = armurerie (D) puis temple (E)."
+      ],
+      choix: [
+        { txt: "Ouvrir un dortoir (Aire C)", cible: "wlw-tombe-C" },
+        { txt: "Continuer vers l'armurerie (Aire D)", cible: "wlw-tombe-D" }
+      ]
+    },
+    {
+      id: "wlw-tombe-C", titre: "Aire C — les dortoirs", lieu: "Complexe souterrain",
+      lecture: [
+        "En ouvrant la porte d'un dortoir garni de lits et de coffres, un gobelours de plus de deux mètres à la mâchoire inférieure arrachée s'avance lourdement vers vous, morgenstern et bouclier levés !"
+      ],
+      mj: [
+        "Zombie gobelours par dortoir : attaque si on entre sans frapper 3 coups. Ne quitte pas la pièce sauf ordre de Marnak.",
+        "3 lits, mobilier, 3 coffres par pièce (crochetage DC 15). Contenu des 6 coffres : vêtements + petites bourses.",
+        "Butin notable : ambre 10 pa ; masse ; 4 dés d'ivoire ; poupée vaudou à épingles ; bracelet argent+topaze (25 pa) ; vêtements flamboyants (25 pa) + bottes de cuir + bague d'or (10 pa) ; deck de cartes usé ; chapeau de paille. Total monnaie ~ diverse (pc/pe)."
+      ],
+      monstres: ["zombie-gobelours"],
+      tresor: ["Ambre (10 pa)", "Bracelet argent+topaze (25 pa)", "Bague d'or (10 pa)", "Vêtements flamboyants (25 pa)"],
+      choix: [
+        { txt: "Continuer vers l'armurerie (Aire D)", cible: "wlw-tombe-D" }
+      ]
+    },
+    {
+      id: "wlw-tombe-D", titre: "Aire D — armurerie & garde-manger", lieu: "Complexe souterrain",
+      lecture: [
+        "Une petite salle fraîchement creusée. Les murs sont garnis de râteliers d'épieux, dagues, morgensterns, petits boucliers et armures en tous états — de quoi équiper une vingtaine de personnes ! Deux tonneaux, et des quartiers de viande salée et fromages pendus aux poutres."
+      ],
+      mj: [
+        "Marnak rêve de lever une petite armée. 1 tonneau d'eau, 1 de bière. ATTENTION : la viande pendue est… humaine.",
+        "Si alertés, les cultistes accourent ici prendre armure + morgenstern : il leur faut ~2 minutes pour s'équiper (aire E)."
+      ],
+      choix: [
+        { txt: "Pousser la grande porte — Temple (Aire E) ▶", cible: "wlw-tombe-E" }
+      ]
+    },
+    {
+      id: "wlw-tombe-E", titre: "Aire E — le temple : Marnak", lieu: "Complexe souterrain",
+      lecture: [
+        "Une large salle aux murs de pierre, éclairée aux torches. Au centre, une estrade et un autel de granit noir. Autour, quatre cultistes en robe rouge et armure de cuir, armes variées. Derrière l'autel, une silhouette voûtée aux cheveux blancs vaporeux, en robes de velours rouge et noir flamboyantes, pointe le doigt vers vous et commence à psalmodier, les yeux écarquillés de folie !"
+      ],
+      mj: [
+        "Combat « final » (en apparence). Marnak lance armure du mage dès l'alerte, récupère son grimoire (1 min).",
+        "4 cultistes : sans préparation, stats de base ; préparés (2 min), CA 14 + morgenstern (5/1d8+1) et +5 PX chacun.",
+        "Dès que Marnak subit 12 PV OU que 3 cultistes tombent : invisibilité et fuite par où les héros sont venus (Perception DC 10 pour le localiser, ou l'attendre dans l'eau de l'entrée).",
+        "S'il fuit : retourne au manoir ; s'il découvre son fils mort, il quitte le village pour toujours.",
+        "Rappel : très dangereux si l'ennemi a eu le temps de se préparer."
+      ],
+      monstres: ["marnak", "cultiste"],
+      choix: [
+        { txt: "Explorer les quartiers de Marnak (Aire F)", cible: "wlw-tombe-F" },
+        { txt: "Vers la caverne de la Reine (Aire G)", cible: "wlw-tombe-G" }
+      ]
+    },
+    {
+      id: "wlw-tombe-F", titre: "Aire F — quartiers de Marnak", lieu: "Complexe souterrain",
+      lecture: [
+        "De luxueux quartiers avec un lit à baldaquin et une petite bibliothèque. Une odeur douceâtre de putréfaction agresse vos narines. Des étagères de livres reliés cuir ; un bureau couvert de papiers, d'encre et d'une carte des royaumes. Mais l'objet le plus dérangeant : un cadavre masculin décapité et à demi décomposé, suspendu au plafond par des chaînes à crochets, comme un ornement macabre. On dirait le corps d'un jeune garçon."
+      ],
+      mj: [
+        "Le corps est celui du garçon disparu (trop décomposé pour être identifié sans magie). Marnak l'étudiait.",
+        "Notes : dessins du cou, étude des mœurs reproductrices des vargouilles, la nature des attaques, croquis d'une créature tentaculaire « la Reine » (Marnak ignore ce qu'elle est — soupçonne un autre plan). Journal : références au Seigneur de la Mort, sacrifices, meurtre de sa femme et sa fille.",
+        "Compartiment caché du bureau (Perception DC 18) : GRIMOIRE de Marnak (absent s'il a fui avec).",
+        "Coffre au pied du lit (crochetage DC 20, briser DC 20 — Marnak a les clés) : hache d'armes M de belle facture, bourse (3 po, 20 pa, 230 pc), onyx noirs (30 pa), cotte de mailles taille M, tube à parchemin = PARCHEMIN d'Animation des Morts.",
+        "Autres objets : globe (20 pa), encrier+plume (10 pa), 50 pa d'encres à sorts, 2 livres rares (50 pa et 40 pa), bague d'or à rubis (alliance, 50 pa)."
+      ],
+      monstres: [],
+      tresor: ["Hache d'armes de qualité", "Cotte de mailles (M)", "Parchemin : Animation des Morts", "Grimoire de Marnak", "Bourse : 3 po, 20 pa, 230 pc", "Onyx noirs (30 pa), bague à rubis (50 pa)", "2 livres rares (90 pa), globe & encres (80 pa)"],
+      choix: [
+        { txt: "Descendre vers la caverne de la Reine (Aire G) ▼", cible: "wlw-tombe-G" }
+      ]
+    },
+    {
+      id: "wlw-tombe-G", titre: "Aire G — LA REINE VARGOUILLE", lieu: "Le vrai combat final",
+      lecture: [
+        "Quittant le corridor de terre, vous émergez dans une vaste caverne naturelle, sombre et profonde. En son centre, un large puits dont le fond échappe à la lumière. Stalagmites et stalactites hérissent la salle comme une forêt inversée de cactus.",
+        "Puis, telle un démon montant des enfers, une masse flottante de tentacules de plus de deux mètres jaillit du puits. Chaque appendice écailleux se termine par une tête humanoïde difforme aux yeux verts luisants. Vous n'avez pas le temps de compter, mais il y en a au moins huit. La bête fonce en sifflant de rage !"
+      ],
+      mj: [
+        "La Reine est tapie au fond du puits et remonte dès qu'elle entend entrer (Perception passive DC 12 pour l'entendre monter — surprise sinon).",
+        "Tactique simple : jaillir, CRI pour semer le chaos, puis déchirer. Combat jusqu'à la mort (soif de reproduction via le baiser).",
+        "Repaire 30 m plus bas (forte odeur d'ammoniac) : corps décapité d'un aventurier + butin."
+      ],
+      monstres: ["vargouille-reine"],
+      tresor: ["Armure de plates", "Épée longue, bouclier lourd", "Potion de soins", "Sac : corde 15 m, grappin, gourde", "5 pa, 120 pc, 56 pe"],
+      choix: [
+        { txt: "Conclure l'aventure ▶", cible: "wlw-fin" }
+      ]
+    },
+    {
+      id: "wlw-fin", titre: "Conclusion", lieu: "Épilogue",
+      lecture: [
+        "La Reine morte, l'infestation s'éteint. Les héros peuvent ramener les corps au temple du village, faire leur rapport aux autorités, toucher la récompense promise (250 pa) et jouir d'une semaine gratuite au Gobelin Boiteux. Ils seront toujours les bienvenus à Eichen."
+      ],
+      mj: [
+        "Prolongements possibles :",
+        "• Si Marnak s'est échappé, il reviendra se venger.",
+        "• La carte au X et les notes suggèrent l'origine de la Reine : d'autres créatures existent peut-être.",
+        "• Marnak pourrait n'être qu'une branche d'un culte plus vaste.",
+        "• Suite officielle « The Quick and the Dead » : un mot dirige les héros vers le village de Kenby."
+      ],
+      choix: []
+    }
+  ]
+},
+
+/* ==========================================================================
+   AVENTURE 2 — LES TOURS DE LA NUIT  (Towers of Night)
+   ========================================================================== */
+{
+  id: "ton",
+  titre: "Les Tours de la Nuit",
+  sousTitre: "Royaume de Zeland — La Plaine des Batailles",
+  niveau: "Personnages de niveau 1 (4 à 5 joueurs)",
+  resume: "Le camp rebelle de Loch Brech, en Zeland (royaume du Seigneur de la Paresse), est harcelé par des morts-vivants venus du nord. Deux comploteurs — le nécromancien Beryn et le hobgobelin Drokag — profanent les antiques Tours de l'Attente pour lever une armée de morts et gagner les faveurs du Seigneur de la Paresse.",
+  auteur: "Don Knight — World of Farland (2015)",
+  debut: "ton-intro",
+  scenes: [
+    {
+      id: "ton-intro", titre: "Introduction & accroches", lieu: "Avant de commencer",
+      lecture: [],
+      mj: [
+        "Contexte : jadis, les Zelandais exposaient leurs morts au sommet des Tours de l'Attente (sur la Plaine des Batailles) pendant un an, puis jetaient les os dans une fosse à la base. Quand le Seigneur de la Paresse a pris Zeland, la noblesse de la Plaine a disparu.",
+        "Deux êtres convoitent la région : Beryn (nécromancien de peu de renom) et Drokag (hobgobelin ambitieux). Ils profanent les Tours pour lever une armée de morts-vivants et plaire au Seigneur de la Paresse.",
+        "Accroches (les héros arrivent au camp de Loch Brech, nord de Zeland) :",
+        "• Fuir la persécution : accusés d'« ambition illégale ».",
+        "• Un lieu pour travailler en paix : ils ont entendu parler du camp.",
+        "• Pur hasard : ils longeaient la Plaine des Batailles."
+      ],
+      choix: [{ txt: "Arriver au camp de Loch Brech ▶", cible: "ton-camp" }]
+    },
+    {
+      id: "ton-camp", titre: "Le camp de Loch Brech", lieu: "Partie 1",
+      lecture: [
+        "Sous la grande tente centrale, trois humains vous observent avec intérêt, chacun sur un tabouret. À gauche, un homme d'âge mûr en armure de cuir usée, marqué par les batailles. Au centre, une jeune femme quelconque en habits de paysanne. À droite, un homme au-delà de la force de l'âge, usé par une vie de dur labeur."
+      ],
+      mj: [
+        "Chefs (g. à d.) : Kieran O'Nel (défense), Ulica (renseignement), Nathi O'Rorke (artisans).",
+        "Kieran propose le marché : « Trop de morts-vivants ces temps-ci. Ils viennent du nord, de la Plaine des Batailles. Aucun de mes hommes ne peut être détaché. Arrêtez la source, prouvez votre valeur, et vous aurez refuge. Ça devrait être facile : les morts sont faibles, donc ce qui les fabrique devrait l'être aussi. » (Il se trompe.)",
+        "Ulica (renseignement) : la hausse de morts-vivants vient exclusivement du nord ; aucune info depuis l'intérieur de la Plaine (trop risqué d'y entrer).",
+        "Services du camp (39 habitants) : Grand-mère Hawkins (soigneuse, Bestra, Soins niv 1 pour 30 pa) et son apprenti Sabd (embauche possible contre une part du butin) ; forgeron Tarlach (armes/armures < 30 pa) ; marchand Peddler (biens < 30 pa). Pas d'objets magiques ni alchimiques. Étalon argent (1 pa = 1 po du PHB)."
+      ],
+      choix: [{ txt: "Partir vers la Plaine des Batailles ▶", cible: "ton-journey" }]
+    },
+    {
+      id: "ton-journey", titre: "Le voyage vers la Plaine", lieu: "Partie 1",
+      lecture: [
+        "Cinq heures de marche séparent le camp des abords de la Plaine des Batailles."
+      ],
+      mj: [
+        "Toutes les 3 h passées sur/aux abords de la Plaine, jette une rencontre aléatoire (d100) :",
+        "• 0-19 : Patrouille de Hestor (2 orcs + 2 gobelins). Les orcs commandent, les gobelins servent d'éclaireurs/d'appâts. Ne se tire qu'1×/2 jours ; 2e tirage sous 2 jours = rien.",
+        "• 20-34 : 3 Squelettes.",
+        "• 35-49 : 3 Zombies.",
+        "• 50-64 : 1 Goule.",
+        "• 65-100 : Rien."
+      ],
+      monstres: ["orc", "gobelin", "squelette", "zombie", "goule"],
+      choix: [{ txt: "Arriver au pied des deux Tours ▶", cible: "ton-base" }]
+    },
+    {
+      id: "ton-base", titre: "Le pied des Tours", lieu: "Partie 2",
+      lecture: [
+        "En arrivant à la Plaine des Batailles, vous découvrez deux tours. À leur base, l'anormalité saute aux yeux : une grande bâche a été tendue entre les deux Tours de l'Attente. Dessous se dressent trois squelettes, armés d'armes rouillées ramassées sur la plaine. Derrière eux, quatre kobolds s'affairent autour d'un tas d'ossements. Les tours sont distantes d'une trentaine de mètres."
+      ],
+      mj: [
+        "3 Squelettes + 4 Kobolds NON armés. Si le combat éclate, les kobolds fuient plus profond dans la Plaine (ils ne préviennent pas leurs chefs par dépit).",
+        "La bâche est décentrée, plus proche de la tour de DROITE (~4,5 m)."
+      ],
+      monstres: ["squelette", "kobold"],
+      choix: [
+        { txt: "Entrer dans la Tour de DROITE (Drokag)", cible: "ton-d-l1" },
+        { txt: "Entrer dans la Tour de GAUCHE (Beryn)", cible: "ton-g-l1" }
+      ]
+    },
+
+    /* --- TOUR DE DROITE --- */
+    {
+      id: "ton-d-l1", titre: "Tour Droite — Niveau 1 : Entrée", lieu: "Tour de Droite",
+      lecture: [
+        "Une lumière pâle entre par l'entrée. Au centre, un vaste trou circulaire occupe l'essentiel du sol, laissant une coursive de ~3 m tout autour. Un garde-fou hexagonal l'entoure, avec des torchères éteintes. Une longue échelle gît au sol, dépassant du bord du trou. Des planches et une grande dalle sont empilées derrière. Un escalier monte le long du mur ouest."
+      ],
+      mj: [
+        "L'échelle a été retirée du puits et le trou couvert : Beryn a perdu le contrôle de 6 zombies qu'il a piégés au Sous-niveau 1. Perception DC 12 : mouvement en contrebas.",
+        "Les débris s'enlèvent facilement → descente vers Sous-niveau 1. L'escalier monte vers Niveau 2."
+      ],
+      choix: [
+        { txt: "Descendre au Sous-niveau 1 ▼", cible: "ton-d-sl1" },
+        { txt: "Monter au Niveau 2 ▲", cible: "ton-d-l2" }
+      ]
+    },
+    {
+      id: "ton-d-sl1", titre: "Tour Droite — Sous-niv. 1 : Maintenance", lieu: "Tour de Droite",
+      lecture: [
+        "Il fait sombre. Un immense trou domine le centre de la salle. Des silhouettes titubent le long de l'étroite coursive vers vous, à environ 6 m. Ce sont des cadavres en décomposition !"
+      ],
+      mj: [
+        "3 Zombies (les 6 d'origine, dont 3 ici). Ils vous prennent en tenaille près de l'échelle.",
+        "Peu d'intérêt sinon : planches, tuiles, 2 marteaux, une scie, une longue perche à tête plate (servait à tasser le tas d'os). Le puits descend au Sous-niveau 2, remonte au Niveau 1."
+      ],
+      monstres: ["zombie"],
+      choix: [
+        { txt: "Descendre au Sous-niveau 2 (fosse à os) ▼", cible: "ton-d-sl2" },
+        { txt: "Remonter au Niveau 1 ▲", cible: "ton-d-l1" }
+      ]
+    },
+    {
+      id: "ton-d-sl2", titre: "Tour Droite — Sous-niv. 2 : Fosse à os", lieu: "Tour de Droite",
+      lecture: [
+        "Le fond de la tour, à au moins 3 m sous la surface. Au centre, une immense fosse creusée dans le sol de terre battue, remplie des os d'anciens Zelandais. De grosses pierres cernent la fosse. Le seul accès est le puits par lequel vous êtes descendus."
+      ],
+      mj: [
+        "Rien d'intéressant. Si quelqu'un tombe par le centre de la tour, il atterrit ici : traiter comme une fosse à pieux (os coupants) de la hauteur voulue."
+      ],
+      choix: [{ txt: "Remonter ▲", cible: "ton-d-sl1" }]
+    },
+    {
+      id: "ton-d-l2", titre: "Tour Droite — Niveau 2 : Chambre du Mémorial", lieu: "Tour de Droite",
+      lecture: [
+        "La pièce est saccagée. Restes d'arrangements floraux, vieux objets jetés à terre. Plusieurs plaques de bois arrachées du garde-fou gisent au sol. Serrés sur l'étroite coursive : 4 kobolds et un grand hobgobelin. Les kobolds, surpris en plein pillage, restent figés jusqu'à ce que le hobgobelin beugle un ordre dans leur langue grossière — et ils foncent sur vous."
+      ],
+      mj: [
+        "DROKAG le hobgobelin + 4 kobolds. Drokag se sert des kobolds comme boucliers et tire à l'arbalète depuis l'autre côté du trou. À la moitié de ses PV, il bouscule les plus faibles et fuit vers l'autre tour pour prévenir Beryn.",
+        "Plaques : les squelettes de cette tour sont morts de batailles anciennes, avant le Seigneur de la Paresse.",
+        "Fouille (Perception DC 12) : statuette d'ivoire de Bestra (50 pa) + CASQUE DE MINEUR (voir Trésors).",
+        "Sur Drokag : la CLÉ DE CHIFFRE (déchiffre les documents de l'autel, Niveau 3) — révèle l'espionne Bebbin O'Nel.",
+        "Butin de Drokag : cotte de mailles, bouclier, épée longue, arc long + 30 flèches, 50 pa."
+      ],
+      monstres: ["drokag", "kobold"],
+      tresor: ["Statuette d'ivoire de Bestra (50 pa)", "Casque de Mineur (lanterne mains-libres)", "Clé de Chiffre", "50 pa, épée longue, arc long, cotte de mailles"],
+      choix: [
+        { txt: "Monter au Niveau 3 (autel) ▲", cible: "ton-d-l3" },
+        { txt: "Descendre au Niveau 1 ▼", cible: "ton-d-l1" }
+      ]
+    },
+    {
+      id: "ton-d-l3", titre: "Tour Droite — Niveau 3 : Chambre d'Adieu (base de Drokag)", lieu: "Tour de Droite",
+      lecture: [
+        "Une salle jadis bien entretenue : sol de tuiles de meilleure qualité, plafond haut (~9 m), aucun garde-fou autour du trou. Sur le mur sud, un autel près du bord du trou, jonché de parchemins. Torchères éteintes le long des murs. Une échelle monte à l'est, un escalier descend à l'ouest."
+      ],
+      mj: [
+        "Base d'opérations de Drokag. Parchemins = CARTES : l'une montre la zone de Loch Brech avec plusieurs marques (anciens emplacements du camp — Drokag comptait capturer les campeurs et les livrer à Hestor).",
+        "Pile de NOTES CODÉES sur l'autel : avec la Clé de Chiffre de Drokag, jet Int DC 10 pour traduire (fais le jet toi-même, MJ). Réussite → révèle Bebbin O'Nel comme ESPIONNE. Échec → pointe une personne innocente au hasard (à toi de jouer).",
+        "Bebbin O'Nel = sœur cadette de Kieran O'Nel ; elle croit élever sa famille en collaborant avec Beryn et Drokag ; elle envoie des rapports quand elle sort « chasser le dark folk »."
+      ],
+      tresor: ["Cartes (emplacements du camp)", "Notes codées → identité de l'espionne"],
+      choix: [
+        { txt: "Monter au Niveau 4 (grue) ▲", cible: "ton-d-l4" },
+        { txt: "Redescendre au Niveau 2 ▼", cible: "ton-d-l2" }
+      ]
+    },
+    {
+      id: "ton-d-l4", titre: "Tour Droite — Niveau 4 : Chambre de la Grue", lieu: "Tour de Droite",
+      lecture: [
+        "Le trou central est ici plus petit (~1,5 m de moins). Plafond plus haut (~6 m). Dans le coin nord-ouest, une grande grue de bois aux mécanismes visiblement âgés, une vieille plateforme, un enchevêtrement de cordages. Un escalier monte ; on ne redescend que par l'échelle. Une lumière vive filtre par le trou du plafond et par huit fenêtres, chacune assez large pour un humain, donnant sur d'énormes supports de bois soutenant le toit."
+      ],
+      mj: [
+        "La grue montait jadis les défunts au sommet. Plateforme = un corps. Les cordages sont vieux et peuvent rompre sous un poids réel.",
+        "L'escalier monte au Toit ; l'échelle redescend au Niveau 3."
+      ],
+      choix: [
+        { txt: "Monter sur le Toit ▲", cible: "ton-d-toit" },
+        { txt: "Redescendre au Niveau 3 ▼", cible: "ton-d-l3" }
+      ]
+    },
+    {
+      id: "ton-d-toit", titre: "Tour Droite — Toit : Dernier Repos", lieu: "Tour de Droite",
+      lecture: [
+        "Le toit déborde de 1,5 m de chaque côté. Quelques vieux squelettes gisent çà et là. Un muret d'environ 60 cm ceint le toit. Au centre, le trou habituel. Sur le côté ouest, trois squelettes armés d'arcs longs fixent l'autre tour."
+      ],
+      mj: [
+        "3 Squelettes archers (arc long +4, 6/1d8+2). Ordre : ne tirer que si BERYN est en danger ; sinon n'attaquent que si on les dérange.",
+        "Si les héros ne les éliminent pas, ces archers tirent dans le combat final sur le Toit de la Tour de Gauche. Élimine-les ici pour désamorcer le piège."
+      ],
+      monstres: ["squelette"],
+      choix: [
+        { txt: "Redescendre / rejoindre la Tour de Gauche", cible: "ton-g-l1" }
+      ]
+    },
+
+    /* --- TOUR DE GAUCHE --- */
+    {
+      id: "ton-g-l1", titre: "Tour Gauche — Niveau 1 : Entrée", lieu: "Tour de Gauche",
+      lecture: [
+        "Une dalle carrée à l'entrée figure le soleil dans toute sa gloire. Au centre, le grand trou circulaire habituel, coursive de ~3 m autour, garde-fou hexagonal, torchères éteintes. Une échelle dépasse du sol au nord, descendant vers les niveaux inférieurs. Un escalier monte le long du mur ouest."
+      ],
+      mj: [
+        "Rien de valeur ici. Perception DC 10 : quelque chose s'affaire furieusement dans le tas d'os du Sous-niveau 2 (des kobolds qui récoltent des os).",
+        "Échelle → Sous-niveau 1 ; escalier → Niveau 2."
+      ],
+      choix: [
+        { txt: "Descendre au Sous-niveau 1 ▼", cible: "ton-g-sl1" },
+        { txt: "Monter au Niveau 2 ▲", cible: "ton-g-l2" }
+      ]
+    },
+    {
+      id: "ton-g-sl1", titre: "Tour Gauche — Sous-niv. 1 : Maintenance", lieu: "Tour de Gauche",
+      lecture: [
+        "De la lumière filtre du niveau supérieur. Autour de la salle, des sacs et des caisses débordent d'ossements. Des jappements de chiens et le cliquetis d'os montent du niveau inférieur. Une échelle mène en bas et en haut."
+      ],
+      mj: [
+        "Les caisses d'os sont le fruit du travail des kobolds. Ils montent les os au 1er niveau via la grue (Niveau 4). Rien à combattre ici — descends encore.",
+        "Échelle → Sous-niveau 2 et → Niveau 1."
+      ],
+      choix: [
+        { txt: "Descendre au Sous-niveau 2 ▼", cible: "ton-g-sl2" },
+        { txt: "Remonter au Niveau 1 ▲", cible: "ton-g-l1" }
+      ]
+    },
+    {
+      id: "ton-g-sl2", titre: "Tour Gauche — Sous-niv. 2 : Fosse à os", lieu: "Tour de Gauche",
+      lecture: [
+        "Le fond de la tour. Au centre, une immense fosse d'ossements. Quatre kobolds s'affairent, surpris mais prêts. Le seul accès est celui par lequel vous êtes venus."
+      ],
+      mj: [
+        "4 Kobolds. Ils préfèreraient fuir mais sont acculés : ils gardent le tas d'os entre eux et vous et lancent des os comme projectiles.",
+        "  › Os lancés (33 % chacun) : Petit 1 pt / Moyen 1d3 / Grand 1d6 contondant.",
+        "  › En mêlée : outils improvisés récupérés en haut — scie 1d4 tranchant, marteaux 1d6, perche 1d6 (pénalités d'arme improvisée)."
+      ],
+      monstres: ["kobold"],
+      choix: [{ txt: "Remonter ▲", cible: "ton-g-sl1" }]
+    },
+    {
+      id: "ton-g-l2", titre: "Tour Gauche — Niveau 2 : Chambre du Mémorial", lieu: "Tour de Gauche",
+      lecture: [
+        "La pièce a été entièrement pillée. Restes du mémorial épars, ce que les pillards ont dédaigné jonche le sol. Plusieurs plaques de bois arrachées gisent à terre. L'escalier continue vers le haut comme vers le bas."
+      ],
+      mj: [
+        "Drokag a d'abord pillé cette tour avant qu'ils n'échangent (Drokag à droite pour contenir les zombies).",
+        "Fouille (Perception DC 12) : broche d'argent en forme de soleil (30 pa) + pipe à tabac en laiton (10 pa).",
+        "Plaques : cette tour abrite deux pelotons entiers (guerres barbares + Bataille de la Hache) et quelques seigneurs mineurs."
+      ],
+      tresor: ["Broche d'argent au soleil (30 pa)", "Pipe en laiton (10 pa)"],
+      choix: [
+        { txt: "Monter au Niveau 3 ▲", cible: "ton-g-l3" }
+      ]
+    },
+    {
+      id: "ton-g-l3", titre: "Tour Gauche — Niveau 3 : Chambre d'Adieu", lieu: "Tour de Gauche",
+      lecture: [
+        "Sol de tuiles de meilleure qualité, aucun garde-fou autour du trou (attention à la chute dans le noir !). Un autel sur le côté sud, près du bord. Une échelle monte à l'est, un escalier descend à l'ouest."
+      ],
+      mj: [
+        "Pièce vide MAIS prudence : Perception DC 12 → bruits de mastication au-dessus (une goule ronge des os au Niveau 4).",
+        "En montant l'échelle, Discrétion DC 12 évite l'embuscade. Sinon, la goule (cachée sur une poutre par une fenêtre) entend les héros grimper et prépare son embuscade."
+      ],
+      choix: [
+        { txt: "Monter au Niveau 4 (grue / goule) ▲", cible: "ton-g-l4" },
+        { txt: "Redescendre au Niveau 2 ▼", cible: "ton-g-l2" }
+      ]
+    },
+    {
+      id: "ton-g-l4", titre: "Tour Gauche — Niveau 4 : Chambre de la Grue (goule)", lieu: "Tour de Gauche",
+      lecture: [
+        "Comme dans l'autre tour : trou central plus petit, plafond ~6 m, une vieille grue au nord-ouest, plateforme, cordages emmêlés. Huit fenêtres donnant sur d'énormes supports de bois. Une lumière vive au sommet suggère le toit à l'étage supérieur."
+      ],
+      mj: [
+        "1 GOULE, rusée et parlante : elle s'est alliée à Beryn (par intérêt alimentaire) et lui sert de garde privé — Beryn lui fait plus confiance qu'à Drokag et ses kobolds.",
+        "La trouver : Perception DC 12, ou sortir sur une poutre. Elle tend une embuscade dès que les héros s'éloignent de l'échelle/escalier, les coinçant contre un mur ou le trou. Si les héros montent sans fouiller, elle les suit sur le toit.",
+        "NE PAS l'éliminer avant le combat final = elle rejoindra le combat contre Beryn (très dangereux)."
+      ],
+      monstres: ["goule"],
+      choix: [
+        { txt: "Monter sur le Toit (Beryn) ▲", cible: "ton-g-toit" },
+        { txt: "Redescendre au Niveau 3 ▼", cible: "ton-g-l3" }
+      ]
+    },
+    {
+      id: "ton-g-toit", titre: "Tour Gauche — Toit : BERYN le Nécromancien", lieu: "Combat final",
+      lecture: [
+        "Le toit s'élargit d'1,5 m tout autour, ceint d'un muret de 60 cm. Au centre, le trou habituel, un peu plus petit. À l'est, un homme en habits de paysan lâches agite les mains dans un rituel étrange, marmonnant des mots de pouvoir tirés d'un parchemin. Les quelques squelettes restés sur cette tour se dressent devant lui. Il semble entièrement absorbé et n'attaque pas."
+      ],
+      mj: [
+        "BERYN. Perception DC 15 pour le voir en plein rituel ; Arcanes DC 15 pour comprendre qu'il lève des squelettes.",
+        "Quand les héros approchent, 3 squelettes qu'il vient d'animer se dressent : il s'en sert comme boucliers et lance ses sorts par-derrière.",
+        "PIÈGES CUMULÉS (potentiellement mortels) : si les archers du Toit de la Tour de DROITE sont encore vivants, ils tirent ici à l'arc long ; si la GOULE du Niveau 4 est encore vive, elle rejoint aussi le combat. D'où l'intérêt de les avoir neutralisés avant.",
+        "Butin de Beryn : grimoire, 50 pa, bâton, dague, bague d'argent (20 pa)."
+      ],
+      monstres: ["beryn", "squelette", "goule"],
+      tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
+      choix: [
+        { txt: "Conclure l'aventure ▶", cible: "ton-fin" }
+      ]
+    },
+    {
+      id: "ton-fin", titre: "Conclusion", lieu: "Épilogue",
+      lecture: [
+        "Beryn et Drokag vaincus, il ne reste qu'à rentrer faire rapport à Kieran et aux autres. À toi, MJ, de récompenser les héros comme bon te semble."
+      ],
+      mj: [
+        "PX BONUS (les morts étaient d'anciens Zelandais) :",
+        "• Déposer les zombies sur le toit à la manière ancestrale : +50 PX/héros.",
+        "• Mettre la goule au repos : +50 PX.",
+        "• Jeter squelettes + os pillés dans la fosse à os : +100 PX.",
+        "• Remettre les plaques à leur place : +50 PX.",
+        "• Démasquer Bebbin O'Nel comme espionne via les documents de Drokag : +100 PX.",
+        "Prolongement : Bebbin s'échappe avant d'être démasquée et va vendre le camp à un autre pouvoir maléfique → nouvelle quête pour la rattraper."
+      ],
+      choix: []
+    }
+  ]
+}
+];
+
+
+/* ============================================================
+   FICHES PERSONNAGES pré-tirées (prêtes à jouer, saveur Farland)
+   Format compatible avec l'onglet Personnages / le lanceur de dés.
+   stats : valeurs 1-20 ; les modificateurs sont calculés à l'affichage.
+   Ces pregens servent de modèles ; le joueur peut créer les siens
+   (stockés dans le navigateur / localStorage).
+   ============================================================ */
+
+window.PREGENS = [
+  {
+    id: "pg-guerrier",
+    nom: "Gorm Poing-de-Fer",
+    classe: "Guerrier niv. 2", race: "Demi-orc",
+    pv: 20, ca: 16, vitesse: "9 m", init: 1,
+    stats: { for: 16, dex: 13, con: 15, int: 8, sag: 12, cha: 10 },
+    maitrise: 2,
+    jetsSauv: ["for", "con"],
+    competences: ["Athlétisme", "Intimidation", "Survie", "Perception"],
+    attaques: [
+      { nom: "Épée longue", bonus: 5, degats: "1d8+3 tranchant (2 mains : 1d10+3)" },
+      { nom: "Arc long", bonus: 3, degats: "1d8+1 perforant (45/180 m)" }
+    ],
+    capacites: [
+      "Second souffle (bonus, 1×/repos court) : récupère 1d10+2 PV.",
+      "Fougue (Action Surge, 1×/repos court) : une action supplémentaire.",
+      "Résistance à la brutalité : 1×/jour reste à 1 PV au lieu de 0.",
+      "Vision dans le noir 18 m."
+    ],
+    equipement: "Cotte de mailles, bouclier (rangé si arc), épée longue, arc long + 20 flèches, sac d'aventurier, 15 pa.",
+    notes: "Tank de première ligne. Idéal pour encaisser hold person et les morsures."
+  },
+  {
+    id: "pg-clerc",
+    nom: "Sœur Aline de Bestra",
+    classe: "Clerc niv. 2 (Domaine de la Vie)", race: "Humaine",
+    pv: 16, ca: 18, vitesse: "9 m", init: 0,
+    stats: { for: 13, dex: 10, con: 14, int: 11, sag: 16, cha: 12 },
+    maitrise: 2,
+    jetsSauv: ["sag", "cha"],
+    competences: ["Médecine", "Religion", "Perspicacité", "Persuasion"],
+    dcSort: 13, attaqueSort: 5,
+    attaques: [
+      { nom: "Masse d'armes", bonus: 4, degats: "1d6+1 contondant" },
+      { nom: "Flamme sacrée (tour)", bonus: 5, degats: "1d8 radiant (JS Dex DC 13)" }
+    ],
+    sorts: [
+      "Tours : flamme sacrée, réparation, lumière.",
+      "Niv 1 (3 empl.) : soins (1d8+3 renforcé Vie), bénédiction, injonction, sanctuaire, blessure.",
+      "Niv 2 (2 empl.) : arme spirituelle, immobilisation de personne, restauration mineure (guérit Oscar Drok / la maladie vargouille)."
+    ],
+    capacites: [
+      "Renvoi des morts-vivants (Channel Divinity, DC 13) — TRÈS utile contre squelettes/zombies. ⚠ Dans la cave du manoir (aventure 1), le sol impie donne l'avantage aux morts-vivants.",
+      "Disciple de la Vie : chaque sort de soin ajoute 2 + niveau du sort."
+    ],
+    equipement: "Cotte de mailles, bouclier, masse d'armes, symbole sacré de Bestra, sacoche de composantes, 15 pa.",
+    notes: "Soigneuse & anti-morts-vivants. Peut lever la malédiction de la Reine Vargouille."
+  },
+  {
+    id: "pg-roublard",
+    nom: "Wren la Silencieuse",
+    classe: "Roublard niv. 2", race: "Halfeline",
+    pv: 14, ca: 14, vitesse: "7,50 m", init: 3,
+    stats: { for: 9, dex: 16, con: 12, int: 13, sag: 12, cha: 14 },
+    maitrise: 2,
+    jetsSauv: ["dex", "int"],
+    competences: ["Discrétion (expertise)", "Crochetage (expertise)", "Perception", "Investigation", "Acrobaties", "Escamotage"],
+    attaques: [
+      { nom: "Rapière", bonus: 5, degats: "1d8+3 perforant" },
+      { nom: "Arc court", bonus: 5, degats: "1d6+3 perforant (24/96 m)" },
+      { nom: "Dague (lancer)", bonus: 5, degats: "1d4+3 (6/18 m)" }
+    ],
+    capacites: [
+      "Attaque sournoise : +1d6 dégâts (avantage ou allié adjacent à la cible).",
+      "Ruse (bonus) : Se désengager / Foncer / se Cacher en action bonus.",
+      "Chanceuse (halfelin) : relance les 1 naturels sur d20.",
+      "Expertise : double maîtrise en Discrétion et Crochetage."
+    ],
+    equipement: "Armure de cuir, rapière, arc court + 20 flèches, 2 dagues, outils de voleur, 15 pa.",
+    notes: "Détecte/désarme les pièges (arbalète, fosse), crochette les coffres, éclaireuse. Parfaite pour la tour et le manoir."
+  },
+  {
+    id: "pg-magicien",
+    nom: "Edran Cœur-de-Braise",
+    classe: "Magicien niv. 2 (Évocation)", race: "Humain",
+    pv: 13, ca: 12, vitesse: "9 m", init: 2,
+    stats: { for: 8, dex: 14, con: 13, int: 16, sag: 12, cha: 10 },
+    maitrise: 2,
+    jetsSauv: ["int", "sag"],
+    competences: ["Arcanes", "Histoire", "Investigation", "Perception"],
+    dcSort: 13, attaqueSort: 5,
+    attaques: [
+      { nom: "Trait de feu (tour)", bonus: 5, degats: "1d10 feu (36 m)" },
+      { nom: "Rayon de givre (tour)", bonus: 5, degats: "1d8 froid, -3 m vitesse" },
+      { nom: "Dague", bonus: 4, degats: "1d4+2 perforant" }
+    ],
+    sorts: [
+      "Tours : trait de feu, rayon de givre, main du mage, lumière.",
+      "Niv 1 (3 empl.) : projectile magique (auto-touche, utile vs vargouilles), mains brûlantes, bouclier, armure du mage, sommeil.",
+      "Sculpteur de sorts : peut épargner ses alliés d'une évocation."
+    ],
+    capacites: [
+      "Récupération arcanique (1×/jour, repos court) : récupère des emplacements de sort.",
+      "Rituels depuis le grimoire (détection de la magie, identification…)."
+    ],
+    equipement: "Bâton, dague, grimoire, sacoche de composantes, 15 pa.",
+    notes: "Artillerie. Projectile magique ne rate jamais — utile contre les vargouilles cachées."
+  },
+  {
+    id: "pg-rodeur",
+    nom: "Kaelin des Bois",
+    classe: "Rôdeur niv. 2 (Chasseur)", race: "Elfe des bois",
+    pv: 17, ca: 15, vitesse: "10,50 m", init: 3,
+    stats: { for: 12, dex: 16, con: 13, int: 10, sag: 14, cha: 10 },
+    maitrise: 2,
+    jetsSauv: ["for", "dex"],
+    competences: ["Survie", "Perception", "Discrétion", "Nature", "Dressage"],
+    dcSort: 12, attaqueSort: 4,
+    attaques: [
+      { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant (45/180 m)" },
+      { nom: "2 épées courtes", bonus: 5, degats: "1d6+3 / 1d6 (bonus) tranchant" }
+    ],
+    sorts: [
+      "Niv 1 (2 empl.) : marque du chasseur (+1d6 sur une cible), soin des blessures, flèche assurée, communication avec les animaux."
+    ],
+    capacites: [
+      "Ennemi juré : morts-vivants (avantage aux jets pour les pister/se souvenir).",
+      "Explorateur né : difficile à surprendre en nature.",
+      "Sang-froid elfique : avantage vs charme, immunité au sommeil magique.",
+      "Vision dans le noir 18 m, pieds légers.",
+      "Dressage : peut calmer les chiens d'Oscar Drok."
+    ],
+    equipement: "Armure de cuir clouté, arc long + 20 flèches, 2 épées courtes, kit d'explorateur, 15 pa.",
+    notes: "Éclaireur/archer polyvalent. Marque du chasseur pour piquer un boss."
+  }
+];
+
+
+/* ===== Moteur de dés ===== */
+window.Dice = (function () {
+  function rollDie(sides) { return Math.floor(Math.random() * sides) + 1; }
+
+  // Lance n dés à f faces, renvoie {rolls, sum}
+  function roll(n, sides) {
+    const rolls = [];
+    for (let i = 0; i < n; i++) rolls.push(rollDie(sides));
+    return { rolls, sum: rolls.reduce((a, b) => a + b, 0) };
+  }
+
+  // d20 avec modificateur + avantage/désavantage
+  // mode: 'normal' | 'adv' | 'dis'
+  function d20(mod = 0, mode = 'normal') {
+    const a = rollDie(20), b = rollDie(20);
+    let kept = a, other = null;
+    if (mode === 'adv')  { kept = Math.max(a, b); other = Math.min(a, b); }
+    if (mode === 'dis')  { kept = Math.min(a, b); other = Math.max(a, b); }
+    return {
+      natural: kept, other, mod,
+      total: kept + mod,
+      crit: kept === 20, fail: kept === 1, mode
+    };
+  }
+
+  // parse une expression type "2d6+3", "d20", "1d8-1", "4d4"
+  function parse(expr) {
+    const m = String(expr).replace(/\s+/g, '').toLowerCase()
+      .match(/^(\d*)d(\d+)([+-]\d+)?$/);
+    if (!m) return null;
+    const n = m[1] ? parseInt(m[1], 10) : 1;
+    const sides = parseInt(m[2], 10);
+    const mod = m[3] ? parseInt(m[3], 10) : 0;
+    if (n < 1 || n > 100 || sides < 2 || sides > 1000) return null;
+    return { n, sides, mod };
+  }
+
+  function rollExpr(expr) {
+    const p = parse(expr);
+    if (!p) return null;
+    const r = roll(p.n, p.sides);
+    return { ...p, rolls: r.rolls, total: r.sum + p.mod, expr };
+  }
+
+  return { roll, d20, rollExpr, parse, rollDie };
+})();
+
+
+/* ===== Farland MJ — application ===== */
+(function () {
+  "use strict";
+
+  // ---------- utilitaires ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = (s) => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function abilMod(score) { return Math.floor((score - 10) / 2); }
+  function signed(n) { return (n >= 0 ? "+" : "") + n; }
+  const LS = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  function hint(msg) {
+    const h = $("#hint"); h.textContent = msg; h.classList.add("show");
+    clearTimeout(h._t); h._t = setTimeout(() => h.classList.remove("show"), 1600);
+  }
+  const byId = (arr, id) => arr.find((x) => x.id === id);
+
+  // ---------- navigation onglets ----------
+  const TABS = ["jeu", "des", "perso", "bestiaire", "univers"];
+  function showTab(tab) {
+    TABS.forEach((t) => {
+      $("#view-" + t).classList.toggle("active", t === tab);
+      const b = $(`nav.tabbar button[data-tab="${t}"]`);
+      if (b) b.classList.toggle("active", t === tab);
+    });
+    LS.set("lastTab", tab);
+    window.scrollTo(0, 0);
+  }
+  $$("nav.tabbar button").forEach((b) =>
+    b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+  // =====================================================================
+  //  VUE AVENTURE (scénarios + lecteur de scènes)
+  // =====================================================================
+  const gameState = LS.get("gameState", { scenarioId: null, sceneId: null });
+
+  function renderScenarioList() {
+    const html = `
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--accent)">Choisir une aventure</h2>
+        <p class="muted small">Lecteur pour le Maître du Jeu : chaque scène affiche le <b style="color:#a9cbe4">texte à lire à voix haute</b> puis vos <b style="color:var(--accent-2)">notes secrètes</b>, et propose les suites possibles.</p>
+      </div>
+      ${SCENARIOS.map((s) => `
+        <button class="pick" data-scenario="${s.id}">
+          <h3>${esc(s.titre)}</h3>
+          <div class="meta">${esc(s.sousTitre)} · ${esc(s.niveau)}</div>
+          <p>${esc(s.resume)}</p>
+        </button>`).join("")}
+      <div class="card small muted center">
+        Contenu adapté des scénarios officiels du <b>Monde de Farland</b> (farlandworld.com).
+      </div>`;
+    $("#view-jeu").innerHTML = html;
+    $$("#view-jeu [data-scenario]").forEach((b) =>
+      b.addEventListener("click", () => openScenario(b.dataset.scenario)));
+  }
+
+  function openScenario(sid, sceneId) {
+    const sc = byId(SCENARIOS, sid);
+    if (!sc) return renderScenarioList();
+    gameState.scenarioId = sid;
+    gameState.sceneId = sceneId || sc.debut;
+    LS.set("gameState", gameState);
+    renderScene();
+  }
+
+  function renderScene() {
+    const sc = byId(SCENARIOS, gameState.scenarioId);
+    if (!sc) return renderScenarioList();
+    const scene = byId(sc.scenes, gameState.sceneId) || byId(sc.scenes, sc.debut);
+    const idx = sc.scenes.indexOf(scene);
+
+    const lecture = (scene.lecture && scene.lecture.length) ? `
+      <div class="readbox">
+        <span class="label">📢 À lire à voix haute</span>
+        ${scene.lecture.map((p) => `<p>${esc(p)}</p>`).join("")}
+      </div>` : "";
+
+    const mjNotes = (scene.mj && scene.mj.length) ? `
+      <div class="gmbox">
+        <span class="label">🎭 Notes du MJ</span>
+        <ul>${scene.mj.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    const mobs = (scene.monstres && scene.monstres.length) ? `
+      <div class="section-title">Créatures présentes — touchez pour la fiche</div>
+      <div>${scene.monstres.map((mid) => {
+        const m = byId(BESTIARY, mid);
+        return m ? `<button class="mini-mob" data-mob="${m.id}">👹 ${esc(m.nom)} <span class="cr">FP ${esc(m.cr)}</span></button>` : "";
+      }).join("")}</div>` : "";
+
+    const loot = (scene.tresor && scene.tresor.length) ? `
+      <div class="section-title">Trésor / butin</div>
+      <ul class="loot">${scene.tresor.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : "";
+
+    const choices = (scene.choix && scene.choix.length) ? `
+      <div class="choices">
+        <span class="label">Que font les héros ?</span>
+        ${scene.choix.map((c) => `
+          <button class="choice" data-goto="${c.cible}">
+            <span>${esc(c.txt)}</span><span class="arrow">›</span>
+          </button>`).join("")}
+      </div>` : `
+      <div class="choices">
+        <button class="choice" data-goto="__list__"><span>Fin de cette branche — retour aux aventures</span><span class="arrow">›</span></button>
+      </div>`;
+
+    $("#view-jeu").innerHTML = `
+      <div class="btn-row" style="margin-bottom:12px">
+        <button class="btn-ghost" data-goto="__list__">‹ Aventures</button>
+        <button class="btn-ghost" data-goto="${sc.debut}">⟲ Début</button>
+        <button class="btn-ghost" id="jump-btn">☰ Scènes</button>
+      </div>
+      <div class="progress">${esc(sc.titre)} — scène ${idx + 1}/${sc.scenes.length}</div>
+      <div class="scene-head">
+        <h2>${esc(scene.titre)}</h2>
+      </div>
+      <div class="scene-loc">📍 ${esc(scene.lieu || "")}</div>
+      ${lecture}
+      ${mjNotes}
+      ${mobs}
+      ${loot}
+      ${choices}
+      <div id="jump-panel"></div>`;
+
+    // liaisons
+    $$("#view-jeu [data-goto]").forEach((b) => b.addEventListener("click", () => {
+      const t = b.dataset.goto;
+      if (t === "__list__") { renderScenarioList(); window.scrollTo(0,0); return; }
+      gameState.sceneId = t; LS.set("gameState", gameState); renderScene(); window.scrollTo(0, 0);
+    }));
+    $$("#view-jeu [data-mob]").forEach((b) => b.addEventListener("click", () => {
+      openBestiaryEntry(b.dataset.mob);
+    }));
+    $("#jump-btn").addEventListener("click", () => {
+      const p = $("#jump-panel");
+      if (p.innerHTML) { p.innerHTML = ""; return; }
+      p.innerHTML = `<div class="card"><div class="section-title" style="margin-top:0">Aller à une scène</div>${
+        sc.scenes.map((s, i) => `<button class="choice" data-goto="${s.id}"><span>${i+1}. ${esc(s.titre)}</span><span class="arrow">›</span></button>`).join("")
+      }</div>`;
+      $$("#jump-panel [data-goto]").forEach((b) => b.addEventListener("click", () => {
+        gameState.sceneId = b.dataset.goto; LS.set("gameState", gameState); renderScene(); window.scrollTo(0,0);
+      }));
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function renderGameTab() {
+    if (gameState.scenarioId && byId(SCENARIOS, gameState.scenarioId)) renderScene();
+    else renderScenarioList();
+  }
+
+  // =====================================================================
+  //  VUE DÉS
+  // =====================================================================
+  let diceLog = LS.get("diceLog", []);
+  let d20mode = "normal";
+
+  function pushLog(label, total, detail) {
+    diceLog.unshift({ label, total, detail, t: Date.now() });
+    diceLog = diceLog.slice(0, 25);
+    LS.set("diceLog", diceLog);
+  }
+
+  function renderDice() {
+    $("#view-des").innerHTML = `
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--accent)">Jet de d20</h2>
+        <div class="d20-ctrl">
+          <label class="small muted">Modif.</label>
+          <input type="number" id="d20mod" value="0" inputmode="numbers" />
+          <div class="adv-toggle btn-row" style="flex:1">
+            <button data-mode="dis" class="${d20mode==='dis'?'on':''}">Désav.</button>
+            <button data-mode="normal" class="${d20mode==='normal'?'on':''}">Normal</button>
+            <button data-mode="adv" class="${d20mode==='adv'?'on':''}">Avantage</button>
+          </div>
+        </div>
+        <button class="btn-accent btn-block" id="roll-d20">🎲 Lancer le d20</button>
+        <div class="dice-result" id="d20-out"><div class="total">—</div><div class="detail muted">Prêt à lancer</div></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">Dés simples</div>
+        <div class="dice-grid">
+          ${[4,6,8,10,12,20,100].map((d)=>`<button data-die="${d}">d${d}</button>`).join("")}
+          <button data-die="6" data-n="2">2d6<small>dégâts</small></button>
+          <button data-die="6" data-n="3">3d6</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">Lancer personnalisé</div>
+        <div class="btn-row">
+          <input type="text" id="custom-expr" class="search" placeholder="ex : 2d8+3, 1d20-1, 4d4" style="flex:1;margin:0" />
+          <button class="btn-accent" id="roll-custom">Lancer</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">Historique <button class="btn-ghost small" id="clear-log" style="float:right;min-height:auto;padding:4px 10px">Vider</button></div>
+        <div class="roll-log" id="roll-log"></div>
+      </div>`;
+
+    $$('#view-des .adv-toggle button').forEach((b)=>b.addEventListener("click",()=>{
+      d20mode = b.dataset.mode; renderDice();
+    }));
+    $("#roll-d20").addEventListener("click", () => {
+      const m = parseInt($("#d20mod").value, 10) || 0;
+      const r = Dice.d20(m, d20mode);
+      const cls = r.crit ? "crit" : r.fail ? "fail" : "";
+      const modeTxt = r.mode === "adv" ? " (avantage)" : r.mode === "dis" ? " (désav.)" : "";
+      const otherTxt = r.other != null ? ` · autre dé ${r.other}` : "";
+      $("#d20-out").innerHTML =
+        `<div class="total ${cls}">${r.total}</div>
+         <div class="detail">dé ${r.natural}${r.mod?` ${signed(r.mod)}`:""}${modeTxt}${otherTxt}${r.crit?" · CRITIQUE ⭐":r.fail?" · échec critique 💀":""}</div>`;
+      pushLog(`d20${r.mod?signed(r.mod):""}${modeTxt}`, r.total, `dé ${r.natural}`);
+      renderLog();
+    });
+    $$('#view-des [data-die]').forEach((b)=>b.addEventListener("click",()=>{
+      const sides = +b.dataset.die, n = +(b.dataset.n||1);
+      const r = Dice.roll(n, sides);
+      $("#d20-out").innerHTML = `<div class="total">${r.sum}</div><div class="detail">${n}d${sides} : [${r.rolls.join(", ")}]</div>`;
+      pushLog(`${n}d${sides}`, r.sum, `[${r.rolls.join(", ")}]`); renderLog();
+    }));
+    $("#roll-custom").addEventListener("click", rollCustom);
+    $("#custom-expr").addEventListener("keydown",(e)=>{ if(e.key==="Enter") rollCustom(); });
+    $("#clear-log").addEventListener("click",()=>{ diceLog=[]; LS.set("diceLog",diceLog); renderLog(); });
+    renderLog();
+  }
+
+  function rollCustom() {
+    const expr = $("#custom-expr").value.trim();
+    const r = Dice.rollExpr(expr);
+    if (!r) { hint("Format invalide (ex : 2d6+3)"); return; }
+    $("#d20-out").innerHTML = `<div class="total">${r.total}</div><div class="detail">${esc(expr)} : [${r.rolls.join(", ")}]${r.mod?` ${signed(r.mod)}`:""}</div>`;
+    pushLog(expr, r.total, `[${r.rolls.join(", ")}]`); renderLog();
+  }
+
+  function renderLog() {
+    const el = $("#roll-log"); if (!el) return;
+    if (!diceLog.length) { el.innerHTML = `<div class="muted small">Aucun jet.</div>`; return; }
+    el.innerHTML = diceLog.map((r)=>`<div class="row"><span>${esc(r.label)} <span class="muted small">${esc(r.detail)}</span></span><b>${r.total}</b></div>`).join("");
+  }
+
+  // =====================================================================
+  //  VUE PERSONNAGES
+  // =====================================================================
+  const ABILS = [["for","FOR"],["dex","DEX"],["con","CON"],["int","INT"],["sag","SAG"],["cha","CHA"]];
+
+  function allCharacters() {
+    const custom = LS.get("customChars", []);
+    return [...PREGENS, ...custom];
+  }
+
+  function renderPersoList() {
+    const chars = allCharacters();
+    $("#view-perso").innerHTML = `
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--accent)">Fiches de personnage</h2>
+        <p class="muted small">Accès rapide aux héros. Touchez une caractéristique pour lancer un jet de d20 avec son modificateur.</p>
+        <button class="btn-accent btn-block" id="new-char">+ Nouveau personnage</button>
+      </div>
+      ${chars.map((c)=>`
+        <button class="pick" data-char="${c.id}">
+          <h3>${esc(c.nom)}</h3>
+          <div class="meta">${esc(c.classe)} · ${esc(c.race)} · PV ${c.pv} · CA ${c.ca}</div>
+        </button>`).join("")}`;
+    $("#new-char").addEventListener("click", newCharacterForm);
+    $$("#view-perso [data-char]").forEach((b)=>b.addEventListener("click",()=>renderCharSheet(b.dataset.char)));
+  }
+
+  function renderCharSheet(id) {
+    const c = byId(allCharacters(), id);
+    if (!c) return renderPersoList();
+    const isCustom = LS.get("customChars", []).some((x)=>x.id===id);
+
+    const abilGrid = `<div class="abil-grid">${ABILS.map(([k,lab])=>{
+      const m = abilMod(c.stats[k]);
+      return `<div class="abil" data-abil="${k}" data-score="${c.stats[k]}"><div class="name">${lab}</div><div class="score">${c.stats[k]}</div><div class="mod">${signed(m)}</div></div>`;
+    }).join("")}</div>`;
+
+    const attaques = (c.attaques||[]).map((a)=>
+      `<div class="kv"><b>${esc(a.nom)}</b> — ${a.bonus!=null?`${signed(a.bonus)} à toucher · `:""}${esc(a.degats)} <button class="chip roll" data-atk="${a.bonus!=null?a.bonus:0}" data-name="${esc(a.nom)}">🎲 att.</button></div>`
+    ).join("");
+
+    const sorts = (c.sorts&&c.sorts.length)?`<div class="section-title">Sorts</div><ul>${c.sorts.map((s)=>`<li>${esc(s)}</li>`).join("")}</ul>`:"";
+    const caps = (c.capacites&&c.capacites.length)?`<div class="section-title">Capacités</div><ul>${c.capacites.map((s)=>`<li>${esc(s)}</li>`).join("")}</ul>`:"";
+    const comps = (c.competences&&c.competences.length)?`<div class="section-title">Compétences maîtrisées</div><div class="chip-list">${c.competences.map((s)=>`<span class="chip">${esc(s)}</span>`).join("")}</div>`:"";
+    const sauv = (c.jetsSauv&&c.jetsSauv.length)?`<div class="kv"><b>JS maîtrisés :</b> ${c.jetsSauv.map((k)=>k.toUpperCase()).join(", ")}</div>`:"";
+    const spellHdr = c.dcSort?`<div class="kv"><b>DD des sorts :</b> ${c.dcSort} · <b>Attaque de sort :</b> ${signed(c.attaqueSort)}</div>`:"";
+
+    $("#view-perso").innerHTML = `
+      <div class="btn-row" style="margin-bottom:12px">
+        <button class="btn-ghost" id="back-perso">‹ Personnages</button>
+        ${isCustom?`<button class="btn-ghost" id="del-char" style="margin-left:auto;color:var(--accent-2)">Supprimer</button>`:""}
+      </div>
+      <div class="card">
+        <h2 style="margin:0 0 2px;color:var(--accent)">${esc(c.nom)}</h2>
+        <div class="muted">${esc(c.classe)} · ${esc(c.race)}</div>
+        <div class="stat-line">
+          <div class="box"><div class="k">Points de vie</div><div class="v">${c.pv}</div></div>
+          <div class="box"><div class="k">Classe d'armure</div><div class="v">${c.ca}</div></div>
+          <div class="box"><div class="k">Initiative</div><div class="v">${signed(c.init||abilMod(c.stats.dex))}</div></div>
+          <div class="box"><div class="k">Maîtrise</div><div class="v">${signed(c.maitrise||2)}</div></div>
+        </div>
+        <div class="section-title">Caractéristiques — touchez pour lancer</div>
+        ${abilGrid}
+        ${sauv}
+        ${spellHdr}
+      </div>
+      ${attaques?`<div class="card"><div class="section-title" style="margin-top:0">Attaques</div>${attaques}</div>`:""}
+      ${(comps||caps||sorts)?`<div class="card">${comps}${caps}${sorts}</div>`:""}
+      ${c.equipement?`<div class="card"><div class="section-title" style="margin-top:0">Équipement</div><p class="small">${esc(c.equipement)}</p></div>`:""}
+      ${c.notes?`<div class="card small muted">💡 ${esc(c.notes)}</div>`:""}
+      <div class="dice-result" id="char-roll" style="display:none"></div>`;
+
+    $("#back-perso").addEventListener("click", renderPersoList);
+    if (isCustom) $("#del-char").addEventListener("click", ()=>{
+      if (!confirm("Supprimer ce personnage ?")) return;
+      LS.set("customChars", LS.get("customChars",[]).filter((x)=>x.id!==id));
+      renderPersoList();
+    });
+    $$("#view-perso [data-abil]").forEach((b)=>b.addEventListener("click",()=>{
+      const m = abilMod(+b.dataset.score);
+      const r = Dice.d20(m, d20mode);
+      showCharRoll(`Jet de ${b.querySelector(".name").textContent} (${signed(m)})`, r);
+    }));
+    $$("#view-perso [data-atk]").forEach((b)=>b.addEventListener("click",()=>{
+      const r = Dice.d20(+b.dataset.atk, d20mode);
+      showCharRoll(`${b.dataset.name} — jet d'attaque (${signed(+b.dataset.atk)})`, r);
+    }));
+  }
+
+  function showCharRoll(label, r) {
+    const el = $("#char-roll"); if (!el) return;
+    const cls = r.crit ? "crit" : r.fail ? "fail" : "";
+    el.style.display = "block";
+    el.innerHTML = `<div class="total ${cls}">${r.total}</div><div class="detail">${esc(label)} · dé ${r.natural}${r.crit?" ⭐":r.fail?" 💀":""}</div>`;
+    pushLog(label, r.total, `dé ${r.natural}`);
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function newCharacterForm() {
+    $("#view-perso").innerHTML = `
+      <div class="btn-row" style="margin-bottom:12px"><button class="btn-ghost" id="cancel-new">‹ Annuler</button></div>
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--accent)">Nouveau personnage</h2>
+        <label class="small muted">Nom</label><input type="text" id="f-nom" class="search" />
+        <label class="small muted">Classe & niveau</label><input type="text" id="f-classe" class="search" placeholder="ex : Barde niv. 2" />
+        <label class="small muted">Race</label><input type="text" id="f-race" class="search" />
+        <div class="stat-line">
+          <div class="box"><div class="k">PV</div><input type="number" id="f-pv" value="10" style="width:64px"></div>
+          <div class="box"><div class="k">CA</div><input type="number" id="f-ca" value="12" style="width:64px"></div>
+        </div>
+        <div class="section-title">Caractéristiques</div>
+        <div class="abil-grid">${ABILS.map(([k,lab])=>`<div class="abil"><div class="name">${lab}</div><input type="number" id="f-${k}" value="10" style="width:100%;text-align:center"></div>`).join("")}</div>
+        <label class="small muted">Compétences maîtrisées (séparées par des virgules)</label><input type="text" id="f-comp" class="search" />
+        <label class="small muted">Notes / équipement</label><input type="text" id="f-notes" class="search" />
+        <button class="btn-accent btn-block" id="save-char">Enregistrer</button>
+      </div>`;
+    $("#cancel-new").addEventListener("click", renderPersoList);
+    $("#save-char").addEventListener("click", ()=>{
+      const stats = {}; ABILS.forEach(([k])=>stats[k] = parseInt($("#f-"+k).value,10)||10);
+      const c = {
+        id: "cust-" + Date.now(),
+        nom: $("#f-nom").value.trim() || "Sans nom",
+        classe: $("#f-classe").value.trim() || "Aventurier",
+        race: $("#f-race").value.trim() || "—",
+        pv: parseInt($("#f-pv").value,10)||10,
+        ca: parseInt($("#f-ca").value,10)||12,
+        maitrise: 2, stats,
+        competences: $("#f-comp").value.split(",").map((s)=>s.trim()).filter(Boolean),
+        notes: $("#f-notes").value.trim()
+      };
+      const custom = LS.get("customChars", []); custom.push(c); LS.set("customChars", custom);
+      renderCharSheet(c.id);
+    });
+  }
+
+  // =====================================================================
+  //  VUE BESTIAIRE
+  // =====================================================================
+  let bestFilter = "";
+
+  function renderBestiary() {
+    const q = bestFilter.toLowerCase();
+    const list = BESTIARY.filter((m)=>
+      !q || m.nom.toLowerCase().includes(q) || m.type.toLowerCase().includes(q) ||
+      (m.tags||[]).some((t)=>t.includes(q)));
+    $("#view-bestiaire").innerHTML = `
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--accent)">Bestiaire & PNJ</h2>
+        <input type="text" class="search" id="best-search" placeholder="Rechercher (nom, type, aventure1, mort-vivant…)" value="${esc(bestFilter)}">
+        <div class="btn-row">
+          <button class="chip roll" data-filter="">Tous</button>
+          <button class="chip roll" data-filter="aventure1">Aventure 1</button>
+          <button class="chip roll" data-filter="aventure2">Aventure 2</button>
+          <button class="chip roll" data-filter="mort-vivant">Morts-vivants</button>
+          <button class="chip roll" data-filter="boss">Boss</button>
+        </div>
+      </div>
+      <div id="best-list">${list.map(bestiaryCard).join("") || `<div class="card muted center">Aucune créature.</div>`}</div>`;
+    const s = $("#best-search");
+    s.addEventListener("input",()=>{ bestFilter = s.value; const pos = s.selectionStart;
+      const listEl = $("#best-list");
+      const q2 = bestFilter.toLowerCase();
+      const l2 = BESTIARY.filter((m)=>!q2||m.nom.toLowerCase().includes(q2)||m.type.toLowerCase().includes(q2)||(m.tags||[]).some((t)=>t.includes(q2)));
+      listEl.innerHTML = l2.map(bestiaryCard).join("") || `<div class="card muted center">Aucune créature.</div>`;
+      bindBestiaryDetails();
+    });
+    $$("#view-bestiaire [data-filter]").forEach((b)=>b.addEventListener("click",()=>{ bestFilter=b.dataset.filter; renderBestiary(); }));
+    bindBestiaryDetails();
+  }
+
+  function bestiaryCard(m) {
+    const stats = ABILS.map(([k,lab])=>`<div class="box"><div class="k">${lab}</div><div class="v" style="font-size:16px">${m.stats[k]} <span class="muted" style="font-size:12px">${signed(abilMod(m.stats[k]))}</span></div></div>`).join("");
+    const traits = (m.traits&&m.traits.length)?`<div class="section-title">Traits</div><ul>${m.traits.map((t)=>`<li>${esc(t)}</li>`).join("")}</ul>`:"";
+    const actions = (m.actions&&m.actions.length)?`<div class="section-title">Actions</div><ul>${m.actions.map((t)=>`<li>${esc(t)}</li>`).join("")}</ul>`:"";
+    return `<details id="mob-${m.id}">
+      <summary>${esc(m.nom)} <span class="tag cr">FP ${esc(m.cr)}</span></summary>
+      <div class="muted small">${esc(m.type)}</div>
+      <div class="stat-line" style="margin-top:8px">
+        <div class="box"><div class="k">CA</div><div class="v" style="font-size:16px">${esc(m.ac)}</div></div>
+        <div class="box"><div class="k">PV</div><div class="v" style="font-size:16px">${esc(m.pv)}</div></div>
+        <div class="box"><div class="k">Vitesse</div><div class="v" style="font-size:14px">${esc(m.vitesse)}</div></div>
+      </div>
+      <div class="stat-line">${stats}</div>
+      ${m.comp?`<div class="kv"><b>Comp. :</b> ${esc(m.comp)}</div>`:""}
+      ${m.sens?`<div class="kv"><b>Sens :</b> ${esc(m.sens)}</div>`:""}
+      ${m.langues?`<div class="kv"><b>Langues :</b> ${esc(m.langues)}</div>`:""}
+      ${traits}${actions}
+      ${m.notes?`<div class="card small muted" style="margin-top:10px">💡 ${esc(m.notes)}</div>`:""}
+    </details>`;
+  }
+  function bindBestiaryDetails(){ /* détails natifs, rien à lier */ }
+
+  function openBestiaryEntry(id) {
+    showTab("bestiaire");
+    bestFilter = "";
+    renderBestiary();
+    const d = $("#mob-"+id);
+    if (d) { d.open = true; d.scrollIntoView({ behavior:"smooth", block:"start" }); }
+  }
+
+  // =====================================================================
+  //  VUE UNIVERS
+  // =====================================================================
+  function renderUnivers() {
+    const L = FARLAND_LORE;
+    const godBlock = (g) => `<details><summary>${esc(g.titre)}</summary>${g.liste.map((d)=>`<div class="kv"><b>${esc(d.nom)}</b> — ${esc(d.dom)}</div>`).join("")}</details>`;
+    $("#view-univers").innerHTML = `
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--accent)">${esc(L.intro.titre)}</h2>
+        ${L.intro.texte.map((p)=>`<p>${esc(p)}</p>`).join("")}
+        <div class="card" style="background:var(--bg-3);border-color:var(--accent)"><b style="color:var(--accent)">💰 Monnaie</b><p class="small" style="margin:6px 0 0">${esc(L.intro.monnaie)}</p></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">${esc(L.seigneursDuPeche.titre)}</div>
+        <p class="small muted">${esc(L.seigneursDuPeche.texte)}</p>
+        ${L.seigneursDuPeche.liste.map((s)=>`<div class="kv"><b>${esc(s.peche)}</b> — ${esc(s.note)}</div>`).join("")}
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">${esc(L.royaumes.titre)}</div>
+        ${L.royaumes.liste.map((r)=>`<details><summary>${esc(r.nom)}</summary><p class="small">${esc(r.texte)}</p></details>`).join("")}
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">${esc(L.dieux.titre)}</div>
+        <p class="small muted">${esc(L.dieux.texte)}</p>
+        ${godBlock(L.dieux.bons)}
+        ${godBlock(L.dieux.neutres)}
+        ${godBlock(L.dieux.mauvais)}
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">${esc(L.races.titre)}</div>
+        <p class="small muted">${esc(L.races.texte)}</p>
+        <ul class="small">${L.races.liste.map((r)=>`<li>${esc(r)}</li>`).join("")}</ul>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">${esc(L.langues.titre)}</div>
+        <ul class="small">${L.langues.liste.map((r)=>`<li>${esc(r)}</li>`).join("")}</ul>
+      </div>
+
+      <div class="card small muted center">
+        Univers du <b>Monde de Farland</b> — cadre gratuit compatible D&D 5e (farlandworld.com).<br>
+        Contenu résumé pour l'usage du MJ.
+      </div>`;
+  }
+
+  // =====================================================================
+  //  INITIALISATION
+  // =====================================================================
+  renderGameTab();
+  renderDice();
+  renderPersoList();
+  renderBestiary();
+  renderUnivers();
+  showTab(LS.get("lastTab", "jeu"));
+
+  // expose pour debug éventuel
+  window.FarlandApp = { showTab, openScenario };
+})();
+
+</script>
+</body>
+</html>
