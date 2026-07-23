@@ -715,6 +715,14 @@ window.SCENARIOS = [
         "Services du camp si Sylwen veut se préparer : Grand-mère Hawkins soigne (Soins niv 1) pour 30 pa ; le forgeron Tarlach vend armes/armures < 30 pa ; Peddler vend des biens < 30 pa. Pas d'objets magiques. (Étalon argent : 1 pa = 1 po du manuel.)",
         "Ulica précise : la hausse vient exclusivement du nord ; personne n'ose entrer dans la Plaine."
       ],
+      actions: [
+        { txt: "🗣️ Convaincre Kieran d'une avance", carac: "Charisme (Persuasion)", dc: 13, mod: 0,
+          reussite: "Kieran grogne, amusé, et te lâche 30 pa d'avance pour t'équiper.",
+          echec: "« La paie vient après le travail, l'elfe. » Rien pour l'instant." },
+        { txt: "🧠 Sonder Ulica sur la menace", carac: "Sagesse (Perspicacité)", dc: 10, mod: 2,
+          reussite: "Ulica est franche : tout vient du nord, de la Plaine. Personne n'ose y entrer.",
+          echec: "Elle reste vague ; rien de plus que la rumeur." }
+      ],
       choix: [{ txt: "Partir vers la Plaine des Batailles ▶", cible: "ts-journey" }]
     },
     {
@@ -731,6 +739,17 @@ window.SCENARIOS = [
         "Astuce solo : Sylwen peut tirer à l'arc avant le contact (surprise si Discrétion réussie), et lancer Fenn pour prendre l'ennemi en tenaille."
       ],
       monstres: ["squelette", "goule", "orc", "gobelin"],
+      actions: [
+        { txt: "🎲 Jet de rencontre (route)", die: 6, table: [
+            { max: 2, txt: "2 Squelettes émergent de la brume — combat ! (fiche Squelette au Bestiaire)" },
+            { max: 3, txt: "Une Goule affamée traque Sylwen — combat !" },
+            { max: 4, txt: "Patrouille réduite de Hestor : 1 orc + 1 gobelin." },
+            { max: 6, txt: "Rien. Le trajet reste calme." }
+          ] },
+        { txt: "👁️ Repérer le danger (Fenn gronde)", carac: "Sagesse (Perception)", dc: 12, mod: 4,
+          reussite: "Tu repères l'ennemi le premier : tu peux tirer avant qu'il n'approche (surprise possible).",
+          echec: "Trop tard — tu es prise au dépourvu, pas de surprise." }
+      ],
       choix: [{ txt: "Arriver au pied des deux Tours ▶", cible: "ts-base" }]
     },
     {
@@ -744,6 +763,13 @@ window.SCENARIOS = [
         "Sylwen peut ouvrir avec une flèche + marque du chasseur ; Fenn charge un squelette (avantage)."
       ],
       monstres: ["squelette", "kobold", "fenn"],
+      actions: [
+        { txt: "🏹 Ouvrir par une flèche furtive", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Silencieuse, tu décoches avant qu'ils réagissent : SURPRISE, avantage au 1er tour, et Fenn charge.",
+          echec: "Une brindille craque : pas de surprise, lancez l'initiative normalement." },
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "Touché : 1d8+3 perforants (+1d6 si marque du chasseur active)." },
+        { txt: "🐺 Attaque de Fenn (morsure)", roll: "1d20+4", note: "Touché : 2d4+2 perforants ; JS Force DC 11 ou la cible tombe à terre." }
+      ],
       choix: [
         { txt: "Entrer dans la Tour de DROITE (le hobgobelin Drokag)", cible: "ts-d-bas" },
         { txt: "Entrer dans la Tour de GAUCHE (le nécromancien Beryn)", cible: "ts-g-bas" }
@@ -760,6 +786,11 @@ window.SCENARIOS = [
         "Perception DC 12 : du mouvement en contrebas (des zombies piégés au niveau inférieur).",
         "L'escalier monte vers Drokag (niveau supérieur). L'échelle descend vers les zombies."
       ],
+      actions: [
+        { txt: "👂 Écouter le trou", carac: "Sagesse (Perception)", dc: 12, mod: 4,
+          reussite: "Tu perçois des pas traînants en contrebas : des zombies rôdent au niveau inférieur.",
+          echec: "Le silence… trompeur." }
+      ],
       choix: [
         { txt: "Descendre affronter ce qui bouge en bas ▼", cible: "ts-d-zombies" },
         { txt: "Monter vers le sommet (Drokag) ▲", cible: "ts-d-drokag" }
@@ -775,6 +806,11 @@ window.SCENARIOS = [
         "Rien d'autre d'utile ici : des planches, une scie, deux marteaux, une longue perche."
       ],
       monstres: ["zombie", "fenn"],
+      actions: [
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Zombie : Ténacité (JS Con DC 5 + dégâts pour rester à 1 PV)." },
+        { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants (+1d6 att. bonus avec la 2e lame)." },
+        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants ; avantage si Sylwen est au contact (meute)." }
+      ],
       choix: [
         { txt: "Remonter et monter vers Drokag ▲", cible: "ts-d-drokag" }
       ]
@@ -792,6 +828,15 @@ window.SCENARIOS = [
       ],
       monstres: ["drokag", "kobold", "fenn"],
       tresor: ["Clé de Chiffre", "Statuette de Bestra (50 pa)", "Casque de Mineur", "50 pa, épée longue"],
+      actions: [
+        { txt: "🔎 Fouiller la salle saccagée", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
+          reussite: "Sous les décombres : une statuette d'ivoire de Bestra (50 pa) et un Casque de Mineur (lampe mains-libres).",
+          echec: "Rien de plus que poussière et plaques brisées." },
+        { txt: "🏃 Fenn poursuit Drokag qui fuit", carac: "Course de Fenn", dc: 12, mod: 4,
+          reussite: "Fenn bondit et plaque le hobgobelin : il ne préviendra pas Beryn.",
+          echec: "Drokag file vers l'autre tour — Beryn sera prévenu de ton arrivée." },
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Vise Drokag par-dessus les kobolds." }
+      ],
       choix: [
         { txt: "Monter au toit neutraliser les archers ▲", cible: "ts-d-toit" },
         { txt: "Passer directement à la Tour de Gauche (Beryn)", cible: "ts-g-bas" }
@@ -807,6 +852,12 @@ window.SCENARIOS = [
         "IMPORTANT : les éliminer MAINTENANT évite qu'ils ne canardent Sylwen pendant le combat final contre Beryn (ils tirent d'une tour à l'autre)."
       ],
       monstres: ["squelette", "fenn"],
+      actions: [
+        { txt: "🎯 Tir d'ouverture sur un archer", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Tu abats presque un squelette avant qu'ils ne bougent : avantage au 1er tour.",
+          echec: "Ils te repèrent et lèvent leurs arcs — combat de face." },
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." }
+      ],
       choix: [
         { txt: "Rejoindre la Tour de Gauche affronter Beryn ▶", cible: "ts-g-bas" }
       ]
@@ -821,6 +872,11 @@ window.SCENARIOS = [
       mj: [
         "Beryn est tout en haut, sur le toit, absorbé par son rituel. Entre toi et lui : une goule tapie au 4ᵉ niveau.",
         "Perception DC 12 en montant : des bruits de mastication plus haut (la goule ronge des os)."
+      ],
+      actions: [
+        { txt: "🤫 Monter en silence (éviter la goule)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Pas légers d'elfe : tu montes sans un bruit. Tu pourras surprendre la goule au lieu d'être embusquée.",
+          echec: "Une marche grince : la goule t'entend et se met en embuscade." }
       ],
       choix: [
         { txt: "Monter vers le sommet ▲", cible: "ts-g-goule" }
@@ -837,6 +893,14 @@ window.SCENARIOS = [
         "L'éliminer ici l'empêche de rejoindre le combat contre Beryn."
       ],
       monstres: ["goule", "fenn"],
+      actions: [
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." },
+        { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants." },
+        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants." },
+        { txt: "🛡️ Résister à la paralysie (griffes)", carac: "JS Constitution", dc: 10, mod: 2,
+          reussite: "Tu encaisses sans être paralysée.",
+          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." }
+      ],
       choix: [
         { txt: "Monter sur le toit affronter Beryn ▲", cible: "ts-g-beryn" }
       ]
@@ -855,6 +919,16 @@ window.SCENARIOS = [
       ],
       monstres: ["beryn", "squelette", "goule", "fenn"],
       tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
+      actions: [
+        { txt: "🏹 Flèche + marque du chasseur (surprise)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Beryn, absorbé, ne te voit pas : marque posée, flèche encochée — 1er tour avec avantage et +1d6.",
+          echec: "Il sent une présence et se retourne : ses squelettes se dressent, pas de surprise." },
+        { txt: "📖 Comprendre son rituel", carac: "Intelligence (Arcanes)", dc: 15, mod: 0,
+          reussite: "Il relève des squelettes : abats-le vite pour stopper le flot de morts.",
+          echec: "Ces gestes te dépassent." },
+        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 (+1d6 marque). Concentre le feu sur Beryn (Moisson sinistre le soigne s'il tue)." },
+        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 ; envoie-le sur Beryn pendant que tu tires." }
+      ],
       choix: [
         { txt: "Conclure l'aventure ▶", cible: "ts-fin" }
       ]

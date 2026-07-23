@@ -108,6 +108,19 @@
         <button class="choice" data-goto="__list__"><span>Fin de cette branche — retour aux aventures</span><span class="arrow">›</span></button>
       </div>`;
 
+    const actionsBlock = (scene.actions && scene.actions.length) ? `
+      <div class="section-title">🎲 Actions possibles — touchez pour lancer le dé</div>
+      <div id="scene-actions">
+        ${scene.actions.map((a, i) => `
+          <button class="action-btn" data-action="${i}">
+            <span class="act-txt">${esc(a.txt)}</span>
+            <span class="act-meta">${a.dc != null
+              ? `DC ${a.dc}${a.carac ? " · " + esc(a.carac) : ""}`
+              : (a.roll ? "🎲 " + esc(a.roll) : (a.table ? "🎲 hasard" : ""))}</span>
+          </button>`).join("")}
+      </div>
+      <div class="dice-result action-out" id="action-result" style="display:none"></div>` : "";
+
     $("#view-jeu").innerHTML = `
       <div class="btn-row" style="margin-bottom:12px">
         <button class="btn-ghost" data-goto="__list__">‹ Aventures</button>
@@ -123,6 +136,7 @@
       ${mjNotes}
       ${mobs}
       ${loot}
+      ${actionsBlock}
       ${choices}
       <div id="jump-panel"></div>`;
 
@@ -135,6 +149,9 @@
     $$("#view-jeu [data-mob]").forEach((b) => b.addEventListener("click", () => {
       openBestiaryEntry(b.dataset.mob);
     }));
+    $$("#view-jeu [data-action]").forEach((b) => b.addEventListener("click", () => {
+      resolveSceneAction(scene.actions[+b.dataset.action]);
+    }));
     $("#jump-btn").addEventListener("click", () => {
       const p = $("#jump-panel");
       if (p.innerHTML) { p.innerHTML = ""; return; }
@@ -146,6 +163,40 @@
       }));
     });
     window.scrollTo(0, 0);
+  }
+
+  // Résout une action prédéfinie de scène (jet de dé + résultat lisible)
+  function resolveSceneAction(a) {
+    const el = $("#action-result"); if (!el || !a) return;
+    el.style.display = "block";
+    let html = "";
+    if (a.table) {
+      const die = a.die || a.table[a.table.length - 1].max;
+      const r = Dice.rollDie(die);
+      const entry = a.table.find((e) => r <= e.max) || a.table[a.table.length - 1];
+      html = `<div class="total">${r}</div>
+        <div class="detail">${esc(a.txt)} · 1d${die}</div>
+        <div class="act-narr">${esc(entry.txt)}</div>`;
+      pushLog(a.txt, r, `1d${die}`);
+    } else if (a.dc != null) {
+      const m = a.mod || 0;
+      const r = Dice.d20(m, d20mode);
+      const ok = r.total >= a.dc;
+      html = `<div class="total ${ok ? "crit" : "fail"}">${r.total}</div>
+        <div class="detail">${esc(a.txt)}${a.carac ? " · " + esc(a.carac) : ""} · dé ${r.natural}${m ? " " + signed(m) : ""} vs DC ${a.dc}</div>
+        <div class="act-verdict ${ok ? "ok" : "ko"}">${ok ? "✓ RÉUSSITE" : "✗ ÉCHEC"}</div>
+        ${(ok ? a.reussite : a.echec) ? `<div class="act-narr">${esc(ok ? a.reussite : a.echec)}</div>` : ""}`;
+      pushLog(`${a.txt} (DC ${a.dc})`, r.total, ok ? "réussite" : "échec");
+    } else if (a.roll) {
+      const r = Dice.rollExpr(a.roll) || { total: 0, rolls: [] };
+      html = `<div class="total">${r.total}</div>
+        <div class="detail">${esc(a.txt)} · ${esc(a.roll)} : [${(r.rolls || []).join(", ")}]</div>
+        ${a.note ? `<div class="act-narr">${esc(a.note)}</div>` : ""}`;
+      pushLog(a.txt, r.total, esc(a.roll));
+    }
+    el.innerHTML = html;
+    renderLog();
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function renderGameTab() {
