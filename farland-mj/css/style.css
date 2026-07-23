@@ -218,3 +218,49 @@ hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
   background: var(--read); border-left: 5px solid var(--read-line);
   border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 17px; line-height: 1.55;
 }
+
+/* ---- Code couleur des enchaînements (issus d'une action / d'un dé) ---- */
+.chain-banner {
+  background: #2a2140; border: 1px solid #6b4fa0; border-left: 5px solid #a487e0;
+  color: #d9ccf5; border-radius: 10px; padding: 10px 14px; margin: 6px 0 12px; font-size: 15px;
+}
+.chain-banner.combat { background: #3a1d1d; border-color: #8f3b34; border-left-color: #d9773b; color: #f0cabc; }
+.action-out .choice[data-next], .choice.chain { border-color: #6b4fa0; background: #2a2140; }
+.action-btn.triggers-combat { border-color: var(--danger); background: #301a17; }
+.action-btn.triggers-combat .act-meta { color: var(--accent-2); }
+
+/* ---- Module de combat ---- */
+#combat-box { margin: 6px 0 4px; }
+.enemies { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+.enemy {
+  background: #1f1a17; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.enemy.sel { border-color: var(--accent); background: #241d13; box-shadow: 0 0 0 1px var(--accent) inset; }
+.enemy.ko { opacity: .5; }
+.enemy.ko .enemy-name { text-decoration: line-through; }
+.enemy-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.enemy-name { font-weight: 600; font-size: 16px; flex: 1; }
+.enemy-ac { font-size: 13px; color: #a9cbe4; background: #1b2732; border: 1px solid #33475a; border-radius: 8px; padding: 2px 8px; }
+.mini-fiche { font-size: 12px; padding: 4px 8px; min-height: auto; background: transparent; color: var(--txt-dim); border-color: var(--line); }
+.hpbar { position: relative; height: 22px; background: #3a1414; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.hpfill { position: absolute; inset: 0 auto 0 0; height: 100%; transition: width .3s ease; }
+.hpfill.high { background: linear-gradient(90deg,#3f7a3f,#59a659); }
+.hpfill.mid  { background: linear-gradient(90deg,#9a8a2e,#c9b048); }
+.hpfill.low  { background: linear-gradient(90deg,#9a3b2e,#d9773b); }
+.hpfill.dead { background: #4a2020; }
+.hptxt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.7); }
+.hp-ctrl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.hp-ctrl button { min-height: 40px; padding: 6px 10px; font-size: 14px; }
+.target-badge { font-size: 13px; color: var(--accent); font-weight: 600; margin-left: auto; }
+.set-target { margin-left: auto; font-size: 13px; padding: 6px 10px; min-height: 40px; }
+.combat-sub { font-size: 13px; color: var(--txt-dim); margin: 10px 0 6px; }
+.atk-row { display: flex; flex-direction: column; gap: 8px; }
+.atk-btn, .enemyatk-btn {
+  width: 100%; justify-content: space-between; text-align: left; padding: 12px 14px; border-radius: 12px;
+}
+.atk-row.hero .atk-btn { background: #16241a; border: 1px solid #3f7a3f; }
+.atk-row.hero .atk-btn .act-meta { color: #7fc47f; }
+.atk-row.foe .enemyatk-btn { background: #2a1614; border: 1px solid #8f3b34; }
+.atk-row.foe .enemyatk-btn .act-meta { color: var(--accent-2); }

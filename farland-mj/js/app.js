@@ -67,11 +67,22 @@
     renderScene();
   }
 
+  // Contexte partagé + source d'entrée de scène (pour le code couleur des enchaînements)
+  let sceneEntrySource = null;   // 'action' | 'combat' | null
+  let curSc = null, curScene = null, combat = null;
+  function sceneHasCombat(id) { const s = curSc && byId(curSc.scenes, id); return !!(s && s.combat); }
+
   function renderScene() {
     const sc = byId(SCENARIOS, gameState.scenarioId);
     if (!sc) return renderScenarioList();
     const scene = byId(sc.scenes, gameState.sceneId) || byId(sc.scenes, sc.debut);
     const idx = sc.scenes.indexOf(scene);
+    curSc = sc; curScene = scene;
+
+    const banner = sceneEntrySource === "combat"
+      ? `<div class="chain-banner combat">⚔️ Combat déclenché par ton jet de dé !</div>`
+      : (sceneEntrySource === "action"
+        ? `<div class="chain-banner">⤷ Suite de ton action précédente</div>` : "");
 
     const lecture = (scene.lecture && scene.lecture.length) ? `
       <div class="readbox">
@@ -96,6 +107,11 @@
       <div class="section-title">Trésor / butin</div>
       <ul class="loot">${scene.tresor.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : "";
 
+    const combatBlock = scene.combat ? `<div id="combat-box"></div>` : "";
+
+    const leadsToCombat = (a) => [a.cibleReussite, a.cibleEchec, a.cible]
+      .concat((a.table || []).map((e) => e.cible)).filter(Boolean).some((t) => sceneHasCombat(t));
+
     const choices = (scene.choix && scene.choix.length) ? `
       <div class="choices">
         <span class="label">Que font les héros ?</span>
@@ -111,13 +127,15 @@
     const actionsBlock = (scene.actions && scene.actions.length) ? `
       <div class="section-title">🎲 Actions possibles — touchez pour lancer le dé</div>
       <div id="scene-actions">
-        ${scene.actions.map((a, i) => `
-          <button class="action-btn" data-action="${i}">
-            <span class="act-txt">${esc(a.txt)}</span>
+        ${scene.actions.map((a, i) => {
+          const ct = leadsToCombat(a);
+          return `<button class="action-btn ${ct ? "triggers-combat" : ""}" data-action="${i}">
+            <span class="act-txt">${ct ? "⚔️ " : ""}${esc(a.txt)}</span>
             <span class="act-meta">${a.dc != null
               ? `DC ${a.dc}${a.carac ? " · " + esc(a.carac) : ""}`
               : (a.roll ? "🎲 " + esc(a.roll) : (a.table ? "🎲 hasard" : ""))}</span>
-          </button>`).join("")}
+          </button>`;
+        }).join("")}
       </div>
       <div class="dice-result action-out" id="action-result" style="display:none"></div>` : "";
 
@@ -128,6 +146,7 @@
         <button class="btn-ghost" id="jump-btn">☰ Scènes</button>
       </div>
       <div class="progress">${esc(sc.titre)} — scène ${idx + 1}/${sc.scenes.length}</div>
+      ${banner}
       <div class="scene-head">
         <h2>${esc(scene.titre)}</h2>
       </div>
@@ -136,38 +155,34 @@
       ${mjNotes}
       ${mobs}
       ${loot}
+      ${combatBlock}
       ${actionsBlock}
       ${choices}
       <div id="jump-panel"></div>`;
 
+    sceneEntrySource = null; // bannière consommée
+
     // liaisons
-    $$("#view-jeu [data-goto]").forEach((b) => b.addEventListener("click", () => {
-      const t = b.dataset.goto;
-      if (t === "__list__") { renderScenarioList(); window.scrollTo(0,0); return; }
-      gameState.sceneId = t; LS.set("gameState", gameState); renderScene(); window.scrollTo(0, 0);
-    }));
-    $$("#view-jeu [data-mob]").forEach((b) => b.addEventListener("click", () => {
-      openBestiaryEntry(b.dataset.mob);
-    }));
-    $$("#view-jeu [data-action]").forEach((b) => b.addEventListener("click", () => {
-      resolveSceneAction(scene.actions[+b.dataset.action]);
-    }));
+    $$("#view-jeu [data-goto]").forEach((b) => b.addEventListener("click", () => navigateTo(b.dataset.goto)));
+    $$("#view-jeu [data-mob]").forEach((b) => b.addEventListener("click", () => openBestiaryEntry(b.dataset.mob)));
+    $$("#view-jeu [data-action]").forEach((b) => b.addEventListener("click", () => resolveSceneAction(scene.actions[+b.dataset.action])));
     $("#jump-btn").addEventListener("click", () => {
       const p = $("#jump-panel");
       if (p.innerHTML) { p.innerHTML = ""; return; }
       p.innerHTML = `<div class="card"><div class="section-title" style="margin-top:0">Aller à une scène</div>${
         sc.scenes.map((s, i) => `<button class="choice" data-goto="${s.id}"><span>${i+1}. ${esc(s.titre)}</span><span class="arrow">›</span></button>`).join("")
       }</div>`;
-      $$("#jump-panel [data-goto]").forEach((b) => b.addEventListener("click", () => {
-        gameState.sceneId = b.dataset.goto; LS.set("gameState", gameState); renderScene(); window.scrollTo(0,0);
-      }));
+      $$("#jump-panel [data-goto]").forEach((b) => b.addEventListener("click", () => navigateTo(b.dataset.goto)));
     });
+
+    if (scene.combat) initCombat(sc, scene);
     window.scrollTo(0, 0);
   }
 
-  // Navigue vers une scène (utilisé par les choix ET les résultats d'action)
-  function navigateTo(t) {
-    if (t === "__list__") { renderScenarioList(); window.scrollTo(0, 0); return; }
+  // Navigue vers une scène. `source` ('action'|'combat') colore la bannière d'arrivée.
+  function navigateTo(t, source) {
+    if (t === "__list__") { sceneEntrySource = null; renderScenarioList(); window.scrollTo(0, 0); return; }
+    sceneEntrySource = source || null;
     gameState.sceneId = t; LS.set("gameState", gameState); renderScene(); window.scrollTo(0, 0);
   }
 
@@ -207,9 +222,158 @@
     if (next) html += `<button class="choice" data-next="${next}" style="margin-top:12px"><span>Continuer ▶</span><span class="arrow">›</span></button>`;
     el.innerHTML = html;
     const nav = el.querySelector("[data-next]");
-    if (nav) nav.addEventListener("click", () => navigateTo(nav.dataset.next));
+    if (nav) nav.addEventListener("click", () => navigateTo(nav.dataset.next, sceneHasCombat(nav.dataset.next) ? "combat" : "action"));
     renderLog();
     el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // =====================================================================
+  //  MODULE DE COMBAT (suivi des ennemis, attaques, dégâts)
+  // =====================================================================
+  function combatKey(sc, scene) { return `combat:${sc.id}:${scene.id}`; }
+  function combatSig(scene) { return (scene.combat.ennemis || []).map((e) => e.ref + "x" + e.n).join(","); }
+
+  function buildCombat(scene) {
+    const enemies = [];
+    (scene.combat.ennemis || []).forEach((grp) => {
+      const b = byId(BESTIARY, grp.ref); if (!b) return;
+      for (let i = 0; i < grp.n; i++) {
+        const hp = parseInt(b.pv, 10) || 1;
+        enemies.push({ ref: grp.ref, nom: grp.n > 1 ? `${b.nom} ${i + 1}` : b.nom,
+          ac: parseInt(b.ac, 10) || 10, hpMax: hp, hp: hp, atk: b.atk || null, defeated: false });
+      }
+    });
+    return { sig: combatSig(scene), enemies, target: enemies.length ? 0 : null };
+  }
+
+  function initCombat(sc, scene) {
+    if (!$("#combat-box")) return;
+    const saved = LS.get(combatKey(sc, scene), null);
+    combat = (saved && saved.sig === combatSig(scene)) ? saved : buildCombat(scene);
+    combat.heroId = sc.heros || null;
+    drawCombat(sc, scene);
+  }
+  function saveCombat(sc, scene) { LS.set(combatKey(sc, scene), combat); }
+
+  function attackRoll(hit, degExpr, targetAC, mode) {
+    const r = Dice.d20(hit, mode);
+    const hitOk = r.crit || (!r.fail && r.total >= targetAC);
+    let dmg = 0, detail = "";
+    if (hitOk) {
+      const p = Dice.parse(degExpr) || { n: 1, sides: 4, mod: 0 };
+      const base = Dice.roll(p.n, p.sides);
+      dmg = base.sum + p.mod;
+      let crit = null;
+      if (r.crit) { crit = Dice.roll(p.n, p.sides); dmg += crit.sum; }
+      detail = `[${base.rolls.join(",")}]${crit ? " +crit[" + crit.rolls.join(",") + "]" : ""}${p.mod ? " " + signed(p.mod) : ""}`;
+    }
+    return { r, hitOk, dmg, detail };
+  }
+
+  function drawCombat(sc, scene) {
+    const box = $("#combat-box"); if (!box || !combat) return;
+    const hero = combat.heroId ? byId(allCharacters(), combat.heroId) : null;
+    const allDead = combat.enemies.length && combat.enemies.every((e) => e.defeated);
+    const tgt = combat.target;
+
+    const enemiesHtml = combat.enemies.map((e, i) => {
+      const pct = Math.max(0, Math.min(100, Math.round(e.hp / e.hpMax * 100)));
+      const sel = tgt === i && !e.defeated;
+      const lvl = e.hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
+      return `<div class="enemy ${e.defeated ? "ko" : ""} ${sel ? "sel" : ""}" data-enemy="${i}">
+        <div class="enemy-head">
+          <span class="enemy-name">${e.defeated ? "💀 " : ""}${esc(e.nom)}</span>
+          <span class="enemy-ac">🛡️ ${e.ac}</span>
+          <button class="mini-fiche" data-fiche="${e.ref}">fiche ›</button>
+        </div>
+        <div class="hpbar"><div class="hpfill ${lvl}" style="width:${pct}%"></div><span class="hptxt">${e.hp} / ${e.hpMax} PV</span></div>
+        <div class="hp-ctrl">
+          <button data-dmg="${i}" data-amt="10">−10</button>
+          <button data-dmg="${i}" data-amt="5">−5</button>
+          <button data-dmg="${i}" data-amt="1">−1</button>
+          <button data-heal="${i}" data-amt="5">+5</button>
+          ${sel ? `<span class="target-badge">🎯 cible</span>` : (e.defeated ? "" : `<button class="set-target" data-target="${i}">🎯 cibler</button>`)}
+        </div>
+      </div>`;
+    }).join("");
+
+    const heroAtk = (hero && hero.attaques && !allDead) ? hero.attaques.map((a, i) =>
+      `<button class="atk-btn" data-heroatk="${i}"><span>${esc(a.nom)}</span><span class="act-meta">+${a.bonus} · ${esc(a.degR || a.degats)}</span></button>`
+    ).join("") : "";
+
+    const enemyAtk = (!allDead) ? combat.enemies.map((e, i) => (!e.defeated && e.atk) ?
+      `<button class="enemyatk-btn" data-enemyatk="${i}"><span>${esc(e.nom)}</span><span class="act-meta">+${e.atk.hit} · ${esc(e.atk.deg)}</span></button>` : ""
+    ).join("") : "";
+
+    const tgtName = (tgt != null && combat.enemies[tgt] && !combat.enemies[tgt].defeated) ? esc(combat.enemies[tgt].nom) : "—";
+
+    box.innerHTML = `
+      <div class="section-title" style="color:var(--accent-2)">⚔️ Combat ${allDead ? `— <span style="color:var(--ok)">ennemis vaincus ✔</span>` : "— suivi en direct"}</div>
+      <div class="enemies">${enemiesHtml}</div>
+      ${hero && !allDead ? `<div class="combat-sub">🗡️ Attaques de ${esc(hero.nom.split(" ")[0])} · cible : <b>${tgtName}</b></div>
+      <div class="atk-row hero">${heroAtk}</div>` : ""}
+      ${enemyAtk ? `<div class="combat-sub">👹 Tour des ennemis (jet pour le MJ)</div><div class="atk-row foe">${enemyAtk}</div>` : ""}
+      <div class="dice-result action-out" id="combat-out" style="display:none"></div>
+      <button class="btn-ghost" id="combat-reset" style="margin-top:8px">↺ Réinitialiser le combat</button>`;
+
+    box.querySelectorAll("[data-enemy]").forEach((el) => el.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-dmg],[data-heal],[data-fiche],[data-target]")) return;
+      const i = +el.dataset.enemy;
+      if (!combat.enemies[i].defeated) { combat.target = i; saveCombat(sc, scene); drawCombat(sc, scene); }
+    }));
+    box.querySelectorAll("[data-target]").forEach((b) => b.addEventListener("click", () => { combat.target = +b.dataset.target; saveCombat(sc, scene); drawCombat(sc, scene); }));
+    box.querySelectorAll("[data-fiche]").forEach((b) => b.addEventListener("click", () => openBestiaryEntry(b.dataset.fiche)));
+    box.querySelectorAll("[data-dmg]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.dmg, -(+b.dataset.amt))));
+    box.querySelectorAll("[data-heal]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.heal, +b.dataset.amt)));
+    box.querySelectorAll("[data-heroatk]").forEach((b) => b.addEventListener("click", () => heroAttack(sc, scene, +b.dataset.heroatk)));
+    box.querySelectorAll("[data-enemyatk]").forEach((b) => b.addEventListener("click", () => enemyAttack(sc, scene, +b.dataset.enemyatk)));
+    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; saveCombat(sc, scene); drawCombat(sc, scene); });
+  }
+
+  function applyHp(sc, scene, i, delta) {
+    const e = combat.enemies[i]; if (!e) return;
+    e.hp = Math.max(0, Math.min(e.hpMax, e.hp + delta));
+    e.defeated = e.hp === 0;
+    if (e.defeated && combat.target === i) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
+    saveCombat(sc, scene); drawCombat(sc, scene);
+  }
+
+  function showCombatOut(html) {
+    const out = $("#combat-out"); if (!out) return;
+    out.style.display = "block"; out.innerHTML = html;
+    out.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function heroAttack(sc, scene, ai) {
+    const hero = byId(allCharacters(), combat.heroId); if (!hero || !hero.attaques) return;
+    const a = hero.attaques[ai];
+    const t = combat.target, e = combat.enemies[t];
+    if (t == null || !e || e.defeated) { drawCombat(sc, scene); showCombatOut(`<div class="detail">🎯 Choisis d'abord une cible vivante (bouton « cibler »).</div>`); return; }
+    const res = attackRoll(a.bonus, a.degR || a.degats, e.ac, d20mode);
+    let html = `<div class="total ${res.hitOk ? "crit" : "fail"}">${res.r.total}</div>
+      <div class="detail">${esc(a.nom)} → ${esc(e.nom)} (CA ${e.ac}) · dé ${res.r.natural} +${a.bonus}${res.r.crit ? " ⭐CRIT" : res.r.fail ? " 💀" : ""}</div>`;
+    if (res.hitOk) {
+      e.hp = Math.max(0, e.hp - res.dmg); e.defeated = e.hp === 0;
+      if (e.defeated && combat.target === t) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
+      html += `<div class="act-verdict ok">✓ TOUCHÉ — ${res.dmg} dégâts <span class="muted">${res.detail}</span></div>
+        <div class="act-narr">${esc(e.nom)} : ${e.hp} / ${e.hpMax} PV${e.defeated ? " — VAINCU 💀" : ""}</div>`;
+      pushLog(`${a.nom} → ${e.nom}`, res.r.total, `${res.dmg} dég.`);
+    } else {
+      html += `<div class="act-verdict ko">✗ RATÉ (il fallait ${e.ac} ou +)</div>`;
+      pushLog(`${a.nom} → ${e.nom}`, res.r.total, "raté");
+    }
+    saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(html); renderLog();
+  }
+
+  function enemyAttack(sc, scene, i) {
+    const e = combat.enemies[i]; if (!e || !e.atk) return;
+    const r = Dice.d20(e.atk.hit, "normal");
+    const dp = Dice.rollExpr(e.atk.deg) || { total: 0, rolls: [] };
+    const html = `<div class="total">${r.total}</div>
+      <div class="detail">${esc(e.nom)} attaque · dé ${r.natural} +${e.atk.hit}${r.crit ? " ⭐CRIT" : ""}</div>
+      <div class="act-narr">Touche si ≥ CA du héros. Dégâts si touché : <b>${dp.total}</b> (${esc(e.atk.deg)} = [${(dp.rolls || []).join(",")}]).${r.crit ? " Critique : double les dés !" : ""}</div>`;
+    pushLog(`${e.nom} attaque`, r.total, `${dp.total} dég.`);
+    drawCombat(sc, scene); showCombatOut(html); renderLog();
   }
 
   function renderGameTab() {

@@ -127,6 +127,7 @@ window.BESTIARY = [
   /* ---------- Aventure 2 : PNJ spéciaux ---------- */
   {
     id: "drokag", nom: "Drokag le Hobgobelin", type: "Gobelinoïde M, Loyal Mauvais",
+    atk: { hit: 5, deg: "1d8+2" },
     cr: "2", tags: ["aventure2", "pnj", "boss"],
     ac: "18 (cotte de mailles, bouclier)", pv: "28 (4d8+8)", vitesse: "9 m",
     stats: { for: 14, dex: 12, con: 14, int: 10, sag: 10, cha: 10 },
@@ -142,6 +143,7 @@ window.BESTIARY = [
   },
   {
     id: "beryn", nom: "Beryn le Nécromancien", type: "Humain M, Loyal Mauvais",
+    atk: { hit: 4, deg: "1d8" },
     cr: "2", tags: ["aventure2", "pnj", "boss"],
     ac: "11", pv: "20 (5d6+5)", vitesse: "9 m",
     stats: { for: 10, dex: 12, con: 13, int: 15, sag: 12, cha: 11 },
@@ -188,6 +190,7 @@ window.BESTIARY = [
   },
   {
     id: "squelette", nom: "Squelette", type: "Mort-vivant M, Loyal Mauvais",
+    atk: { hit: 4, deg: "1d6+2" },
     cr: "1/4", tags: ["srd", "mort-vivant"],
     ac: "13 (débris d'armure)", pv: "13 (2d8+4)", vitesse: "9 m",
     stats: { for: 10, dex: 14, con: 15, int: 6, sag: 8, cha: 5 },
@@ -203,6 +206,7 @@ window.BESTIARY = [
   },
   {
     id: "zombie", nom: "Zombie", type: "Mort-vivant M, Neutre Mauvais",
+    atk: { hit: 3, deg: "1d6+1" },
     cr: "1/4", tags: ["srd", "mort-vivant"],
     ac: "8", pv: "22 (3d8+9)", vitesse: "6 m",
     stats: { for: 13, dex: 6, con: 16, int: 3, sag: 6, cha: 5 },
@@ -230,6 +234,7 @@ window.BESTIARY = [
   },
   {
     id: "goule", nom: "Goule", type: "Mort-vivant M, Chaotique Mauvais",
+    atk: { hit: 4, deg: "2d4+2" },
     cr: "1", tags: ["srd", "mort-vivant"],
     ac: "12", pv: "22 (5d8)", vitesse: "9 m",
     stats: { for: 13, dex: 15, con: 10, int: 7, sag: 10, cha: 6 },
@@ -271,6 +276,7 @@ window.BESTIARY = [
   },
   {
     id: "kobold", nom: "Kobold", type: "Humanoïde P, Loyal Mauvais",
+    atk: { hit: 4, deg: "1d4+2" },
     cr: "1/8", tags: ["srd", "humanoïde", "aventure2"],
     ac: "12", pv: "5 (2d6-2)", vitesse: "9 m",
     stats: { for: 7, dex: 15, con: 9, int: 8, sag: 7, cha: 8 },
@@ -286,6 +292,7 @@ window.BESTIARY = [
   },
   {
     id: "orc", nom: "Orc", type: "Humanoïde M, Chaotique Mauvais",
+    atk: { hit: 5, deg: "1d12+3" },
     cr: "1/2", tags: ["srd", "humanoïde", "aventure2"],
     ac: "13 (armure de cuir clouté)", pv: "15 (2d8+6)", vitesse: "9 m",
     stats: { for: 16, dex: 12, con: 16, int: 7, sag: 11, cha: 10 },
@@ -299,6 +306,7 @@ window.BESTIARY = [
   },
   {
     id: "gobelin", nom: "Gobelin", type: "Humanoïde P, Neutre Mauvais",
+    atk: { hit: 4, deg: "1d6+2" },
     cr: "1/4", tags: ["srd", "humanoïde", "aventure2"],
     ac: "15 (armure de cuir, bouclier)", pv: "7 (2d6)", vitesse: "9 m",
     stats: { for: 8, dex: 14, con: 10, int: 10, sag: 8, cha: 8 },

@@ -693,6 +693,7 @@ window.SCENARIOS = [
   resume: "Version pensée pour jouer À DEUX PERSONNES SEULEMENT : un MJ et un seul joueur. Sylwen Feuille-d'Argent, rôdeuse elfe accompagnée de son loup Fenn, est envoyée par le camp de Loch Brech mettre fin à la vague de morts-vivants qui déferle des Tours de l'Attente. Rencontres allégées, narration à la 2ᵉ personne, et à chaque étape une série de choix clairs.",
   auteur: "D'après Don Knight — World of Farland, adapté pour le jeu solo",
   debut: "ts-intro",
+  heros: "pg-sylwen",
   scenes: [
     {
       id: "ts-intro", titre: "Mode solo — préparation", lieu: "Avant de commencer",
@@ -843,9 +844,9 @@ window.SCENARIOS = [
       monstres: ["squelette", "goule", "orc", "gobelin"],
       actions: [
         { txt: "🎲 Jet de rencontre (route)", die: 6, table: [
-            { max: 2, txt: "2 Squelettes émergent de la brume — combat ! (fiche Squelette au Bestiaire)" },
-            { max: 3, txt: "Une Goule affamée traque Sylwen — combat !" },
-            { max: 4, txt: "Patrouille réduite de Hestor : 1 orc + 1 gobelin." },
+            { max: 2, txt: "2 Squelettes émergent de la brume — combat !", cible: "ts-renc-sq" },
+            { max: 3, txt: "Une Goule affamée traque Sylwen — combat !", cible: "ts-renc-goule" },
+            { max: 4, txt: "Patrouille de Hestor : 1 orc + 1 gobelin — combat !", cible: "ts-renc-patrouille" },
             { max: 6, txt: "Rien. Le trajet reste calme." }
           ] },
         { txt: "👁️ Repérer le danger (Fenn gronde)", carac: "Sagesse (Perception)", dc: 12, mod: 4,
@@ -853,6 +854,30 @@ window.SCENARIOS = [
           echec: "Trop tard — tu es prise au dépourvu, pas de surprise." }
       ],
       choix: [{ txt: "Arriver au pied des deux Tours ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-renc-sq", titre: "Rencontre — Squelettes", lieu: "La Plaine des Batailles",
+      lecture: ["Deux squelettes jaillissent de la brume, armes rouillées levées, os cliquetant !"],
+      mj: ["Petit combat de route. Une fois vainqueur, reprends la marche vers les tours."],
+      monstres: ["squelette", "fenn"],
+      combat: { ennemis: [{ ref: "squelette", n: 2 }] },
+      choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-renc-goule", titre: "Rencontre — Goule", lieu: "La Plaine des Batailles",
+      lecture: ["Une silhouette décharnée bondit d'un fossé : une goule affamée, griffes en avant !"],
+      mj: ["⚠ Ses griffes paralysent (JS Con DC 10). Garde Fenn prêt à couvrir Sylwen si elle est paralysée."],
+      monstres: ["goule", "fenn"],
+      combat: { ennemis: [{ ref: "goule", n: 1 }] },
+      choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-renc-patrouille", titre: "Rencontre — Patrouille de Hestor", lieu: "La Plaine des Batailles",
+      lecture: ["Un orc et un gobelin surgissent d'un repli de terrain : une patrouille du Seigneur de la Paresse !"],
+      mj: ["L'orc mène, le gobelin sert d'éclaireur. Vaincs-les avant qu'ils n'alertent Hestor."],
+      monstres: ["orc", "gobelin", "fenn"],
+      combat: { ennemis: [{ ref: "orc", n: 1 }, { ref: "gobelin", n: 1 }] },
+      choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
     },
     {
       id: "ts-base", titre: "Le pied des Tours", lieu: "Partie 2",
@@ -865,6 +890,7 @@ window.SCENARIOS = [
         "Sylwen peut ouvrir avec une flèche + marque du chasseur ; Fenn charge un squelette (avantage)."
       ],
       monstres: ["squelette", "kobold", "fenn"],
+      combat: { ennemis: [{ ref: "squelette", n: 2 }, { ref: "kobold", n: 2 }] },
       actions: [
         { txt: "🏹 Ouvrir par une flèche furtive", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
           reussite: "Silencieuse, tu décoches avant qu'ils réagissent : SURPRISE, avantage au 1er tour, et Fenn charge.",
@@ -914,6 +940,7 @@ window.SCENARIOS = [
         "Rien d'autre d'utile ici : des planches, une scie, deux marteaux, une longue perche."
       ],
       monstres: ["zombie", "fenn"],
+      combat: { ennemis: [{ ref: "zombie", n: 2 }] },
       actions: [
         { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Zombie : Ténacité (JS Con DC 5 + dégâts pour rester à 1 PV)." },
         { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants (+1d6 att. bonus avec la 2e lame)." },
@@ -935,6 +962,7 @@ window.SCENARIOS = [
         "Fouille (Perception DC 12) : statuette d'ivoire de Bestra (50 pa) + un Casque de Mineur (lampe mains-libres)."
       ],
       monstres: ["drokag", "kobold", "fenn"],
+      combat: { ennemis: [{ ref: "drokag", n: 1 }, { ref: "kobold", n: 2 }] },
       tresor: ["Clé de Chiffre", "Statuette de Bestra (50 pa)", "Casque de Mineur", "50 pa, épée longue"],
       actions: [
         { txt: "🔎 Fouiller la salle saccagée", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
@@ -966,6 +994,7 @@ window.SCENARIOS = [
         "IMPORTANT : les éliminer MAINTENANT évite qu'ils ne canardent Sylwen pendant le combat final contre Beryn (ils tirent d'une tour à l'autre)."
       ],
       monstres: ["squelette", "fenn"],
+      combat: { ennemis: [{ ref: "squelette", n: 2 }] },
       actions: [
         { txt: "🎯 Tir d'ouverture sur un archer", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
           reussite: "Tu abats presque un squelette avant qu'ils ne bougent : avantage au 1er tour.",
@@ -1007,6 +1036,7 @@ window.SCENARIOS = [
         "L'éliminer ici l'empêche de rejoindre le combat contre Beryn."
       ],
       monstres: ["goule", "fenn"],
+      combat: { ennemis: [{ ref: "goule", n: 1 }] },
       actions: [
         { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." },
         { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants." },
@@ -1038,6 +1068,7 @@ window.SCENARIOS = [
         "Butin : son grimoire, 50 pa, une bague d'argent (20 pa)."
       ],
       monstres: ["beryn", "squelette", "goule", "fenn"],
+      combat: { ennemis: [{ ref: "beryn", n: 1 }, { ref: "squelette", n: 2 }] },
       tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
       actions: [
         { txt: "🏹 Flèche + marque du chasseur (surprise)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,

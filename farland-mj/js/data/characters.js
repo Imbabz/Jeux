@@ -144,8 +144,9 @@ window.PREGENS = [
     competences: ["Perception", "Discrétion", "Survie", "Nature", "Dressage", "Investigation"],
     dcSort: 13, attaqueSort: 5,
     attaques: [
-      { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant (45/180 m)" },
-      { nom: "Deux épées courtes", bonus: 5, degats: "1d6+3 / 1d6 (att. bonus) tranchant" }
+      { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant", degR: "1d8+3" },
+      { nom: "Épée courte", bonus: 5, degats: "1d6+3 tranchant", degR: "1d6+3" },
+      { nom: "Morsure de Fenn 🐺", bonus: 4, degats: "2d4+2 perforant", degR: "2d4+2" }
     ],
     sorts: [
       "Niv 1 (3 empl.) : marque du chasseur (+1d6 dégâts sur une cible), soin des blessures (1d8+3), foulée prodigieuse, communication avec les animaux, saut."

@@ -233,6 +233,52 @@ hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
   border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 17px; line-height: 1.55;
 }
 
+/* ---- Code couleur des enchaînements (issus d'une action / d'un dé) ---- */
+.chain-banner {
+  background: #2a2140; border: 1px solid #6b4fa0; border-left: 5px solid #a487e0;
+  color: #d9ccf5; border-radius: 10px; padding: 10px 14px; margin: 6px 0 12px; font-size: 15px;
+}
+.chain-banner.combat { background: #3a1d1d; border-color: #8f3b34; border-left-color: #d9773b; color: #f0cabc; }
+.action-out .choice[data-next], .choice.chain { border-color: #6b4fa0; background: #2a2140; }
+.action-btn.triggers-combat { border-color: var(--danger); background: #301a17; }
+.action-btn.triggers-combat .act-meta { color: var(--accent-2); }
+
+/* ---- Module de combat ---- */
+#combat-box { margin: 6px 0 4px; }
+.enemies { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+.enemy {
+  background: #1f1a17; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.enemy.sel { border-color: var(--accent); background: #241d13; box-shadow: 0 0 0 1px var(--accent) inset; }
+.enemy.ko { opacity: .5; }
+.enemy.ko .enemy-name { text-decoration: line-through; }
+.enemy-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.enemy-name { font-weight: 600; font-size: 16px; flex: 1; }
+.enemy-ac { font-size: 13px; color: #a9cbe4; background: #1b2732; border: 1px solid #33475a; border-radius: 8px; padding: 2px 8px; }
+.mini-fiche { font-size: 12px; padding: 4px 8px; min-height: auto; background: transparent; color: var(--txt-dim); border-color: var(--line); }
+.hpbar { position: relative; height: 22px; background: #3a1414; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.hpfill { position: absolute; inset: 0 auto 0 0; height: 100%; transition: width .3s ease; }
+.hpfill.high { background: linear-gradient(90deg,#3f7a3f,#59a659); }
+.hpfill.mid  { background: linear-gradient(90deg,#9a8a2e,#c9b048); }
+.hpfill.low  { background: linear-gradient(90deg,#9a3b2e,#d9773b); }
+.hpfill.dead { background: #4a2020; }
+.hptxt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.7); }
+.hp-ctrl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.hp-ctrl button { min-height: 40px; padding: 6px 10px; font-size: 14px; }
+.target-badge { font-size: 13px; color: var(--accent); font-weight: 600; margin-left: auto; }
+.set-target { margin-left: auto; font-size: 13px; padding: 6px 10px; min-height: 40px; }
+.combat-sub { font-size: 13px; color: var(--txt-dim); margin: 10px 0 6px; }
+.atk-row { display: flex; flex-direction: column; gap: 8px; }
+.atk-btn, .enemyatk-btn {
+  width: 100%; justify-content: space-between; text-align: left; padding: 12px 14px; border-radius: 12px;
+}
+.atk-row.hero .atk-btn { background: #16241a; border: 1px solid #3f7a3f; }
+.atk-row.hero .atk-btn .act-meta { color: #7fc47f; }
+.atk-row.foe .enemyatk-btn { background: #2a1614; border: 1px solid #8f3b34; }
+.atk-row.foe .enemyatk-btn .act-meta { color: var(--accent-2); }
+
 </style>
 </head>
 <body>
@@ -488,6 +534,7 @@ window.BESTIARY = [
   /* ---------- Aventure 2 : PNJ spéciaux ---------- */
   {
     id: "drokag", nom: "Drokag le Hobgobelin", type: "Gobelinoïde M, Loyal Mauvais",
+    atk: { hit: 5, deg: "1d8+2" },
     cr: "2", tags: ["aventure2", "pnj", "boss"],
     ac: "18 (cotte de mailles, bouclier)", pv: "28 (4d8+8)", vitesse: "9 m",
     stats: { for: 14, dex: 12, con: 14, int: 10, sag: 10, cha: 10 },
@@ -503,6 +550,7 @@ window.BESTIARY = [
   },
   {
     id: "beryn", nom: "Beryn le Nécromancien", type: "Humain M, Loyal Mauvais",
+    atk: { hit: 4, deg: "1d8" },
     cr: "2", tags: ["aventure2", "pnj", "boss"],
     ac: "11", pv: "20 (5d6+5)", vitesse: "9 m",
     stats: { for: 10, dex: 12, con: 13, int: 15, sag: 12, cha: 11 },
@@ -549,6 +597,7 @@ window.BESTIARY = [
   },
   {
     id: "squelette", nom: "Squelette", type: "Mort-vivant M, Loyal Mauvais",
+    atk: { hit: 4, deg: "1d6+2" },
     cr: "1/4", tags: ["srd", "mort-vivant"],
     ac: "13 (débris d'armure)", pv: "13 (2d8+4)", vitesse: "9 m",
     stats: { for: 10, dex: 14, con: 15, int: 6, sag: 8, cha: 5 },
@@ -564,6 +613,7 @@ window.BESTIARY = [
   },
   {
     id: "zombie", nom: "Zombie", type: "Mort-vivant M, Neutre Mauvais",
+    atk: { hit: 3, deg: "1d6+1" },
     cr: "1/4", tags: ["srd", "mort-vivant"],
     ac: "8", pv: "22 (3d8+9)", vitesse: "6 m",
     stats: { for: 13, dex: 6, con: 16, int: 3, sag: 6, cha: 5 },
@@ -591,6 +641,7 @@ window.BESTIARY = [
   },
   {
     id: "goule", nom: "Goule", type: "Mort-vivant M, Chaotique Mauvais",
+    atk: { hit: 4, deg: "2d4+2" },
     cr: "1", tags: ["srd", "mort-vivant"],
     ac: "12", pv: "22 (5d8)", vitesse: "9 m",
     stats: { for: 13, dex: 15, con: 10, int: 7, sag: 10, cha: 6 },
@@ -632,6 +683,7 @@ window.BESTIARY = [
   },
   {
     id: "kobold", nom: "Kobold", type: "Humanoïde P, Loyal Mauvais",
+    atk: { hit: 4, deg: "1d4+2" },
     cr: "1/8", tags: ["srd", "humanoïde", "aventure2"],
     ac: "12", pv: "5 (2d6-2)", vitesse: "9 m",
     stats: { for: 7, dex: 15, con: 9, int: 8, sag: 7, cha: 8 },
@@ -647,6 +699,7 @@ window.BESTIARY = [
   },
   {
     id: "orc", nom: "Orc", type: "Humanoïde M, Chaotique Mauvais",
+    atk: { hit: 5, deg: "1d12+3" },
     cr: "1/2", tags: ["srd", "humanoïde", "aventure2"],
     ac: "13 (armure de cuir clouté)", pv: "15 (2d8+6)", vitesse: "9 m",
     stats: { for: 16, dex: 12, con: 16, int: 7, sag: 11, cha: 10 },
@@ -660,6 +713,7 @@ window.BESTIARY = [
   },
   {
     id: "gobelin", nom: "Gobelin", type: "Humanoïde P, Neutre Mauvais",
+    atk: { hit: 4, deg: "1d6+2" },
     cr: "1/4", tags: ["srd", "humanoïde", "aventure2"],
     ac: "15 (armure de cuir, bouclier)", pv: "7 (2d6)", vitesse: "9 m",
     stats: { for: 8, dex: 14, con: 10, int: 10, sag: 8, cha: 8 },
@@ -1384,6 +1438,7 @@ window.SCENARIOS = [
   resume: "Version pensée pour jouer À DEUX PERSONNES SEULEMENT : un MJ et un seul joueur. Sylwen Feuille-d'Argent, rôdeuse elfe accompagnée de son loup Fenn, est envoyée par le camp de Loch Brech mettre fin à la vague de morts-vivants qui déferle des Tours de l'Attente. Rencontres allégées, narration à la 2ᵉ personne, et à chaque étape une série de choix clairs.",
   auteur: "D'après Don Knight — World of Farland, adapté pour le jeu solo",
   debut: "ts-intro",
+  heros: "pg-sylwen",
   scenes: [
     {
       id: "ts-intro", titre: "Mode solo — préparation", lieu: "Avant de commencer",
@@ -1534,9 +1589,9 @@ window.SCENARIOS = [
       monstres: ["squelette", "goule", "orc", "gobelin"],
       actions: [
         { txt: "🎲 Jet de rencontre (route)", die: 6, table: [
-            { max: 2, txt: "2 Squelettes émergent de la brume — combat ! (fiche Squelette au Bestiaire)" },
-            { max: 3, txt: "Une Goule affamée traque Sylwen — combat !" },
-            { max: 4, txt: "Patrouille réduite de Hestor : 1 orc + 1 gobelin." },
+            { max: 2, txt: "2 Squelettes émergent de la brume — combat !", cible: "ts-renc-sq" },
+            { max: 3, txt: "Une Goule affamée traque Sylwen — combat !", cible: "ts-renc-goule" },
+            { max: 4, txt: "Patrouille de Hestor : 1 orc + 1 gobelin — combat !", cible: "ts-renc-patrouille" },
             { max: 6, txt: "Rien. Le trajet reste calme." }
           ] },
         { txt: "👁️ Repérer le danger (Fenn gronde)", carac: "Sagesse (Perception)", dc: 12, mod: 4,
@@ -1544,6 +1599,30 @@ window.SCENARIOS = [
           echec: "Trop tard — tu es prise au dépourvu, pas de surprise." }
       ],
       choix: [{ txt: "Arriver au pied des deux Tours ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-renc-sq", titre: "Rencontre — Squelettes", lieu: "La Plaine des Batailles",
+      lecture: ["Deux squelettes jaillissent de la brume, armes rouillées levées, os cliquetant !"],
+      mj: ["Petit combat de route. Une fois vainqueur, reprends la marche vers les tours."],
+      monstres: ["squelette", "fenn"],
+      combat: { ennemis: [{ ref: "squelette", n: 2 }] },
+      choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-renc-goule", titre: "Rencontre — Goule", lieu: "La Plaine des Batailles",
+      lecture: ["Une silhouette décharnée bondit d'un fossé : une goule affamée, griffes en avant !"],
+      mj: ["⚠ Ses griffes paralysent (JS Con DC 10). Garde Fenn prêt à couvrir Sylwen si elle est paralysée."],
+      monstres: ["goule", "fenn"],
+      combat: { ennemis: [{ ref: "goule", n: 1 }] },
+      choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
+    },
+    {
+      id: "ts-renc-patrouille", titre: "Rencontre — Patrouille de Hestor", lieu: "La Plaine des Batailles",
+      lecture: ["Un orc et un gobelin surgissent d'un repli de terrain : une patrouille du Seigneur de la Paresse !"],
+      mj: ["L'orc mène, le gobelin sert d'éclaireur. Vaincs-les avant qu'ils n'alertent Hestor."],
+      monstres: ["orc", "gobelin", "fenn"],
+      combat: { ennemis: [{ ref: "orc", n: 1 }, { ref: "gobelin", n: 1 }] },
+      choix: [{ txt: "Reprendre la route ▶", cible: "ts-base" }]
     },
     {
       id: "ts-base", titre: "Le pied des Tours", lieu: "Partie 2",
@@ -1556,6 +1635,7 @@ window.SCENARIOS = [
         "Sylwen peut ouvrir avec une flèche + marque du chasseur ; Fenn charge un squelette (avantage)."
       ],
       monstres: ["squelette", "kobold", "fenn"],
+      combat: { ennemis: [{ ref: "squelette", n: 2 }, { ref: "kobold", n: 2 }] },
       actions: [
         { txt: "🏹 Ouvrir par une flèche furtive", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
           reussite: "Silencieuse, tu décoches avant qu'ils réagissent : SURPRISE, avantage au 1er tour, et Fenn charge.",
@@ -1605,6 +1685,7 @@ window.SCENARIOS = [
         "Rien d'autre d'utile ici : des planches, une scie, deux marteaux, une longue perche."
       ],
       monstres: ["zombie", "fenn"],
+      combat: { ennemis: [{ ref: "zombie", n: 2 }] },
       actions: [
         { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Zombie : Ténacité (JS Con DC 5 + dégâts pour rester à 1 PV)." },
         { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants (+1d6 att. bonus avec la 2e lame)." },
@@ -1626,6 +1707,7 @@ window.SCENARIOS = [
         "Fouille (Perception DC 12) : statuette d'ivoire de Bestra (50 pa) + un Casque de Mineur (lampe mains-libres)."
       ],
       monstres: ["drokag", "kobold", "fenn"],
+      combat: { ennemis: [{ ref: "drokag", n: 1 }, { ref: "kobold", n: 2 }] },
       tresor: ["Clé de Chiffre", "Statuette de Bestra (50 pa)", "Casque de Mineur", "50 pa, épée longue"],
       actions: [
         { txt: "🔎 Fouiller la salle saccagée", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
@@ -1657,6 +1739,7 @@ window.SCENARIOS = [
         "IMPORTANT : les éliminer MAINTENANT évite qu'ils ne canardent Sylwen pendant le combat final contre Beryn (ils tirent d'une tour à l'autre)."
       ],
       monstres: ["squelette", "fenn"],
+      combat: { ennemis: [{ ref: "squelette", n: 2 }] },
       actions: [
         { txt: "🎯 Tir d'ouverture sur un archer", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
           reussite: "Tu abats presque un squelette avant qu'ils ne bougent : avantage au 1er tour.",
@@ -1698,6 +1781,7 @@ window.SCENARIOS = [
         "L'éliminer ici l'empêche de rejoindre le combat contre Beryn."
       ],
       monstres: ["goule", "fenn"],
+      combat: { ennemis: [{ ref: "goule", n: 1 }] },
       actions: [
         { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." },
         { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants." },
@@ -1729,6 +1813,7 @@ window.SCENARIOS = [
         "Butin : son grimoire, 50 pa, une bague d'argent (20 pa)."
       ],
       monstres: ["beryn", "squelette", "goule", "fenn"],
+      combat: { ennemis: [{ ref: "beryn", n: 1 }, { ref: "squelette", n: 2 }] },
       tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
       actions: [
         { txt: "🏹 Flèche + marque du chasseur (surprise)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
@@ -1934,8 +2019,9 @@ window.PREGENS = [
     competences: ["Perception", "Discrétion", "Survie", "Nature", "Dressage", "Investigation"],
     dcSort: 13, attaqueSort: 5,
     attaques: [
-      { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant (45/180 m)" },
-      { nom: "Deux épées courtes", bonus: 5, degats: "1d6+3 / 1d6 (att. bonus) tranchant" }
+      { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant", degR: "1d8+3" },
+      { nom: "Épée courte", bonus: 5, degats: "1d6+3 tranchant", degR: "1d6+3" },
+      { nom: "Morsure de Fenn 🐺", bonus: 4, degats: "2d4+2 perforant", degR: "2d4+2" }
     ],
     sorts: [
       "Niv 1 (3 empl.) : marque du chasseur (+1d6 dégâts sur une cible), soin des blessures (1d8+3), foulée prodigieuse, communication avec les animaux, saut."
@@ -2070,11 +2156,22 @@ window.Dice = (function () {
     renderScene();
   }
 
+  // Contexte partagé + source d'entrée de scène (pour le code couleur des enchaînements)
+  let sceneEntrySource = null;   // 'action' | 'combat' | null
+  let curSc = null, curScene = null, combat = null;
+  function sceneHasCombat(id) { const s = curSc && byId(curSc.scenes, id); return !!(s && s.combat); }
+
   function renderScene() {
     const sc = byId(SCENARIOS, gameState.scenarioId);
     if (!sc) return renderScenarioList();
     const scene = byId(sc.scenes, gameState.sceneId) || byId(sc.scenes, sc.debut);
     const idx = sc.scenes.indexOf(scene);
+    curSc = sc; curScene = scene;
+
+    const banner = sceneEntrySource === "combat"
+      ? `<div class="chain-banner combat">⚔️ Combat déclenché par ton jet de dé !</div>`
+      : (sceneEntrySource === "action"
+        ? `<div class="chain-banner">⤷ Suite de ton action précédente</div>` : "");
 
     const lecture = (scene.lecture && scene.lecture.length) ? `
       <div class="readbox">
@@ -2099,6 +2196,11 @@ window.Dice = (function () {
       <div class="section-title">Trésor / butin</div>
       <ul class="loot">${scene.tresor.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : "";
 
+    const combatBlock = scene.combat ? `<div id="combat-box"></div>` : "";
+
+    const leadsToCombat = (a) => [a.cibleReussite, a.cibleEchec, a.cible]
+      .concat((a.table || []).map((e) => e.cible)).filter(Boolean).some((t) => sceneHasCombat(t));
+
     const choices = (scene.choix && scene.choix.length) ? `
       <div class="choices">
         <span class="label">Que font les héros ?</span>
@@ -2114,13 +2216,15 @@ window.Dice = (function () {
     const actionsBlock = (scene.actions && scene.actions.length) ? `
       <div class="section-title">🎲 Actions possibles — touchez pour lancer le dé</div>
       <div id="scene-actions">
-        ${scene.actions.map((a, i) => `
-          <button class="action-btn" data-action="${i}">
-            <span class="act-txt">${esc(a.txt)}</span>
+        ${scene.actions.map((a, i) => {
+          const ct = leadsToCombat(a);
+          return `<button class="action-btn ${ct ? "triggers-combat" : ""}" data-action="${i}">
+            <span class="act-txt">${ct ? "⚔️ " : ""}${esc(a.txt)}</span>
             <span class="act-meta">${a.dc != null
               ? `DC ${a.dc}${a.carac ? " · " + esc(a.carac) : ""}`
               : (a.roll ? "🎲 " + esc(a.roll) : (a.table ? "🎲 hasard" : ""))}</span>
-          </button>`).join("")}
+          </button>`;
+        }).join("")}
       </div>
       <div class="dice-result action-out" id="action-result" style="display:none"></div>` : "";
 
@@ -2131,6 +2235,7 @@ window.Dice = (function () {
         <button class="btn-ghost" id="jump-btn">☰ Scènes</button>
       </div>
       <div class="progress">${esc(sc.titre)} — scène ${idx + 1}/${sc.scenes.length}</div>
+      ${banner}
       <div class="scene-head">
         <h2>${esc(scene.titre)}</h2>
       </div>
@@ -2139,38 +2244,34 @@ window.Dice = (function () {
       ${mjNotes}
       ${mobs}
       ${loot}
+      ${combatBlock}
       ${actionsBlock}
       ${choices}
       <div id="jump-panel"></div>`;
 
+    sceneEntrySource = null; // bannière consommée
+
     // liaisons
-    $$("#view-jeu [data-goto]").forEach((b) => b.addEventListener("click", () => {
-      const t = b.dataset.goto;
-      if (t === "__list__") { renderScenarioList(); window.scrollTo(0,0); return; }
-      gameState.sceneId = t; LS.set("gameState", gameState); renderScene(); window.scrollTo(0, 0);
-    }));
-    $$("#view-jeu [data-mob]").forEach((b) => b.addEventListener("click", () => {
-      openBestiaryEntry(b.dataset.mob);
-    }));
-    $$("#view-jeu [data-action]").forEach((b) => b.addEventListener("click", () => {
-      resolveSceneAction(scene.actions[+b.dataset.action]);
-    }));
+    $$("#view-jeu [data-goto]").forEach((b) => b.addEventListener("click", () => navigateTo(b.dataset.goto)));
+    $$("#view-jeu [data-mob]").forEach((b) => b.addEventListener("click", () => openBestiaryEntry(b.dataset.mob)));
+    $$("#view-jeu [data-action]").forEach((b) => b.addEventListener("click", () => resolveSceneAction(scene.actions[+b.dataset.action])));
     $("#jump-btn").addEventListener("click", () => {
       const p = $("#jump-panel");
       if (p.innerHTML) { p.innerHTML = ""; return; }
       p.innerHTML = `<div class="card"><div class="section-title" style="margin-top:0">Aller à une scène</div>${
         sc.scenes.map((s, i) => `<button class="choice" data-goto="${s.id}"><span>${i+1}. ${esc(s.titre)}</span><span class="arrow">›</span></button>`).join("")
       }</div>`;
-      $$("#jump-panel [data-goto]").forEach((b) => b.addEventListener("click", () => {
-        gameState.sceneId = b.dataset.goto; LS.set("gameState", gameState); renderScene(); window.scrollTo(0,0);
-      }));
+      $$("#jump-panel [data-goto]").forEach((b) => b.addEventListener("click", () => navigateTo(b.dataset.goto)));
     });
+
+    if (scene.combat) initCombat(sc, scene);
     window.scrollTo(0, 0);
   }
 
-  // Navigue vers une scène (utilisé par les choix ET les résultats d'action)
-  function navigateTo(t) {
-    if (t === "__list__") { renderScenarioList(); window.scrollTo(0, 0); return; }
+  // Navigue vers une scène. `source` ('action'|'combat') colore la bannière d'arrivée.
+  function navigateTo(t, source) {
+    if (t === "__list__") { sceneEntrySource = null; renderScenarioList(); window.scrollTo(0, 0); return; }
+    sceneEntrySource = source || null;
     gameState.sceneId = t; LS.set("gameState", gameState); renderScene(); window.scrollTo(0, 0);
   }
 
@@ -2210,9 +2311,158 @@ window.Dice = (function () {
     if (next) html += `<button class="choice" data-next="${next}" style="margin-top:12px"><span>Continuer ▶</span><span class="arrow">›</span></button>`;
     el.innerHTML = html;
     const nav = el.querySelector("[data-next]");
-    if (nav) nav.addEventListener("click", () => navigateTo(nav.dataset.next));
+    if (nav) nav.addEventListener("click", () => navigateTo(nav.dataset.next, sceneHasCombat(nav.dataset.next) ? "combat" : "action"));
     renderLog();
     el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // =====================================================================
+  //  MODULE DE COMBAT (suivi des ennemis, attaques, dégâts)
+  // =====================================================================
+  function combatKey(sc, scene) { return `combat:${sc.id}:${scene.id}`; }
+  function combatSig(scene) { return (scene.combat.ennemis || []).map((e) => e.ref + "x" + e.n).join(","); }
+
+  function buildCombat(scene) {
+    const enemies = [];
+    (scene.combat.ennemis || []).forEach((grp) => {
+      const b = byId(BESTIARY, grp.ref); if (!b) return;
+      for (let i = 0; i < grp.n; i++) {
+        const hp = parseInt(b.pv, 10) || 1;
+        enemies.push({ ref: grp.ref, nom: grp.n > 1 ? `${b.nom} ${i + 1}` : b.nom,
+          ac: parseInt(b.ac, 10) || 10, hpMax: hp, hp: hp, atk: b.atk || null, defeated: false });
+      }
+    });
+    return { sig: combatSig(scene), enemies, target: enemies.length ? 0 : null };
+  }
+
+  function initCombat(sc, scene) {
+    if (!$("#combat-box")) return;
+    const saved = LS.get(combatKey(sc, scene), null);
+    combat = (saved && saved.sig === combatSig(scene)) ? saved : buildCombat(scene);
+    combat.heroId = sc.heros || null;
+    drawCombat(sc, scene);
+  }
+  function saveCombat(sc, scene) { LS.set(combatKey(sc, scene), combat); }
+
+  function attackRoll(hit, degExpr, targetAC, mode) {
+    const r = Dice.d20(hit, mode);
+    const hitOk = r.crit || (!r.fail && r.total >= targetAC);
+    let dmg = 0, detail = "";
+    if (hitOk) {
+      const p = Dice.parse(degExpr) || { n: 1, sides: 4, mod: 0 };
+      const base = Dice.roll(p.n, p.sides);
+      dmg = base.sum + p.mod;
+      let crit = null;
+      if (r.crit) { crit = Dice.roll(p.n, p.sides); dmg += crit.sum; }
+      detail = `[${base.rolls.join(",")}]${crit ? " +crit[" + crit.rolls.join(",") + "]" : ""}${p.mod ? " " + signed(p.mod) : ""}`;
+    }
+    return { r, hitOk, dmg, detail };
+  }
+
+  function drawCombat(sc, scene) {
+    const box = $("#combat-box"); if (!box || !combat) return;
+    const hero = combat.heroId ? byId(allCharacters(), combat.heroId) : null;
+    const allDead = combat.enemies.length && combat.enemies.every((e) => e.defeated);
+    const tgt = combat.target;
+
+    const enemiesHtml = combat.enemies.map((e, i) => {
+      const pct = Math.max(0, Math.min(100, Math.round(e.hp / e.hpMax * 100)));
+      const sel = tgt === i && !e.defeated;
+      const lvl = e.hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
+      return `<div class="enemy ${e.defeated ? "ko" : ""} ${sel ? "sel" : ""}" data-enemy="${i}">
+        <div class="enemy-head">
+          <span class="enemy-name">${e.defeated ? "💀 " : ""}${esc(e.nom)}</span>
+          <span class="enemy-ac">🛡️ ${e.ac}</span>
+          <button class="mini-fiche" data-fiche="${e.ref}">fiche ›</button>
+        </div>
+        <div class="hpbar"><div class="hpfill ${lvl}" style="width:${pct}%"></div><span class="hptxt">${e.hp} / ${e.hpMax} PV</span></div>
+        <div class="hp-ctrl">
+          <button data-dmg="${i}" data-amt="10">−10</button>
+          <button data-dmg="${i}" data-amt="5">−5</button>
+          <button data-dmg="${i}" data-amt="1">−1</button>
+          <button data-heal="${i}" data-amt="5">+5</button>
+          ${sel ? `<span class="target-badge">🎯 cible</span>` : (e.defeated ? "" : `<button class="set-target" data-target="${i}">🎯 cibler</button>`)}
+        </div>
+      </div>`;
+    }).join("");
+
+    const heroAtk = (hero && hero.attaques && !allDead) ? hero.attaques.map((a, i) =>
+      `<button class="atk-btn" data-heroatk="${i}"><span>${esc(a.nom)}</span><span class="act-meta">+${a.bonus} · ${esc(a.degR || a.degats)}</span></button>`
+    ).join("") : "";
+
+    const enemyAtk = (!allDead) ? combat.enemies.map((e, i) => (!e.defeated && e.atk) ?
+      `<button class="enemyatk-btn" data-enemyatk="${i}"><span>${esc(e.nom)}</span><span class="act-meta">+${e.atk.hit} · ${esc(e.atk.deg)}</span></button>` : ""
+    ).join("") : "";
+
+    const tgtName = (tgt != null && combat.enemies[tgt] && !combat.enemies[tgt].defeated) ? esc(combat.enemies[tgt].nom) : "—";
+
+    box.innerHTML = `
+      <div class="section-title" style="color:var(--accent-2)">⚔️ Combat ${allDead ? `— <span style="color:var(--ok)">ennemis vaincus ✔</span>` : "— suivi en direct"}</div>
+      <div class="enemies">${enemiesHtml}</div>
+      ${hero && !allDead ? `<div class="combat-sub">🗡️ Attaques de ${esc(hero.nom.split(" ")[0])} · cible : <b>${tgtName}</b></div>
+      <div class="atk-row hero">${heroAtk}</div>` : ""}
+      ${enemyAtk ? `<div class="combat-sub">👹 Tour des ennemis (jet pour le MJ)</div><div class="atk-row foe">${enemyAtk}</div>` : ""}
+      <div class="dice-result action-out" id="combat-out" style="display:none"></div>
+      <button class="btn-ghost" id="combat-reset" style="margin-top:8px">↺ Réinitialiser le combat</button>`;
+
+    box.querySelectorAll("[data-enemy]").forEach((el) => el.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-dmg],[data-heal],[data-fiche],[data-target]")) return;
+      const i = +el.dataset.enemy;
+      if (!combat.enemies[i].defeated) { combat.target = i; saveCombat(sc, scene); drawCombat(sc, scene); }
+    }));
+    box.querySelectorAll("[data-target]").forEach((b) => b.addEventListener("click", () => { combat.target = +b.dataset.target; saveCombat(sc, scene); drawCombat(sc, scene); }));
+    box.querySelectorAll("[data-fiche]").forEach((b) => b.addEventListener("click", () => openBestiaryEntry(b.dataset.fiche)));
+    box.querySelectorAll("[data-dmg]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.dmg, -(+b.dataset.amt))));
+    box.querySelectorAll("[data-heal]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.heal, +b.dataset.amt)));
+    box.querySelectorAll("[data-heroatk]").forEach((b) => b.addEventListener("click", () => heroAttack(sc, scene, +b.dataset.heroatk)));
+    box.querySelectorAll("[data-enemyatk]").forEach((b) => b.addEventListener("click", () => enemyAttack(sc, scene, +b.dataset.enemyatk)));
+    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; saveCombat(sc, scene); drawCombat(sc, scene); });
+  }
+
+  function applyHp(sc, scene, i, delta) {
+    const e = combat.enemies[i]; if (!e) return;
+    e.hp = Math.max(0, Math.min(e.hpMax, e.hp + delta));
+    e.defeated = e.hp === 0;
+    if (e.defeated && combat.target === i) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
+    saveCombat(sc, scene); drawCombat(sc, scene);
+  }
+
+  function showCombatOut(html) {
+    const out = $("#combat-out"); if (!out) return;
+    out.style.display = "block"; out.innerHTML = html;
+    out.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function heroAttack(sc, scene, ai) {
+    const hero = byId(allCharacters(), combat.heroId); if (!hero || !hero.attaques) return;
+    const a = hero.attaques[ai];
+    const t = combat.target, e = combat.enemies[t];
+    if (t == null || !e || e.defeated) { drawCombat(sc, scene); showCombatOut(`<div class="detail">🎯 Choisis d'abord une cible vivante (bouton « cibler »).</div>`); return; }
+    const res = attackRoll(a.bonus, a.degR || a.degats, e.ac, d20mode);
+    let html = `<div class="total ${res.hitOk ? "crit" : "fail"}">${res.r.total}</div>
+      <div class="detail">${esc(a.nom)} → ${esc(e.nom)} (CA ${e.ac}) · dé ${res.r.natural} +${a.bonus}${res.r.crit ? " ⭐CRIT" : res.r.fail ? " 💀" : ""}</div>`;
+    if (res.hitOk) {
+      e.hp = Math.max(0, e.hp - res.dmg); e.defeated = e.hp === 0;
+      if (e.defeated && combat.target === t) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
+      html += `<div class="act-verdict ok">✓ TOUCHÉ — ${res.dmg} dégâts <span class="muted">${res.detail}</span></div>
+        <div class="act-narr">${esc(e.nom)} : ${e.hp} / ${e.hpMax} PV${e.defeated ? " — VAINCU 💀" : ""}</div>`;
+      pushLog(`${a.nom} → ${e.nom}`, res.r.total, `${res.dmg} dég.`);
+    } else {
+      html += `<div class="act-verdict ko">✗ RATÉ (il fallait ${e.ac} ou +)</div>`;
+      pushLog(`${a.nom} → ${e.nom}`, res.r.total, "raté");
+    }
+    saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(html); renderLog();
+  }
+
+  function enemyAttack(sc, scene, i) {
+    const e = combat.enemies[i]; if (!e || !e.atk) return;
+    const r = Dice.d20(e.atk.hit, "normal");
+    const dp = Dice.rollExpr(e.atk.deg) || { total: 0, rolls: [] };
+    const html = `<div class="total">${r.total}</div>
+      <div class="detail">${esc(e.nom)} attaque · dé ${r.natural} +${e.atk.hit}${r.crit ? " ⭐CRIT" : ""}</div>
+      <div class="act-narr">Touche si ≥ CA du héros. Dégâts si touché : <b>${dp.total}</b> (${esc(e.atk.deg)} = [${(dp.rolls || []).join(",")}]).${r.crit ? " Critique : double les dés !" : ""}</div>`;
+    pushLog(`${e.nom} attaque`, r.total, `${dp.total} dég.`);
+    drawCombat(sc, scene); showCombatOut(html); renderLog();
   }
 
   function renderGameTab() {
