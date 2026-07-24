@@ -139,6 +139,13 @@ window.PREGENS = [
     race: "Elfe des bois",
     pv: 28, ca: 16, vitesse: "10,50 m", init: 3,
     combatSlots: 3, combatFeatures: ["mark", "cure"],
+    gold: 20,
+    startInv: [
+      { id: "pot1", nom: "Potion de soins", qty: 2, type: "potion", heal: "2d4+2" },
+      { id: "fleches", nom: "Flèches", qty: 40, type: "gear" },
+      { id: "cape", nom: "Cape elfique (avantage discrétion)", qty: 1, type: "gear" },
+      { id: "rations", nom: "Rations de voyage", qty: 5, type: "gear" }
+    ],
     stats: { for: 12, dex: 17, con: 14, int: 10, sag: 15, cha: 11 },
     maitrise: 2,
     jetsSauv: ["for", "dex"],

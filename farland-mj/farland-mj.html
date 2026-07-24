@@ -311,6 +311,28 @@ summary .tok { vertical-align: middle; margin-right: 4px; }
 .viz-svg { width: 100%; max-width: 340px; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #141a20; }
 .viz-cap { font-size: 12px; color: var(--txt-dim); margin-top: 4px; }
 
+/* ---- HUD façon jeu (barre de statut du héros) ---- */
+.hud { display: flex; align-items: center; gap: 10px; background: linear-gradient(180deg,#1c1712,#161210);
+  border: 1px solid #5a4526; border-radius: 12px; padding: 8px 10px; margin-bottom: 12px; }
+.hud .tok { width: 38px; height: 38px; font-size: 20px; }
+.hud-main { flex: 1; min-width: 0; }
+.hud-name { font-weight: 700; font-size: 15px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.hud-stats { font-size: 12px; color: var(--txt-dim); font-weight: 400; }
+.hpbar.sm { height: 18px; margin: 4px 0 0; }
+.hpbar.sm .hptxt { font-size: 11px; }
+.hud-bag { font-size: 20px; padding: 8px 12px; min-height: 44px; background: #241d15; border-color: #5a4526; }
+
+/* ---- Inventaire ---- */
+.inv-list { display: flex; flex-direction: column; gap: 6px; }
+.inv-item { display: flex; align-items: center; gap: 8px; background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 12px; }
+.inv-name { flex: 1; font-size: 15px; }
+.inv-drop { background: transparent; border: none; color: var(--txt-dim); font-size: 16px; min-height: 32px; padding: 4px 8px; }
+.feat-btn.potion { background: #22161f; border-color: #7a4f6b; }
+.feat-btn.potion .act-meta { color: #d59ad0; }
+.loot .loot-add { font-size: 12px; padding: 4px 10px; min-height: auto; margin-left: 8px; background: #241d15; border: 1px solid #5a4526; color: var(--accent); border-radius: 8px; }
+.loot li { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
 </style>
 </head>
 <body>
@@ -2046,6 +2068,13 @@ window.PREGENS = [
     race: "Elfe des bois",
     pv: 28, ca: 16, vitesse: "10,50 m", init: 3,
     combatSlots: 3, combatFeatures: ["mark", "cure"],
+    gold: 20,
+    startInv: [
+      { id: "pot1", nom: "Potion de soins", qty: 2, type: "potion", heal: "2d4+2" },
+      { id: "fleches", nom: "Flèches", qty: 40, type: "gear" },
+      { id: "cape", nom: "Cape elfique (avantage discrétion)", qty: 1, type: "gear" },
+      { id: "rations", nom: "Rations de voyage", qty: 5, type: "gear" }
+    ],
     stats: { for: 12, dex: 17, con: 14, int: 10, sag: 15, cha: 11 },
     maitrise: 2,
     jetsSauv: ["for", "dex"],
@@ -2265,6 +2294,7 @@ window.Dice = (function () {
     const scene = byId(sc.scenes, gameState.sceneId) || byId(sc.scenes, sc.debut);
     const idx = sc.scenes.indexOf(scene);
     curSc = sc; curScene = scene;
+    if (sc.heros) { if (!HERO || HERO._scen !== sc.id) loadHero(sc); } else HERO = null;
 
     const banner = sceneEntrySource === "combat"
       ? `<div class="chain-banner combat">⚔️ Combat déclenché par ton jet de dé !</div>`
@@ -2295,7 +2325,7 @@ window.Dice = (function () {
 
     const loot = (scene.tresor && scene.tresor.length) ? `
       <div class="section-title">Trésor / butin</div>
-      <ul class="loot">${scene.tresor.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : "";
+      <ul class="loot">${scene.tresor.map((t, i) => `<li><span>${esc(t)}</span>${HERO ? ` <button class="loot-add" data-loot="${i}">＋ sac</button>` : ""}</li>`).join("")}</ul>` : "";
 
     const combatBlock = scene.combat ? `<div id="combat-box"></div>` : "";
 
@@ -2336,6 +2366,7 @@ window.Dice = (function () {
         <button class="btn-ghost" id="jump-btn">☰ Scènes</button>
       </div>
       <div class="progress">${esc(sc.titre)} — scène ${idx + 1}/${sc.scenes.length}</div>
+      ${renderHud()}
       ${banner}
       <div class="scene-head">
         <h2>${esc(scene.titre)}</h2>
@@ -2365,6 +2396,8 @@ window.Dice = (function () {
       }</div>`;
       $$("#jump-panel [data-goto]").forEach((b) => b.addEventListener("click", () => navigateTo(b.dataset.goto)));
     });
+    const bag = $("#hud-bag"); if (bag) bag.addEventListener("click", () => { if (HERO) { showTab("perso"); renderCharSheet(HERO.heroId); } });
+    $$("#view-jeu [data-loot]").forEach((b) => b.addEventListener("click", () => addLoot(scene.tresor[+b.dataset.loot])));
 
     if (scene.combat) initCombat(sc, scene);
     window.scrollTo(0, 0);
@@ -2429,11 +2462,64 @@ window.Dice = (function () {
     mark: { label: "🎯 Marque du chasseur", cost: "bonus", meta: "action bonus · +1d6 sur la cible" },
     cure: { label: "💚 Soin des blessures", cost: "action", meta: "action · 1 sort · +1d8+3 PV" }
   };
-  function initHeroState(heroId) {
+  // État PERSISTANT du héros (PV, sorts, or, inventaire) — partagé entre toutes les scènes
+  let HERO = null;
+  function heroKey(sc) { return `hero:${sc.id}:${sc.heros}`; }
+  function buildHero(heroId) {
     const h = heroId ? byId(allCharacters(), heroId) : null;
     const hp = h ? (h.pv || 20) : 20;
-    return { hpMax: hp, hp: hp, action: true, bonus: true, reaction: true,
-      mark: null, markName: null, slots: h ? (h.combatSlots || 0) : 0 };
+    return { _scen: null, heroId: heroId || null, hpMax: hp, hp: hp,
+      slotsMax: h ? (h.combatSlots || 0) : 0, slots: h ? (h.combatSlots || 0) : 0,
+      gold: h ? (h.gold || 0) : 0, inv: (h && h.startInv ? h.startInv.map((x) => ({ ...x })) : []) };
+  }
+  function loadHero(sc) {
+    if (!sc || !sc.heros) { HERO = null; return; }
+    HERO = LS.get(heroKey(sc), null) || buildHero(sc.heros);
+    if (!HERO.inv) HERO.inv = [];
+    HERO._scen = sc.id;
+  }
+  function saveHero(sc) { if (HERO && sc && sc.heros) LS.set(heroKey(sc), HERO); }
+  function heroFirst() {
+    const h = HERO && HERO.heroId ? byId(allCharacters(), HERO.heroId) : null;
+    return h ? h.nom.split(" ")[0] : "Héros";
+  }
+  function usePotion(sc, scene, invIdx) {
+    if (!HERO) return;
+    const it = HERO.inv[invIdx]; if (!it || it.type !== "potion" || it.qty <= 0) return;
+    const inCombat = !!$("#combat-box");
+    if (inCombat && combat && combat.turn) {
+      if (!combat.turn.action) { showCombatOut(`<div class="detail">⚠ Action déjà utilisée ce tour (boire une potion coûte une action).</div>`); return; }
+      combat.turn.action = false; saveCombat(sc, scene);
+    }
+    const r = Dice.rollExpr(it.heal || "2d4+2");
+    HERO.hp = Math.min(HERO.hpMax, HERO.hp + r.total); it.qty--;
+    if (it.qty <= 0) HERO.inv.splice(invIdx, 1);
+    saveHero(sc);
+    pushLog(it.nom, r.total, "soin"); renderLog();
+    if ($("#combat-box")) { drawCombat(sc, scene); showCombatOut(`<div class="act-verdict ok">🧪 ${esc(it.nom)} : +${r.total} PV</div><div class="act-narr">${esc(heroFirst())} : ${HERO.hp} / ${HERO.hpMax} PV.</div>`); }
+    else { hint(`🧪 +${r.total} PV`); if (curSc) renderCharSheet(HERO.heroId); }
+  }
+  function addLoot(txt) {
+    if (!HERO) return;
+    const m = txt.match(/(\d+)\s*pa\b/);
+    HERO.inv.push({ id: "loot-" + Date.now() + Math.random(), nom: txt, qty: 1, type: "quest" });
+    saveHero(curSc); hint("Ajouté au sac 🎒"); renderScene();
+  }
+  function renderHud() {
+    if (!HERO) return "";
+    const h = HERO.heroId ? byId(allCharacters(), HERO.heroId) : null;
+    const pct = Math.max(0, Math.min(100, Math.round(HERO.hp / HERO.hpMax * 100)));
+    const lvl = HERO.hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
+    const potions = HERO.inv.filter((x) => x.type === "potion").reduce((a, x) => a + x.qty, 0);
+    return `<div class="hud">
+      <span class="tok" style="border-color:#4a7a4a">🧝</span>
+      <div class="hud-main">
+        <div class="hud-name">${esc(h ? h.nom.split(" ")[0] : "Héros")}
+          <span class="hud-stats">💰 ${HERO.gold} · 🧪 ${potions} · ✨ ${HERO.slots}/${HERO.slotsMax}</span></div>
+        <div class="hpbar sm"><div class="hpfill ${lvl}" style="width:${pct}%"></div><span class="hptxt">${HERO.hp} / ${HERO.hpMax} PV</span></div>
+      </div>
+      <button class="hud-bag" id="hud-bag">🎒</button>
+    </div>`;
   }
 
   function buildCombat(scene) {
@@ -2451,44 +2537,45 @@ window.Dice = (function () {
 
   function initCombat(sc, scene) {
     if (!$("#combat-box")) return;
+    if (!HERO || HERO._scen !== sc.id) loadHero(sc);
     const saved = LS.get(combatKey(sc, scene), null);
     combat = (saved && saved.sig === combatSig(scene)) ? saved : buildCombat(scene);
     combat.heroId = sc.heros || null;
-    if (!combat.hero) combat.hero = initHeroState(combat.heroId);
+    if (!combat.turn) combat.turn = { action: true, bonus: true, reaction: true, mark: null, markName: null };
     drawCombat(sc, scene);
   }
   function saveCombat(sc, scene) { LS.set(combatKey(sc, scene), combat); }
 
   function applyHeroHp(sc, scene, delta) {
-    if (!combat.hero) return;
-    combat.hero.hp = Math.max(0, Math.min(combat.hero.hpMax, combat.hero.hp + delta));
-    saveCombat(sc, scene); drawCombat(sc, scene);
+    if (!HERO) return;
+    HERO.hp = Math.max(0, Math.min(HERO.hpMax, HERO.hp + delta));
+    saveHero(sc); drawCombat(sc, scene);
   }
   function newTurn(sc, scene) {
-    const hs = combat.hero; if (!hs) return;
-    hs.action = true; hs.bonus = true; hs.reaction = true;
+    const tn = combat.turn; if (!tn) return;
+    tn.action = true; tn.bonus = true; tn.reaction = true;
     saveCombat(sc, scene); drawCombat(sc, scene);
     showCombatOut(`<div class="detail">🔄 Nouveau tour — Action, Action bonus et Réaction rechargées.</div>`);
   }
   function useFeature(sc, scene, fk) {
-    const hs = combat.hero; if (!hs) return;
+    const tn = combat.turn; if (!tn || !HERO) return;
     if (fk === "mark") {
-      if (hs.mark != null) { hs.mark = null; hs.markName = null; saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(`<div class="detail">Marque du chasseur retirée.</div>`); return; }
-      if (!hs.bonus) { showCombatOut(`<div class="detail">⚠ Action bonus déjà utilisée ce tour.</div>`); return; }
+      if (tn.mark != null) { tn.mark = null; tn.markName = null; saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(`<div class="detail">Marque du chasseur retirée.</div>`); return; }
+      if (!tn.bonus) { showCombatOut(`<div class="detail">⚠ Action bonus déjà utilisée ce tour.</div>`); return; }
       const t = combat.target, e = combat.enemies[t];
       if (t == null || !e || e.defeated) { showCombatOut(`<div class="detail">🎯 Cible d'abord un ennemi vivant.</div>`); return; }
-      hs.mark = t; hs.markName = e.nom; hs.bonus = false;
+      tn.mark = t; tn.markName = e.nom; tn.bonus = false;
       saveCombat(sc, scene); drawCombat(sc, scene);
       showCombatOut(`<div class="act-verdict ok">🎯 Marque du chasseur sur ${esc(e.nom)}</div><div class="act-narr">+1d6 dégâts à chacune de tes attaques contre cette cible (tant que tu te concentres).</div>`);
       return;
     }
     if (fk === "cure") {
-      if (!hs.action) { showCombatOut(`<div class="detail">⚠ Action déjà utilisée ce tour.</div>`); return; }
-      if (hs.slots <= 0) { showCombatOut(`<div class="detail">⚠ Plus d'emplacements de sort.</div>`); return; }
+      if (!tn.action) { showCombatOut(`<div class="detail">⚠ Action déjà utilisée ce tour.</div>`); return; }
+      if (HERO.slots <= 0) { showCombatOut(`<div class="detail">⚠ Plus d'emplacements de sort.</div>`); return; }
       const r = Dice.rollExpr("1d8+3");
-      hs.hp = Math.min(hs.hpMax, hs.hp + r.total); hs.action = false; hs.slots--;
-      saveCombat(sc, scene); drawCombat(sc, scene);
-      showCombatOut(`<div class="act-verdict ok">💚 Soin des blessures : +${r.total} PV</div><div class="act-narr">Sylwen : ${hs.hp} / ${hs.hpMax} PV · emplacements restants : ${hs.slots}.</div>`);
+      HERO.hp = Math.min(HERO.hpMax, HERO.hp + r.total); tn.action = false; HERO.slots--;
+      saveCombat(sc, scene); saveHero(sc); drawCombat(sc, scene);
+      showCombatOut(`<div class="act-verdict ok">💚 Soin des blessures : +${r.total} PV</div><div class="act-narr">${esc(heroFirst())} : ${HERO.hp} / ${HERO.hpMax} PV · emplacements restants : ${HERO.slots}.</div>`);
       renderLog();
     }
   }
@@ -2546,32 +2633,36 @@ window.Dice = (function () {
 
     const tgtName = (tgt != null && combat.enemies[tgt] && !combat.enemies[tgt].defeated) ? esc(combat.enemies[tgt].nom) : "—";
 
-    // Panneau du héros : PV, économie de tour, capacités
-    const hs = combat.hero;
+    // Panneau du héros : PV, économie de tour, capacités, potions
+    const tn = combat.turn || { action: true, bonus: true, reaction: true, mark: null, markName: null };
     let heroPanel = "";
-    if (hs) {
-      const hpct = Math.max(0, Math.min(100, Math.round(hs.hp / hs.hpMax * 100)));
-      const hlvl = hs.hp === 0 ? "dead" : (hpct <= 33 ? "low" : (hpct <= 66 ? "mid" : "high"));
-      const econ = (k, lbl) => `<span class="econ ${hs[k] ? "on" : "off"}">${hs[k] ? "●" : "○"} ${lbl}</span>`;
+    if (HERO) {
+      const hpct = Math.max(0, Math.min(100, Math.round(HERO.hp / HERO.hpMax * 100)));
+      const hlvl = HERO.hp === 0 ? "dead" : (hpct <= 33 ? "low" : (hpct <= 66 ? "mid" : "high"));
+      const econ = (k, lbl) => `<span class="econ ${tn[k] ? "on" : "off"}">${tn[k] ? "●" : "○"} ${lbl}</span>`;
       const feats = (hero && hero.combatFeatures || []).map((fk) => {
         const f = FEATURES[fk]; if (!f) return "";
-        const active = fk === "mark" && hs.mark != null;
-        const ok = active || (f.cost === "bonus" ? hs.bonus : (hs.action && (fk !== "cure" || hs.slots > 0)));
+        const active = fk === "mark" && tn.mark != null;
+        const ok = active || (f.cost === "bonus" ? tn.bonus : (tn.action && (fk !== "cure" || HERO.slots > 0)));
         return `<button class="feat-btn ${active ? "active" : ""} ${ok ? "" : "disabled"}" data-feat="${fk}">
-          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${esc(f.meta)}${fk === "cure" ? " (" + hs.slots + ")" : ""}</span></button>`;
+          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${esc(f.meta)}${fk === "cure" ? " (" + HERO.slots + ")" : ""}</span></button>`;
       }).join("");
+      const potions = HERO.inv.map((it, idx) => (it.type === "potion" && it.qty > 0)
+        ? `<button class="feat-btn potion ${tn.action ? "" : "disabled"}" data-potion="${idx}"><span>🧪 ${esc(it.nom)}</span><span class="act-meta">action · ×${it.qty}</span></button>` : ""
+      ).join("");
       heroPanel = `
-        <div class="hero-panel ${hs.hp === 0 ? "down" : ""}">
-          <div class="hero-head"><span class="hero-name">🧝 ${esc(hero ? hero.nom.split(" ")[0] : "Héros")}</span>
-            ${hs.mark != null ? `<span class="mark-badge">🎯 ${esc(hs.markName || "")}</span>` : ""}</div>
-          <div class="hpbar"><div class="hpfill ${hlvl}" style="width:${hpct}%"></div><span class="hptxt">${hs.hp} / ${hs.hpMax} PV${hs.hp === 0 ? " — À TERRE !" : ""}</span></div>
+        <div class="hero-panel ${HERO.hp === 0 ? "down" : ""}">
+          <div class="hero-head"><span class="tok" style="border-color:#4a7a4a">🧝</span><span class="hero-name">${esc(hero ? hero.nom.split(" ")[0] : "Héros")}</span>
+            <span class="hud-stats">💰 ${HERO.gold} · ✨ ${HERO.slots}/${HERO.slotsMax}</span>
+            ${tn.mark != null ? `<span class="mark-badge">🎯 ${esc(tn.markName || "")}</span>` : ""}</div>
+          <div class="hpbar"><div class="hpfill ${hlvl}" style="width:${hpct}%"></div><span class="hptxt">${HERO.hp} / ${HERO.hpMax} PV${HERO.hp === 0 ? " — À TERRE !" : ""}</span></div>
           <div class="hp-ctrl">
             <button data-herohp="-5">−5</button><button data-herohp="-1">−1</button>
             <button data-herohp="1">+1</button><button data-herohp="5">+5</button>
           </div>
           <div class="turn-strip">${econ("action", "Action")}${econ("bonus", "Bonus")}${econ("reaction", "Réaction")}
             <button id="new-turn">🔄 Nouveau tour</button></div>
-          ${feats ? `<div class="feature-row">${feats}</div>` : ""}
+          ${feats || potions ? `<div class="feature-row">${feats}${potions}</div>` : ""}
         </div>`;
     }
 
@@ -2598,8 +2689,9 @@ window.Dice = (function () {
     box.querySelectorAll("[data-enemyatk]").forEach((b) => b.addEventListener("click", () => enemyAttack(sc, scene, +b.dataset.enemyatk)));
     box.querySelectorAll("[data-herohp]").forEach((b) => b.addEventListener("click", () => applyHeroHp(sc, scene, +b.dataset.herohp)));
     box.querySelectorAll("[data-feat]").forEach((b) => b.addEventListener("click", () => useFeature(sc, scene, b.dataset.feat)));
+    box.querySelectorAll("[data-potion]").forEach((b) => b.addEventListener("click", () => usePotion(sc, scene, +b.dataset.potion)));
     const nt = $("#new-turn"); if (nt) nt.addEventListener("click", () => newTurn(sc, scene));
-    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; combat.hero = initHeroState(sc.heros); saveCombat(sc, scene); drawCombat(sc, scene); });
+    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; combat.turn = { action: true, bonus: true, reaction: true, mark: null, markName: null }; saveCombat(sc, scene); drawCombat(sc, scene); });
   }
 
   function applyHp(sc, scene, i, delta) {
@@ -2622,15 +2714,15 @@ window.Dice = (function () {
     const t = combat.target, e = combat.enemies[t];
     if (t == null || !e || e.defeated) { drawCombat(sc, scene); showCombatOut(`<div class="detail">🎯 Choisis d'abord une cible vivante (bouton « cibler »).</div>`); return; }
     const res = attackRoll(a.bonus, a.degR || a.degats, e.ac, d20mode);
-    const hs = combat.hero;
+    const tn = combat.turn;
     let html = `<div class="total ${res.hitOk ? "crit" : "fail"}">${res.r.total}</div>
       <div class="detail">${esc(a.nom)} → ${esc(e.nom)} (CA ${e.ac}) · dé ${res.r.natural} +${a.bonus}${res.r.crit ? " ⭐CRIT" : res.r.fail ? " 💀" : ""}</div>`;
     if (res.hitOk) {
       let dmg = res.dmg, detail = res.detail;
-      if (hs && hs.mark === t) { const md = Dice.roll(res.r.crit ? 2 : 1, 6); dmg += md.sum; detail += ` +marque[${md.rolls.join(",")}]`; }
+      if (tn && tn.mark === t) { const md = Dice.roll(res.r.crit ? 2 : 1, 6); dmg += md.sum; detail += ` +marque[${md.rolls.join(",")}]`; }
       e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
       if (e.defeated) {
-        if (hs && hs.mark === t) { hs.mark = null; hs.markName = null; }
+        if (tn && tn.mark === t) { tn.mark = null; tn.markName = null; }
         if (combat.target === t) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
       }
       html += `<div class="act-verdict ok">✓ TOUCHÉ — ${dmg} dégâts <span class="muted">${detail}</span></div>
@@ -2640,7 +2732,7 @@ window.Dice = (function () {
       html += `<div class="act-verdict ko">✗ RATÉ (il fallait ${e.ac} ou +)</div>`;
       pushLog(`${a.nom} → ${e.nom}`, res.r.total, "raté");
     }
-    if (hs) hs.action = false; // l'attaque consomme l'action du tour
+    if (tn) tn.action = false; // l'attaque consomme l'action du tour
     saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(html); renderLog();
   }
 
@@ -2655,7 +2747,7 @@ window.Dice = (function () {
       <div class="detail">${esc(e.nom)} attaque${hAC != null ? ` (CA de ${esc((heroSheet.nom || "").split(" ")[0])} : ${hAC})` : ""} · dé ${r.natural} +${e.atk.hit}${r.crit ? " ⭐CRIT" : ""}</div>
       ${touche != null ? `<div class="act-verdict ${touche ? "ko" : "ok"}">${touche ? "✗ TOUCHE le héros" : "✓ raté"}</div>` : ""}
       <div class="act-narr">Dégâts : <b>${dp.total}</b> (${esc(e.atk.deg)} = [${(dp.rolls || []).join(",")}]).${r.crit ? " Critique : pense à doubler les dés !" : ""}</div>
-      ${combat.hero && touche !== false ? `<button class="choice apply-hero" data-applyhero="${dp.total}"><span>💥 Infliger ${dp.total} PV à ${esc((heroSheet && heroSheet.nom || "Sylwen").split(" ")[0])}</span><span class="arrow">›</span></button>` : ""}`;
+      ${HERO && touche !== false ? `<button class="choice apply-hero" data-applyhero="${dp.total}"><span>💥 Infliger ${dp.total} PV à ${esc((heroSheet && heroSheet.nom || "Sylwen").split(" ")[0])}</span><span class="arrow">›</span></button>` : ""}`;
     pushLog(`${e.nom} attaque`, r.total, `${dp.total} dég.`);
     drawCombat(sc, scene); showCombatOut(html);
     const ab = document.querySelector("#combat-out [data-applyhero]");
@@ -2807,6 +2899,28 @@ window.Dice = (function () {
     const sauv = (c.jetsSauv&&c.jetsSauv.length)?`<div class="kv"><b>JS maîtrisés :</b> ${c.jetsSauv.map((k)=>k.toUpperCase()).join(", ")}</div>`:"";
     const spellHdr = c.dcSort?`<div class="kv"><b>DD des sorts :</b> ${c.dcSort} · <b>Attaque de sort :</b> ${signed(c.attaqueSort)}</div>`:"";
 
+    const isHero = HERO && HERO.heroId === id;
+    const invCard = isHero ? `
+      <div class="card">
+        <div class="section-title" style="margin-top:0">🎒 Inventaire & état — partie en cours</div>
+        <div class="stat-line">
+          <div class="box"><div class="k">PV</div><div class="v">${HERO.hp}/${HERO.hpMax}</div></div>
+          <div class="box"><div class="k">Sorts</div><div class="v">${HERO.slots}/${HERO.slotsMax}</div></div>
+          <div class="box"><div class="k">Or (pa)</div><div class="v">${HERO.gold}</div></div>
+        </div>
+        <div class="hp-ctrl" style="margin:4px 0 10px">
+          <button data-hhp="-5">−5 PV</button><button data-hhp="-1">−1</button><button data-hhp="1">+1</button><button data-hhp="5">+5</button>
+          <button data-gold="-5">−5 or</button><button data-gold="5">+5 or</button>
+        </div>
+        <div class="inv-list">
+          ${HERO.inv.length ? HERO.inv.map((it, idx) => `<div class="inv-item">
+            <span class="inv-name">${it.type === "potion" ? "🧪 " : it.type === "quest" ? "📜 " : "🎒 "}${esc(it.nom)}${it.qty > 1 ? ` <span class="muted">×${it.qty}</span>` : ""}</span>
+            ${it.type === "potion" ? `<button class="chip roll" data-usepot="${idx}">boire</button>` : ""}
+            <button class="inv-drop" data-drop="${idx}">✕</button></div>`).join("") : `<div class="muted small">Sac vide.</div>`}
+        </div>
+        <button class="btn-ghost small" id="hero-reset" style="margin-top:10px">↺ Réinitialiser l'aventurier (PV, sorts, sac)</button>
+      </div>` : "";
+
     $("#view-perso").innerHTML = `
       <div class="btn-row" style="margin-bottom:12px">
         <button class="btn-ghost" id="back-perso">‹ Personnages</button>
@@ -2826,6 +2940,7 @@ window.Dice = (function () {
         ${sauv}
         ${spellHdr}
       </div>
+      ${invCard}
       ${attaques?`<div class="card"><div class="section-title" style="margin-top:0">Attaques</div>${attaques}</div>`:""}
       ${(comps||caps||sorts)?`<div class="card">${comps}${caps}${sorts}</div>`:""}
       ${c.equipement?`<div class="card"><div class="section-title" style="margin-top:0">Équipement</div><p class="small">${esc(c.equipement)}</p></div>`:""}
@@ -2847,6 +2962,13 @@ window.Dice = (function () {
       const r = Dice.d20(+b.dataset.atk, d20mode);
       showCharRoll(`${b.dataset.name} — jet d'attaque (${signed(+b.dataset.atk)})`, r);
     }));
+    if (isHero) {
+      $$("#view-perso [data-hhp]").forEach((b)=>b.addEventListener("click",()=>{ HERO.hp = Math.max(0, Math.min(HERO.hpMax, HERO.hp + (+b.dataset.hhp))); saveHero(curSc); renderCharSheet(id); }));
+      $$("#view-perso [data-gold]").forEach((b)=>b.addEventListener("click",()=>{ HERO.gold = Math.max(0, HERO.gold + (+b.dataset.gold)); saveHero(curSc); renderCharSheet(id); }));
+      $$("#view-perso [data-usepot]").forEach((b)=>b.addEventListener("click",()=>{ usePotion(curSc, curScene, +b.dataset.usepot); }));
+      $$("#view-perso [data-drop]").forEach((b)=>b.addEventListener("click",()=>{ HERO.inv.splice(+b.dataset.drop,1); saveHero(curSc); renderCharSheet(id); }));
+      const hr = $("#hero-reset"); if (hr) hr.addEventListener("click",()=>{ if(!confirm("Réinitialiser l'aventurier (PV, sorts, sac) ?")) return; HERO = buildHero(HERO.heroId); HERO._scen = curSc?curSc.id:null; saveHero(curSc); renderCharSheet(id); });
+    }
   }
 
   function showCharRoll(label, r) {
