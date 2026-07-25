@@ -66,6 +66,13 @@ window.CombatEngine = (function () {
   function start(sc, scene, opts) {
     ctx = { sc, scene, key: key(sc, scene) };
     S = stateFor(sc, scene) || build(scene);
+    // Migration douce : une sauvegarde antérieure à l'ajout du compagnon/de la bousculade
+    // n'a pas ces champs. On les complète sans perdre la progression du combat en cours.
+    if (S.companion === undefined) {
+      S.companion = buildCompanion();
+      if (S.turn && S.turn.fenn === undefined) S.turn.fenn = !!(S.companion && S.companion.hp > 0);
+    }
+    if (S.prone === undefined) S.prone = null;
     if (!S.initiative) {
       const h = D.heroSheet();
       const hr = D.Dice.d20(h ? (h.init || 0) : 0, "normal");
