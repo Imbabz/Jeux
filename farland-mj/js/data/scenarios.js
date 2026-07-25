@@ -890,19 +890,19 @@ window.SCENARIOS = [
         "Sylwen peut ouvrir avec une flèche + marque du chasseur ; Fenn charge un squelette (avantage)."
       ],
       monstres: ["squelette", "kobold", "fenn"],
-      combat: { ennemis: [{ ref: "squelette", n: 2 }, { ref: "kobold", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "squelette", n: 2 }, { ref: "kobold", n: 2 }],
+        env: [
+          { txt: "🦴 Renverser le tas d'ossements", carac: "Force (Athlétisme)", dc: 12, mod: 1, dmg: "1d6",
+            reussite: "L'avalanche d'os ensevelit la cible !", echec: "Les os dégringolent sans effet — juste un vacarme sinistre." },
+          { txt: "🎪 Rabattre la grande bâche", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
+            reussite: "La toile s'abat : la cible s'empêtre (ses attaques à désavantage ce round).", echec: "La bâche te résiste et retombe mollement." }
+        ]
+      },
       actions: [
-        { txt: "🏹 Ouvrir par une flèche furtive", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
-          reussite: "Silencieuse, tu décoches avant qu'ils réagissent : SURPRISE, avantage au 1er tour, et Fenn charge.",
-          echec: "Une brindille craque : pas de surprise, lancez l'initiative normalement." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "Touché : 1d8+3 perforants (+1d6 si marque du chasseur active)." },
-        { txt: "🐺 Attaque de Fenn (morsure)", roll: "1d20+4", note: "Touché : 2d4+2 perforants ; JS Force DC 11 ou la cible tombe à terre." },
-        { txt: "🦴 Renverser le tas d'ossements sur eux", carac: "Force (Athlétisme)", dc: 12, mod: 1,
-          reussite: "L'avalanche d'os ensevelit les deux kobolds : à terre et paniqués, ils décampent en couinant !",
-          echec: "Les os dégringolent sans effet — juste un vacarme sinistre." },
-        { txt: "🎪 Rabattre la grande bâche sur les squelettes", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
-          reussite: "La toile s'abat : les squelettes s'empêtrent (désavantage à leurs attaques le temps de se dégager).",
-          echec: "La bâche te résiste et retombe mollement." }
+        { txt: "🏹 Repérage furtif avant l'assaut", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Silencieuse, tu prends position : SURPRISE — au 1er round du combat, considère tes attaques avec avantage (utilise « Se cacher » gratuit en le notant).",
+          echec: "Une brindille craque : pas de surprise, l'initiative décidera." }
       ],
       choix: [
         { txt: "Entrer dans la Tour de DROITE (le hobgobelin Drokag)", cible: "ts-d-bas" },
@@ -940,12 +940,16 @@ window.SCENARIOS = [
         "Rien d'autre d'utile ici : des planches, une scie, deux marteaux, une longue perche."
       ],
       monstres: ["zombie", "fenn"],
-      combat: { ennemis: [{ ref: "zombie", n: 2 }] },
-      actions: [
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Zombie : Ténacité (JS Con DC 5 + dégâts pour rester à 1 PV)." },
-        { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants (+1d6 att. bonus avec la 2e lame)." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants ; avantage si Sylwen est au contact (meute)." }
-      ],
+      combat: {
+        ennemis: [{ ref: "zombie", n: 2 }],
+        env: [
+          { txt: "🕳️ Pousser un zombie dans le puits central", carac: "Force (Athlétisme)", dc: 12, mod: 1, koTarget: true,
+            reussite: "Le zombie bascule dans le vide et s'écrase dans la fosse à os !", echec: "Il vacille au bord… mais se rattrape en grognant." },
+          { txt: "🪜 Faire tomber l'échelle sur lui", carac: "Dextérité", dc: 11, mod: 3, dmg: "1d6",
+            reussite: "L'échelle s'abat de tout son poids !", echec: "L'échelle glisse à côté." }
+        ]
+      },
+      mjPlus: "Zombie : Ténacité des morts-vivants (JS Con DC 5 + dégâts subis pour rester à 1 PV).",
       choix: [
         { txt: "Remonter et monter vers Drokag ▲", cible: "ts-d-drokag" }
       ]
@@ -962,22 +966,23 @@ window.SCENARIOS = [
         "Fouille (Perception DC 12) : statuette d'ivoire de Bestra (50 pa) + un Casque de Mineur (lampe mains-libres)."
       ],
       monstres: ["drokag", "kobold", "fenn"],
-      combat: { ennemis: [{ ref: "drokag", n: 1 }, { ref: "kobold", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "drokag", n: 1 }, { ref: "kobold", n: 2 }],
+        env: [
+          { txt: "🕳️ Repousser la cible dans le trou central", carac: "Force (Athlétisme)", dc: 12, mod: 1, koTarget: true,
+            reussite: "Elle bascule dans le puits en hurlant !", echec: "Elle s'accroche au garde-fou et se rétablit de justesse." },
+          { txt: "🏛️ Sectionner l'attache d'une poutre (flèche)", carac: "Dextérité (tir précis)", dc: 14, mod: 5, dmg: "3d6",
+            reussite: "La poutre s'écrase sur la cible, qui est aussi à terre !", echec: "La poutre s'abat à côté dans un fracas de poussière." }
+        ]
+      },
       tresor: ["Clé de Chiffre", "Statuette de Bestra (50 pa)", "Casque de Mineur", "50 pa, épée longue"],
       actions: [
-        { txt: "🔎 Fouiller la salle saccagée", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
+        { txt: "🔎 Fouiller la salle saccagée (après le combat)", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
           reussite: "Sous les décombres : une statuette d'ivoire de Bestra (50 pa) et un Casque de Mineur (lampe mains-libres).",
           echec: "Rien de plus que poussière et plaques brisées." },
-        { txt: "🏃 Fenn poursuit Drokag qui fuit", carac: "Course de Fenn", dc: 12, mod: 4,
+        { txt: "🏃 Fenn poursuit Drokag s'il fuit", carac: "Course de Fenn", dc: 12, mod: 4,
           reussite: "Fenn bondit et plaque le hobgobelin : il ne préviendra pas Beryn.",
-          echec: "Drokag file vers l'autre tour — Beryn sera prévenu de ton arrivée." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Vise Drokag par-dessus les kobolds." },
-        { txt: "🕳️ Repousser un kobold dans le trou central", carac: "Force (Athlétisme) opposée", dc: 12, mod: 1,
-          reussite: "Le kobold bascule dans le puits en hurlant — hors de combat !",
-          echec: "Il s'accroche au garde-fou et se rétablit de justesse." },
-        { txt: "🏛️ Faire s'effondrer une poutre sur Drokag", carac: "Dextérité (tir précis)", dc: 14, mod: 5,
-          reussite: "Ta flèche sectionne l'attache : la poutre s'écrase sur Drokag (3d6 contondants, à terre) !",
-          echec: "La poutre s'abat à côté dans un fracas de poussière." }
+          echec: "Drokag file vers l'autre tour — Beryn sera prévenu de ton arrivée." }
       ],
       choix: [
         { txt: "Monter au toit neutraliser les archers ▲", cible: "ts-d-toit" },
@@ -994,12 +999,17 @@ window.SCENARIOS = [
         "IMPORTANT : les éliminer MAINTENANT évite qu'ils ne canardent Sylwen pendant le combat final contre Beryn (ils tirent d'une tour à l'autre)."
       ],
       monstres: ["squelette", "fenn"],
-      combat: { ennemis: [{ ref: "squelette", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "squelette", n: 2 }],
+        env: [
+          { txt: "🌬️ Pousser la cible du toit (muret bas !)", carac: "Force (Athlétisme)", dc: 13, mod: 1, koTarget: true,
+            reussite: "Le squelette bascule par-dessus le muret et se disloque en contrebas !", echec: "Il se rattrape au muret, arc toujours en main." }
+        ]
+      },
       actions: [
-        { txt: "🎯 Tir d'ouverture sur un archer", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
-          reussite: "Tu abats presque un squelette avant qu'ils ne bougent : avantage au 1er tour.",
-          echec: "Ils te repèrent et lèvent leurs arcs — combat de face." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." }
+        { txt: "🎯 Approche furtive des archers", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Ils ne t'ont pas vue : au 1er round, utilise « Se cacher » (réussite automatique — note-le) pour ton avantage.",
+          echec: "Ils te repèrent et lèvent leurs arcs — combat de face." }
       ],
       choix: [
         { txt: "Rejoindre la Tour de Gauche affronter Beryn ▶", cible: "ts-g-bas" }
@@ -1036,20 +1046,19 @@ window.SCENARIOS = [
         "L'éliminer ici l'empêche de rejoindre le combat contre Beryn."
       ],
       monstres: ["goule", "fenn"],
-      combat: { ennemis: [{ ref: "goule", n: 1 }] },
+      combat: {
+        ennemis: [{ ref: "goule", n: 1 }],
+        env: [
+          { txt: "🪟 Précipiter la goule par une fenêtre", carac: "Force (Athlétisme)", dc: 13, mod: 1, dmg: "2d6",
+            reussite: "Elle bascule par l'ouverture et s'écrase sur les poutres — sonnée !", echec: "Elle plante ses griffes dans l'encadrement et résiste." },
+          { txt: "🏗️ Lâcher les cordages de la grue sur elle", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
+            reussite: "L'enchevêtrement de cordes s'effondre : la goule est entravée (ses attaques à désavantage).", echec: "Les vieux cordages se coincent — rien à faire." }
+        ]
+      },
       actions: [
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." },
-        { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants." },
-        { txt: "🛡️ Résister à la paralysie (griffes)", carac: "JS Constitution", dc: 10, mod: 2,
+        { txt: "🛡️ JS contre la paralysie (si griffée)", carac: "JS Constitution", dc: 10, mod: 2,
           reussite: "Tu encaisses sans être paralysée.",
-          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." },
-        { txt: "🪟 Précipiter la goule par une fenêtre", carac: "Force (Athlétisme) opposée", dc: 13, mod: 1,
-          reussite: "La goule bascule par l'ouverture et s'écrase sur les poutres en contrebas (2d6, étourdie) — un précieux répit.",
-          echec: "Elle plante ses griffes dans l'encadrement et résiste." },
-        { txt: "🏗️ Lâcher les cordages de la grue sur elle", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
-          reussite: "L'enchevêtrement de cordes s'effondre : la goule est entravée (désavantage, vitesse réduite).",
-          echec: "Les vieux cordages se coincent — rien à faire." }
+          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." }
       ],
       choix: [
         { txt: "Monter sur le toit affronter Beryn ▲", cible: "ts-g-beryn" }
@@ -1068,27 +1077,29 @@ window.SCENARIOS = [
         "Butin : son grimoire, 50 pa, une bague d'argent (20 pa)."
       ],
       monstres: ["beryn", "squelette", "goule", "fenn"],
-      combat: { ennemis: [{ ref: "beryn", n: 1 }, { ref: "squelette", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "beryn", n: 1 }, { ref: "squelette", n: 2 }],
+        env: [
+          { txt: "🕳️ Pousser Beryn dans le trou (pas de garde-fou !)", carac: "Force (Athlétisme)", dc: 15, mod: 1,
+            reussite: "Tu le bouscules vers le vide : le nécromancien bascule dans le puits central en hurlant !",
+            echec: "Il se rattrape de justesse au bord, le regard fou de rage.",
+            cible: "ts-beryn-chute" },
+          { txt: "💨 Disperser ses parchemins de rituel (flèche)", carac: "Dextérité (tir)", dc: 12, mod: 5,
+            reussite: "Tes flèches déchirent les parchemins : plus aucun squelette ne se relèvera.",
+            echec: "Les feuilles volètent mais tiennent bon sur l'autel." },
+          { txt: "🎭 Le narguer pour le déconcentrer", carac: "Charisme (Intimidation)", dc: 13, mod: 0,
+            reussite: "« C'est ça, ton armée ? Des tas d'os ? » Vexé, Beryn bafouille et rate sa prochaine incantation.",
+            echec: "Il ricane : « Tu rejoindras bientôt mes serviteurs, elfe. »" }
+        ]
+      },
       tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
       actions: [
-        { txt: "🏹 Flèche + marque du chasseur (surprise)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
-          reussite: "Beryn, absorbé, ne te voit pas : marque posée, flèche encochée — 1er tour avec avantage et +1d6.",
+        { txt: "🏹 Approche furtive (surprendre Beryn)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Beryn, absorbé, ne te voit pas : engage le combat, pose la marque et frappe la première.",
           echec: "Il sent une présence et se retourne : ses squelettes se dressent, pas de surprise." },
         { txt: "📖 Comprendre son rituel", carac: "Intelligence (Arcanes)", dc: 15, mod: 0,
           reussite: "Il relève des squelettes : abats-le vite pour stopper le flot de morts.",
-          echec: "Ces gestes te dépassent." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 (+1d6 marque). Concentre le feu sur Beryn (Moisson sinistre le soigne s'il tue)." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 ; envoie-le sur Beryn pendant que tu tires." },
-        { txt: "🕳️ Pousser Beryn dans le trou (pas de garde-fou !)", carac: "Force (Athlétisme) opposée", dc: 15, mod: 1,
-          reussite: "Tu le bouscules vers le vide : le nécromancien bascule dans le puits central en hurlant !",
-          echec: "Il se rattrape de justesse au bord, le regard fou de rage.",
-          cibleReussite: "ts-beryn-chute" },
-        { txt: "💨 Disperser ses parchemins de rituel", carac: "Dextérité (tir)", dc: 12, mod: 5,
-          reussite: "Tes flèches déchirent les parchemins : plus aucun squelette ne se relèvera. Beryn est seul.",
-          echec: "Les feuilles volètent mais tiennent bon sur l'autel." },
-        { txt: "🎭 Le narguer pour le déconcentrer (fun)", carac: "Charisme (Intimidation)", dc: 13, mod: 0,
-          reussite: "« C'est ça, ton armée ? Des tas d'os ? » Vexé, Beryn bafouille et rate sa prochaine incantation.",
-          echec: "Il ricane : « Tu rejoindras bientôt mes serviteurs, elfe. »" }
+          echec: "Ces gestes te dépassent." }
       ],
       choix: [
         { txt: "Conclure l'aventure ▶", cible: "ts-fin" }

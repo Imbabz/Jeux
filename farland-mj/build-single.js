@@ -18,6 +18,7 @@ const js = [
   "js/data/scenarios.js",
   "js/data/characters.js",
   "js/dice.js",
+  "js/combat.js",
   "js/app.js",
 ].map(read).join("\n\n");
 

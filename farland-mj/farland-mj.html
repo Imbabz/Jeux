@@ -338,6 +338,76 @@ summary .tok { vertical-align: middle; margin-right: 4px; }
   cursor: pointer; border-radius: 8px; }
 .topbar .sub:active { background: var(--bg-3); }
 
+/* ==================== ÉCRAN DE COMBAT (plein écran) ==================== */
+body.combat-open { overflow: hidden; }
+#combat-screen {
+  position: fixed; inset: 0; z-index: 90; overflow-y: auto;
+  background: radial-gradient(120% 90% at 50% 0%, #2a1714 0%, #171010 55%, #100c0b 100%);
+  padding: 10px 12px calc(20px + env(safe-area-inset-bottom));
+  animation: cbIn .25s ease;
+}
+@keyframes cbIn { from { opacity: 0; transform: scale(1.03); } to { opacity: 1; transform: none; } }
+.cb-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cb-title { flex: 1; text-align: center; font-family: Georgia, serif; font-size: 15px; color: var(--accent-2); }
+.cb-top .btn-ghost { min-height: 40px; padding: 6px 12px; }
+
+.cb-hero { display: flex; align-items: center; gap: 10px; background: #16241a;
+  border: 1px solid #3f7a3f; border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; }
+.cb-hero.down { border-color: var(--danger); background: #241514; }
+.cb-hero-main { flex: 1; min-width: 0; }
+.cb-hero-name { font-weight: 700; font-size: 15px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.cb-round { font-family: Georgia, serif; font-size: 18px; color: var(--accent); border: 1px solid #5a4526;
+  border-radius: 10px; padding: 6px 10px; background: #1c1712; }
+.cb-states { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.cb-state { font-size: 11px; color: #a9cbe4; background: #1b2732; border: 1px solid #33475a; border-radius: 8px; padding: 2px 8px; }
+
+.cb-foes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.cb-foe { display: flex; align-items: center; gap: 10px; background: #1f1512; border: 1px solid #4a2f28;
+  border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: border-color .15s, transform .1s; }
+.cb-foe.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; background: #241a12; }
+.cb-foe.ko { opacity: .45; } .cb-foe.ko .cb-foe-name { text-decoration: line-through; }
+.cb-foe-main { flex: 1; min-width: 0; }
+.cb-foe-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+
+.cb-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.cb-tab { flex: 1; flex-direction: column; gap: 2px; font-size: 10px; padding: 6px 2px; min-height: 52px;
+  background: #191310; border: 1px solid var(--line); color: var(--txt-dim); border-radius: 10px; }
+.cb-tab span { font-size: 18px; }
+.cb-tab.on { background: #241d13; border-color: var(--accent); color: var(--accent); }
+
+.cb-pane { min-height: 120px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 8px; }
+.cb-hint { font-size: 13px; color: var(--txt-dim); padding: 2px 2px 4px; }
+.cb-pane .atk-btn { background: #16241a; border: 1px solid #3f7a3f; }
+.cb-pane .atk-btn .act-meta { color: #7fc47f; }
+.cb-pane .disabled { opacity: .4; pointer-events: none; }
+
+.cb-endturn { width: 100%; background: linear-gradient(180deg,#3a1d1d,#2a1614); border: 1px solid #8f3b34;
+  color: #f0cabc; font-weight: 700; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+
+.cb-log { border-top: 1px dashed var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.cb-log-line { font-size: 13px; color: var(--txt-dim); line-height: 1.45; padding: 2px 4px; border-radius: 6px; }
+.cb-log-line.ok { color: #9fce9f; background: rgba(63,122,63,.10); }
+.cb-log-line.ko { color: #e0a294; background: rgba(143,59,52,.12); }
+.cb-log-line:first-child { font-size: 14px; color: var(--txt); }
+
+.cb-end { text-align: center; padding: 18px 12px; border-radius: 14px; }
+.cb-end.won { background: #16241a; border: 1px solid #3f7a3f; }
+.cb-end.lost { background: #241514; border: 1px solid var(--danger); }
+.cb-end-title { font-family: Georgia, serif; font-size: 28px; margin-bottom: 8px; }
+.cb-end.won .cb-end-title { color: #7fc47f; } .cb-end.lost .cb-end-title { color: var(--accent-2); }
+
+/* carte d'engagement dans la scène */
+.cb-card { background: #241512; border: 1px solid #8f3b34; border-radius: var(--radius); padding: 14px; margin: 12px 0; }
+.cb-card.won { background: #16241a; border-color: #3f7a3f; }
+.cb-card-head { font-weight: 700; color: var(--accent-2); margin-bottom: 8px; }
+.cb-card.won .cb-card-head { color: #7fc47f; }
+.cb-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.cb-preview-foe { display: inline-flex; align-items: center; gap: 6px; font-size: 14px;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; }
+.cb-engage { width: 100%; background: linear-gradient(180deg,#8f3b34,#6e2a24); border: 1px solid #b0524a;
+  color: #ffe9e2; font-weight: 800; letter-spacing: .5px; font-size: 17px; border-radius: 12px; padding: 15px; }
+.cb-engage:active { transform: scale(.98); }
+
 </style>
 </head>
 <body>
@@ -1694,19 +1764,19 @@ window.SCENARIOS = [
         "Sylwen peut ouvrir avec une flèche + marque du chasseur ; Fenn charge un squelette (avantage)."
       ],
       monstres: ["squelette", "kobold", "fenn"],
-      combat: { ennemis: [{ ref: "squelette", n: 2 }, { ref: "kobold", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "squelette", n: 2 }, { ref: "kobold", n: 2 }],
+        env: [
+          { txt: "🦴 Renverser le tas d'ossements", carac: "Force (Athlétisme)", dc: 12, mod: 1, dmg: "1d6",
+            reussite: "L'avalanche d'os ensevelit la cible !", echec: "Les os dégringolent sans effet — juste un vacarme sinistre." },
+          { txt: "🎪 Rabattre la grande bâche", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
+            reussite: "La toile s'abat : la cible s'empêtre (ses attaques à désavantage ce round).", echec: "La bâche te résiste et retombe mollement." }
+        ]
+      },
       actions: [
-        { txt: "🏹 Ouvrir par une flèche furtive", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
-          reussite: "Silencieuse, tu décoches avant qu'ils réagissent : SURPRISE, avantage au 1er tour, et Fenn charge.",
-          echec: "Une brindille craque : pas de surprise, lancez l'initiative normalement." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "Touché : 1d8+3 perforants (+1d6 si marque du chasseur active)." },
-        { txt: "🐺 Attaque de Fenn (morsure)", roll: "1d20+4", note: "Touché : 2d4+2 perforants ; JS Force DC 11 ou la cible tombe à terre." },
-        { txt: "🦴 Renverser le tas d'ossements sur eux", carac: "Force (Athlétisme)", dc: 12, mod: 1,
-          reussite: "L'avalanche d'os ensevelit les deux kobolds : à terre et paniqués, ils décampent en couinant !",
-          echec: "Les os dégringolent sans effet — juste un vacarme sinistre." },
-        { txt: "🎪 Rabattre la grande bâche sur les squelettes", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
-          reussite: "La toile s'abat : les squelettes s'empêtrent (désavantage à leurs attaques le temps de se dégager).",
-          echec: "La bâche te résiste et retombe mollement." }
+        { txt: "🏹 Repérage furtif avant l'assaut", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Silencieuse, tu prends position : SURPRISE — au 1er round du combat, considère tes attaques avec avantage (utilise « Se cacher » gratuit en le notant).",
+          echec: "Une brindille craque : pas de surprise, l'initiative décidera." }
       ],
       choix: [
         { txt: "Entrer dans la Tour de DROITE (le hobgobelin Drokag)", cible: "ts-d-bas" },
@@ -1744,12 +1814,16 @@ window.SCENARIOS = [
         "Rien d'autre d'utile ici : des planches, une scie, deux marteaux, une longue perche."
       ],
       monstres: ["zombie", "fenn"],
-      combat: { ennemis: [{ ref: "zombie", n: 2 }] },
-      actions: [
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Zombie : Ténacité (JS Con DC 5 + dégâts pour rester à 1 PV)." },
-        { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants (+1d6 att. bonus avec la 2e lame)." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants ; avantage si Sylwen est au contact (meute)." }
-      ],
+      combat: {
+        ennemis: [{ ref: "zombie", n: 2 }],
+        env: [
+          { txt: "🕳️ Pousser un zombie dans le puits central", carac: "Force (Athlétisme)", dc: 12, mod: 1, koTarget: true,
+            reussite: "Le zombie bascule dans le vide et s'écrase dans la fosse à os !", echec: "Il vacille au bord… mais se rattrape en grognant." },
+          { txt: "🪜 Faire tomber l'échelle sur lui", carac: "Dextérité", dc: 11, mod: 3, dmg: "1d6",
+            reussite: "L'échelle s'abat de tout son poids !", echec: "L'échelle glisse à côté." }
+        ]
+      },
+      mjPlus: "Zombie : Ténacité des morts-vivants (JS Con DC 5 + dégâts subis pour rester à 1 PV).",
       choix: [
         { txt: "Remonter et monter vers Drokag ▲", cible: "ts-d-drokag" }
       ]
@@ -1766,22 +1840,23 @@ window.SCENARIOS = [
         "Fouille (Perception DC 12) : statuette d'ivoire de Bestra (50 pa) + un Casque de Mineur (lampe mains-libres)."
       ],
       monstres: ["drokag", "kobold", "fenn"],
-      combat: { ennemis: [{ ref: "drokag", n: 1 }, { ref: "kobold", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "drokag", n: 1 }, { ref: "kobold", n: 2 }],
+        env: [
+          { txt: "🕳️ Repousser la cible dans le trou central", carac: "Force (Athlétisme)", dc: 12, mod: 1, koTarget: true,
+            reussite: "Elle bascule dans le puits en hurlant !", echec: "Elle s'accroche au garde-fou et se rétablit de justesse." },
+          { txt: "🏛️ Sectionner l'attache d'une poutre (flèche)", carac: "Dextérité (tir précis)", dc: 14, mod: 5, dmg: "3d6",
+            reussite: "La poutre s'écrase sur la cible, qui est aussi à terre !", echec: "La poutre s'abat à côté dans un fracas de poussière." }
+        ]
+      },
       tresor: ["Clé de Chiffre", "Statuette de Bestra (50 pa)", "Casque de Mineur", "50 pa, épée longue"],
       actions: [
-        { txt: "🔎 Fouiller la salle saccagée", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
+        { txt: "🔎 Fouiller la salle saccagée (après le combat)", carac: "Intelligence (Investigation)", dc: 12, mod: 2,
           reussite: "Sous les décombres : une statuette d'ivoire de Bestra (50 pa) et un Casque de Mineur (lampe mains-libres).",
           echec: "Rien de plus que poussière et plaques brisées." },
-        { txt: "🏃 Fenn poursuit Drokag qui fuit", carac: "Course de Fenn", dc: 12, mod: 4,
+        { txt: "🏃 Fenn poursuit Drokag s'il fuit", carac: "Course de Fenn", dc: 12, mod: 4,
           reussite: "Fenn bondit et plaque le hobgobelin : il ne préviendra pas Beryn.",
-          echec: "Drokag file vers l'autre tour — Beryn sera prévenu de ton arrivée." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants. Vise Drokag par-dessus les kobolds." },
-        { txt: "🕳️ Repousser un kobold dans le trou central", carac: "Force (Athlétisme) opposée", dc: 12, mod: 1,
-          reussite: "Le kobold bascule dans le puits en hurlant — hors de combat !",
-          echec: "Il s'accroche au garde-fou et se rétablit de justesse." },
-        { txt: "🏛️ Faire s'effondrer une poutre sur Drokag", carac: "Dextérité (tir précis)", dc: 14, mod: 5,
-          reussite: "Ta flèche sectionne l'attache : la poutre s'écrase sur Drokag (3d6 contondants, à terre) !",
-          echec: "La poutre s'abat à côté dans un fracas de poussière." }
+          echec: "Drokag file vers l'autre tour — Beryn sera prévenu de ton arrivée." }
       ],
       choix: [
         { txt: "Monter au toit neutraliser les archers ▲", cible: "ts-d-toit" },
@@ -1798,12 +1873,17 @@ window.SCENARIOS = [
         "IMPORTANT : les éliminer MAINTENANT évite qu'ils ne canardent Sylwen pendant le combat final contre Beryn (ils tirent d'une tour à l'autre)."
       ],
       monstres: ["squelette", "fenn"],
-      combat: { ennemis: [{ ref: "squelette", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "squelette", n: 2 }],
+        env: [
+          { txt: "🌬️ Pousser la cible du toit (muret bas !)", carac: "Force (Athlétisme)", dc: 13, mod: 1, koTarget: true,
+            reussite: "Le squelette bascule par-dessus le muret et se disloque en contrebas !", echec: "Il se rattrape au muret, arc toujours en main." }
+        ]
+      },
       actions: [
-        { txt: "🎯 Tir d'ouverture sur un archer", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
-          reussite: "Tu abats presque un squelette avant qu'ils ne bougent : avantage au 1er tour.",
-          echec: "Ils te repèrent et lèvent leurs arcs — combat de face." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." }
+        { txt: "🎯 Approche furtive des archers", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Ils ne t'ont pas vue : au 1er round, utilise « Se cacher » (réussite automatique — note-le) pour ton avantage.",
+          echec: "Ils te repèrent et lèvent leurs arcs — combat de face." }
       ],
       choix: [
         { txt: "Rejoindre la Tour de Gauche affronter Beryn ▶", cible: "ts-g-bas" }
@@ -1840,20 +1920,19 @@ window.SCENARIOS = [
         "L'éliminer ici l'empêche de rejoindre le combat contre Beryn."
       ],
       monstres: ["goule", "fenn"],
-      combat: { ennemis: [{ ref: "goule", n: 1 }] },
+      combat: {
+        ennemis: [{ ref: "goule", n: 1 }],
+        env: [
+          { txt: "🪟 Précipiter la goule par une fenêtre", carac: "Force (Athlétisme)", dc: 13, mod: 1, dmg: "2d6",
+            reussite: "Elle bascule par l'ouverture et s'écrase sur les poutres — sonnée !", echec: "Elle plante ses griffes dans l'encadrement et résiste." },
+          { txt: "🏗️ Lâcher les cordages de la grue sur elle", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
+            reussite: "L'enchevêtrement de cordes s'effondre : la goule est entravée (ses attaques à désavantage).", echec: "Les vieux cordages se coincent — rien à faire." }
+        ]
+      },
       actions: [
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 perforants." },
-        { txt: "🗡️ Attaque à l'épée courte", roll: "1d20+5", note: "1d6+3 tranchants." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 perforants." },
-        { txt: "🛡️ Résister à la paralysie (griffes)", carac: "JS Constitution", dc: 10, mod: 2,
+        { txt: "🛡️ JS contre la paralysie (si griffée)", carac: "JS Constitution", dc: 10, mod: 2,
           reussite: "Tu encaisses sans être paralysée.",
-          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." },
-        { txt: "🪟 Précipiter la goule par une fenêtre", carac: "Force (Athlétisme) opposée", dc: 13, mod: 1,
-          reussite: "La goule bascule par l'ouverture et s'écrase sur les poutres en contrebas (2d6, étourdie) — un précieux répit.",
-          echec: "Elle plante ses griffes dans l'encadrement et résiste." },
-        { txt: "🏗️ Lâcher les cordages de la grue sur elle", carac: "Dextérité (Acrobaties)", dc: 12, mod: 3,
-          reussite: "L'enchevêtrement de cordes s'effondre : la goule est entravée (désavantage, vitesse réduite).",
-          echec: "Les vieux cordages se coincent — rien à faire." }
+          echec: "Paralysée 1 min ! Fenn tient la goule à distance ; nouveau JS chaque fin de tour." }
       ],
       choix: [
         { txt: "Monter sur le toit affronter Beryn ▲", cible: "ts-g-beryn" }
@@ -1872,27 +1951,29 @@ window.SCENARIOS = [
         "Butin : son grimoire, 50 pa, une bague d'argent (20 pa)."
       ],
       monstres: ["beryn", "squelette", "goule", "fenn"],
-      combat: { ennemis: [{ ref: "beryn", n: 1 }, { ref: "squelette", n: 2 }] },
+      combat: {
+        ennemis: [{ ref: "beryn", n: 1 }, { ref: "squelette", n: 2 }],
+        env: [
+          { txt: "🕳️ Pousser Beryn dans le trou (pas de garde-fou !)", carac: "Force (Athlétisme)", dc: 15, mod: 1,
+            reussite: "Tu le bouscules vers le vide : le nécromancien bascule dans le puits central en hurlant !",
+            echec: "Il se rattrape de justesse au bord, le regard fou de rage.",
+            cible: "ts-beryn-chute" },
+          { txt: "💨 Disperser ses parchemins de rituel (flèche)", carac: "Dextérité (tir)", dc: 12, mod: 5,
+            reussite: "Tes flèches déchirent les parchemins : plus aucun squelette ne se relèvera.",
+            echec: "Les feuilles volètent mais tiennent bon sur l'autel." },
+          { txt: "🎭 Le narguer pour le déconcentrer", carac: "Charisme (Intimidation)", dc: 13, mod: 0,
+            reussite: "« C'est ça, ton armée ? Des tas d'os ? » Vexé, Beryn bafouille et rate sa prochaine incantation.",
+            echec: "Il ricane : « Tu rejoindras bientôt mes serviteurs, elfe. »" }
+        ]
+      },
       tresor: ["Grimoire de Beryn", "50 pa, bague d'argent (20 pa)"],
       actions: [
-        { txt: "🏹 Flèche + marque du chasseur (surprise)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
-          reussite: "Beryn, absorbé, ne te voit pas : marque posée, flèche encochée — 1er tour avec avantage et +1d6.",
+        { txt: "🏹 Approche furtive (surprendre Beryn)", carac: "Dextérité (Discrétion)", dc: 12, mod: 5,
+          reussite: "Beryn, absorbé, ne te voit pas : engage le combat, pose la marque et frappe la première.",
           echec: "Il sent une présence et se retourne : ses squelettes se dressent, pas de surprise." },
         { txt: "📖 Comprendre son rituel", carac: "Intelligence (Arcanes)", dc: 15, mod: 0,
           reussite: "Il relève des squelettes : abats-le vite pour stopper le flot de morts.",
-          echec: "Ces gestes te dépassent." },
-        { txt: "🏹 Jet d'attaque à l'arc", roll: "1d20+5", note: "1d8+3 (+1d6 marque). Concentre le feu sur Beryn (Moisson sinistre le soigne s'il tue)." },
-        { txt: "🐺 Attaque de Fenn", roll: "1d20+4", note: "2d4+2 ; envoie-le sur Beryn pendant que tu tires." },
-        { txt: "🕳️ Pousser Beryn dans le trou (pas de garde-fou !)", carac: "Force (Athlétisme) opposée", dc: 15, mod: 1,
-          reussite: "Tu le bouscules vers le vide : le nécromancien bascule dans le puits central en hurlant !",
-          echec: "Il se rattrape de justesse au bord, le regard fou de rage.",
-          cibleReussite: "ts-beryn-chute" },
-        { txt: "💨 Disperser ses parchemins de rituel", carac: "Dextérité (tir)", dc: 12, mod: 5,
-          reussite: "Tes flèches déchirent les parchemins : plus aucun squelette ne se relèvera. Beryn est seul.",
-          echec: "Les feuilles volètent mais tiennent bon sur l'autel." },
-        { txt: "🎭 Le narguer pour le déconcentrer (fun)", carac: "Charisme (Intimidation)", dc: 13, mod: 0,
-          reussite: "« C'est ça, ton armée ? Des tas d'os ? » Vexé, Beryn bafouille et rate sa prochaine incantation.",
-          echec: "Il ricane : « Tu rejoindras bientôt mes serviteurs, elfe. »" }
+          echec: "Ces gestes te dépassent." }
       ],
       choix: [
         { txt: "Conclure l'aventure ▶", cible: "ts-fin" }
@@ -2154,6 +2235,409 @@ window.Dice = (function () {
 })();
 
 
+/* ============================================================
+   MODULE DE COMBAT — écran de jeu dédié (plein écran)
+   Architecture : moteur autonome initialisé par app.js via init(deps).
+   deps = { $, esc, Dice, byId, bestiary, heroSheet, getHero, saveHero,
+            pushLog, renderLog, tokenHtml, openFiche, onExit, navigate, d20mode }
+   État persistant par scène : clé "combatV2:<scenario>:<scene>".
+   ============================================================ */
+window.CombatEngine = (function () {
+  "use strict";
+  let D = null;              // deps injectées
+  let S = null;              // état du combat courant
+  let ctx = null;            // { sc, scene, key }
+
+  const FEATURES = {
+    mark: { label: "🎯 Marque du chasseur", cost: "bonus", desc: "+1d6 dégâts sur la cible marquée" },
+    cure: { label: "💚 Soin des blessures", cost: "action", desc: "1 sort · rend 1d8+3 PV" }
+  };
+
+  // ---------- état ----------
+  function sig(scene) { return (scene.combat.ennemis || []).map((e) => e.ref + "x" + e.n).join(","); }
+  function key(sc, scene) { return `combatV2:${sc.id}:${scene.id}`; }
+
+  function build(scene) {
+    const enemies = [];
+    (scene.combat.ennemis || []).forEach((grp) => {
+      const b = D.byId(D.bestiary, grp.ref); if (!b) return;
+      for (let i = 0; i < grp.n; i++) {
+        enemies.push({ ref: grp.ref, nom: grp.n > 1 ? `${b.nom} ${i + 1}` : b.nom,
+          ac: parseInt(b.ac, 10) || 10, hpMax: parseInt(b.pv, 10) || 1, hp: parseInt(b.pv, 10) || 1,
+          atk: b.atk || null, defeated: false });
+      }
+    });
+    return { sig: sig(scene), round: 1, phase: "player", tab: "atk",
+      enemies, target: enemies.length ? 0 : null,
+      turn: { action: true, bonus: true, reaction: true },
+      mark: null, markName: null, hidden: false, dodge: false,
+      initiative: null, log: [] };
+  }
+
+  function save() { if (ctx) localStorage.setItem(ctx.key, JSON.stringify(S)); }
+  function stateFor(sc, scene) {
+    try {
+      const raw = localStorage.getItem(key(sc, scene));
+      if (raw) { const s = JSON.parse(raw); if (s.sig === sig(scene)) return s; }
+    } catch (e) {}
+    return null;
+  }
+  function isWon(sc, scene) { const s = stateFor(sc, scene); return !!(s && s.enemies.length && s.enemies.every((e) => e.defeated)); }
+
+  function log(msg, cls) {
+    S.log.unshift({ t: msg, c: cls || "" });
+    S.log = S.log.slice(0, 30);
+  }
+
+  // ---------- démarrage ----------
+  function start(sc, scene, opts) {
+    ctx = { sc, scene, key: key(sc, scene) };
+    S = stateFor(sc, scene) || build(scene);
+    if (!S.initiative) {
+      const h = D.heroSheet();
+      const hr = D.Dice.d20(h ? (h.init || 0) : 0, "normal");
+      const er = D.Dice.d20(1, "normal");
+      S.initiative = hr.total >= er.total ? "hero" : "enemies";
+      log(`⚡ Initiative : toi ${hr.total} · eux ${er.total} — ${S.initiative === "hero" ? "TU commences !" : "ILS commencent !"}`, S.initiative === "hero" ? "ok" : "ko");
+      save();
+      if (S.initiative === "enemies" && !(opts && opts.noAmbush)) {
+        render();
+        setTimeout(() => { enemyPhase(true); }, 450);
+        return;
+      }
+    }
+    render();
+  }
+
+  function exit(result) {
+    const el = document.getElementById("combat-screen");
+    if (el) el.remove();
+    document.body.classList.remove("combat-open");
+    if (D.onExit) D.onExit(result, ctx ? ctx.scene : null);
+  }
+
+  // ---------- rendu ----------
+  function hpbarHtml(hp, hpMax, extra) {
+    const pct = Math.max(0, Math.min(100, Math.round(hp / hpMax * 100)));
+    const lvl = hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
+    return `<div class="hpbar ${extra || ""}"><div class="hpfill ${lvl}" style="width:${pct}%"></div><span class="hptxt">${hp} / ${hpMax} PV</span></div>`;
+  }
+
+  function render() {
+    let el = document.getElementById("combat-screen");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "combat-screen";
+      document.body.appendChild(el);
+      document.body.classList.add("combat-open");
+    }
+    const esc = D.esc, hero = D.heroSheet(), H = D.getHero();
+    const allDead = S.enemies.length && S.enemies.every((e) => e.defeated);
+    const lost = H && H.hp === 0;
+    if (allDead && S.phase !== "won") { S.phase = "won"; log("🏆 Victoire ! Tous les ennemis sont vaincus.", "ok"); save(); }
+    if (lost && S.phase !== "lost") { S.phase = "lost"; save(); }
+
+    // --- ennemis ---
+    const foes = S.enemies.map((e, i) => {
+      const sel = S.target === i && !e.defeated;
+      return `<div class="cb-foe ${e.defeated ? "ko" : ""} ${sel ? "sel" : ""}" data-tgt="${i}">
+        ${D.tokenHtml(e.ref)}
+        <div class="cb-foe-main">
+          <div class="cb-foe-name">${e.defeated ? "💀 " : ""}${esc(e.nom)} <span class="enemy-ac">🛡️ ${e.ac}</span>
+            ${S.mark === i ? `<span class="mark-badge">🎯</span>` : ""}</div>
+          ${hpbarHtml(e.hp, e.hpMax, "sm")}
+        </div>
+        <button class="mini-fiche" data-fiche="${e.ref}">›</button>
+      </div>`;
+    }).join("");
+
+    // --- héros ---
+    const econ = (k, lbl) => `<span class="econ ${S.turn[k] ? "on" : "off"}">${S.turn[k] ? "●" : "○"} ${lbl}</span>`;
+    const states = [
+      S.hidden ? `<span class="cb-state">👤 cachée (avantage)</span>` : "",
+      S.dodge ? `<span class="cb-state">🛡️ esquive</span>` : "",
+      S.mark != null ? `<span class="cb-state">🎯 ${esc(S.markName || "")}</span>` : ""
+    ].join("");
+    const heroBox = H ? `
+      <div class="cb-hero ${H.hp === 0 ? "down" : ""}">
+        <span class="tok" style="border-color:#4a7a4a">🧝</span>
+        <div class="cb-hero-main">
+          <div class="cb-hero-name">${esc(hero ? hero.nom.split(" ")[0] : "Héros")}
+            <span class="hud-stats">🛡️ ${hero ? hero.ca : "?"} · ✨ ${H.slots}/${H.slotsMax}</span></div>
+          ${hpbarHtml(H.hp, H.hpMax, "sm")}
+          <div class="cb-states">${states}</div>
+        </div>
+        <div class="cb-round">R${S.round}</div>
+      </div>` : "";
+
+    // --- panneau d'actions par onglet ---
+    let pane = "";
+    if (S.phase === "won") {
+      pane = `<div class="cb-end won">
+        <div class="cb-end-title">🏆 VICTOIRE !</div>
+        <p>Les ennemis sont vaincus. Pense à ramasser le butin dans la scène.</p>
+        <button class="btn-accent btn-block" id="cb-exit-won">Retour à l'aventure ▶</button></div>`;
+    } else if (S.phase === "lost") {
+      pane = `<div class="cb-end lost">
+        <div class="cb-end-title">💀 À TERRE…</div>
+        <p>Tout devient noir… puis une mâchoire se referme sur ton col : Fenn te traîne à l'abri. Tu te réveilles, meurtrie mais vivante.</p>
+        <button class="btn-accent btn-block" id="cb-exit-lost">Se relever à 1 PV ▶</button></div>`;
+    } else {
+      pane = renderTab(hero, H);
+    }
+
+    const tabs = (S.phase === "player") ? `
+      <div class="cb-tabs">
+        ${[["atk", "⚔️", "Attaques"], ["cap", "✨", "Capacités"], ["obj", "🧪", "Objets"],
+           ["env", "🌍", "Décor"], ["man", "🏃", "Manœuvres"]].map(([id, ic, lbl]) =>
+          `<button class="cb-tab ${S.tab === id ? "on" : ""}" data-tab="${id}"><span>${ic}</span>${lbl}</button>`).join("")}
+      </div>` : "";
+
+    el.innerHTML = `
+      <div class="cb-top">
+        <button class="btn-ghost" id="cb-flee-x">✕</button>
+        <div class="cb-title">⚔️ ${esc(ctx.scene.titre)}</div>
+        <button class="btn-ghost" id="cb-reset">↺</button>
+      </div>
+      ${heroBox}
+      <div class="cb-foes">${foes}</div>
+      ${tabs}
+      <div class="cb-pane">${pane}</div>
+      ${S.phase === "player" ? `<button class="cb-endturn" id="cb-endturn">⏭️ Fin de mon tour — riposte ennemie</button>` : ""}
+      <div class="cb-log">${S.log.map((l) => `<div class="cb-log-line ${l.c}">${l.t}</div>`).join("")}</div>`;
+
+    bind(el);
+  }
+
+  function renderTab(hero, H) {
+    const esc = D.esc;
+    const tgt = S.target != null ? S.enemies[S.target] : null;
+    const tgtOk = tgt && !tgt.defeated;
+    if (S.tab === "atk") {
+      const atks = (hero && hero.attaques || []).map((a, i) =>
+        `<button class="atk-btn ${S.turn.action ? "" : "disabled"}" data-atk="${i}">
+          <span>${esc(a.nom)}${S.hidden ? " 👤" : ""}</span><span class="act-meta">+${a.bonus} · ${esc(a.degR || a.degats)}</span></button>`).join("");
+      return `<div class="cb-hint">Cible : <b>${tgtOk ? esc(tgt.nom) : "—"}</b> · touche un ennemi pour changer${S.hidden ? " · 👤 avantage (cachée)" : ""}</div>${atks}`;
+    }
+    if (S.tab === "cap") {
+      const feats = (hero && hero.combatFeatures || []).map((fk) => {
+        const f = FEATURES[fk]; if (!f) return "";
+        const active = fk === "mark" && S.mark != null;
+        const ok = active || (f.cost === "bonus" ? S.turn.bonus : (S.turn.action && (fk !== "cure" || (H && H.slots > 0))));
+        return `<button class="feat-btn ${active ? "active" : ""} ${ok ? "" : "disabled"}" data-feat="${fk}">
+          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${f.cost === "bonus" ? "bonus" : "action"} · ${esc(f.desc)}${fk === "cure" && H ? ` (${H.slots})` : ""}</span></button>`;
+      }).join("");
+      return feats || `<div class="cb-hint">Aucune capacité.</div>`;
+    }
+    if (S.tab === "obj") {
+      const pots = (H && H.inv || []).map((it, idx) => (it.type === "potion" && it.qty > 0)
+        ? `<button class="feat-btn potion ${S.turn.action ? "" : "disabled"}" data-pot="${idx}">
+            <span>🧪 ${esc(it.nom)}</span><span class="act-meta">action · ×${it.qty}</span></button>` : "").join("");
+      return pots || `<div class="cb-hint">Aucun objet utilisable. (Les potions se boivent ici.)</div>`;
+    }
+    if (S.tab === "env") {
+      const envs = (ctx.scene.combat.env || []).map((a, i) =>
+        `<button class="action-btn ${S.turn.action ? "" : "disabled"}" data-env="${i}">
+          <span class="act-txt">${esc(a.txt)}</span><span class="act-meta">DC ${a.dc} · ${esc(a.carac || "")}</span></button>`).join("");
+      return envs || `<div class="cb-hint">Rien d'exploitable dans le décor ici.</div>`;
+    }
+    if (S.tab === "man") {
+      const dis = (ok) => ok ? "" : "disabled";
+      return `
+        <button class="action-btn ${dis(S.turn.action)}" data-man="dodge"><span class="act-txt">🛡️ Esquive totale</span><span class="act-meta">action · leurs attaques à désavantage</span></button>
+        <button class="action-btn ${dis(S.turn.action)}" data-man="hide"><span class="act-txt">👤 Se cacher</span><span class="act-meta">action · Discrétion DC 12 → avantage</span></button>
+        <button class="action-btn ${dis(S.turn.action)}" data-man="shove"><span class="act-txt">🤜 Bousculer la cible</span><span class="act-meta">action · Athlétisme opposé → à terre</span></button>
+        <button class="action-btn" data-man="flee"><span class="act-txt">🏃 Fuir le combat</span><span class="act-meta">Athlétisme DC 12 → retour à la scène</span></button>`;
+    }
+    return "";
+  }
+
+  // ---------- interactions ----------
+  function bind(el) {
+    el.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => { S.tab = b.dataset.tab; save(); render(); }));
+    el.querySelectorAll("[data-tgt]").forEach((f) => f.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-fiche]")) return;
+      const i = +f.dataset.tgt;
+      if (!S.enemies[i].defeated) { S.target = i; save(); render(); }
+    }));
+    el.querySelectorAll("[data-fiche]").forEach((b) => b.addEventListener("click", () => { const id = b.dataset.fiche; exit("paused"); D.openFiche(id); }));
+    el.querySelectorAll("[data-atk]").forEach((b) => b.addEventListener("click", () => heroAttack(+b.dataset.atk)));
+    el.querySelectorAll("[data-feat]").forEach((b) => b.addEventListener("click", () => useFeature(b.dataset.feat)));
+    el.querySelectorAll("[data-pot]").forEach((b) => b.addEventListener("click", () => drinkPotion(+b.dataset.pot)));
+    el.querySelectorAll("[data-env]").forEach((b) => b.addEventListener("click", () => envAction(+b.dataset.env)));
+    el.querySelectorAll("[data-man]").forEach((b) => b.addEventListener("click", () => maneuver(b.dataset.man)));
+    const et = el.querySelector("#cb-endturn"); if (et) et.addEventListener("click", () => enemyPhase(false));
+    const fx = el.querySelector("#cb-flee-x"); if (fx) fx.addEventListener("click", () => exit("paused"));
+    const rs = el.querySelector("#cb-reset"); if (rs) rs.addEventListener("click", () => { S = build(ctx.scene); save(); render(); });
+    const w = el.querySelector("#cb-exit-won"); if (w) w.addEventListener("click", () => exit("won"));
+    const l = el.querySelector("#cb-exit-lost"); if (l) l.addEventListener("click", () => {
+      const H = D.getHero(); H.hp = 1; D.saveHero();
+      S = build(ctx.scene); save(); exit("lost");
+    });
+  }
+
+  function needTarget() {
+    const t = S.target, e = t != null ? S.enemies[t] : null;
+    if (!e || e.defeated) { log("🎯 Choisis d'abord une cible vivante.", ""); render(); return null; }
+    return e;
+  }
+
+  function heroAttack(ai) {
+    if (!S.turn.action) { log("⚠ Action déjà utilisée — termine ton tour.", ""); render(); return; }
+    const hero = D.heroSheet(); const a = hero.attaques[ai];
+    const e = needTarget(); if (!e) return;
+    const t = S.target;
+    const mode = S.hidden ? "adv" : D.d20mode();
+    const r = D.Dice.d20(a.bonus, mode);
+    const hitOk = r.crit || (!r.fail && r.total >= e.ac);
+    S.hidden = false;
+    if (hitOk) {
+      const p = D.Dice.parse(a.degR || a.degats) || { n: 1, sides: 6, mod: 0 };
+      const base = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
+      let dmg = base.sum + p.mod, extra = "";
+      if (S.mark === t) { const md = D.Dice.roll(r.crit ? 2 : 1, 6); dmg += md.sum; extra = " (+marque)"; }
+      e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
+      log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${extra}${e.defeated ? " · VAINCU 💀" : ""}`, "ok");
+      D.pushLog(`${a.nom} → ${e.nom}`, r.total, `${dmg} dég.`);
+      if (e.defeated) {
+        if (S.mark === t) { S.mark = null; S.markName = null; }
+        if (S.target === t) { const n = S.enemies.findIndex((x) => !x.defeated); S.target = n >= 0 ? n : null; }
+      }
+    } else {
+      log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.fail ? " 💀" : ""} vs CA ${e.ac} — raté.`, "ko");
+      D.pushLog(`${a.nom} → ${e.nom}`, r.total, "raté");
+    }
+    S.turn.action = false;
+    save(); render(); D.renderLog();
+  }
+
+  function useFeature(fk) {
+    const H = D.getHero();
+    if (fk === "mark") {
+      if (S.mark != null) { S.mark = null; S.markName = null; save(); render(); return; }
+      if (!S.turn.bonus) { log("⚠ Action bonus déjà utilisée.", ""); render(); return; }
+      const e = needTarget(); if (!e) return;
+      S.mark = S.target; S.markName = e.nom; S.turn.bonus = false;
+      log(`🎯 Marque du chasseur sur ${e.nom} : +1d6 sur tes attaques.`, "ok");
+    }
+    if (fk === "cure") {
+      if (!S.turn.action) { log("⚠ Action déjà utilisée.", ""); render(); return; }
+      if (!H || H.slots <= 0) { log("⚠ Plus d'emplacements de sort.", ""); render(); return; }
+      const r = D.Dice.rollExpr("1d8+3");
+      H.hp = Math.min(H.hpMax, H.hp + r.total); H.slots--; D.saveHero();
+      S.turn.action = false;
+      log(`💚 Soin des blessures : +${r.total} PV (${H.hp}/${H.hpMax}).`, "ok");
+      D.pushLog("Soin des blessures", r.total, "soin");
+    }
+    save(); render(); D.renderLog();
+  }
+
+  function drinkPotion(idx) {
+    if (!S.turn.action) { log("⚠ Boire une potion coûte l'action du tour.", ""); render(); return; }
+    const H = D.getHero(); const it = H.inv[idx];
+    if (!it || it.type !== "potion" || it.qty <= 0) return;
+    const r = D.Dice.rollExpr(it.heal || "2d4+2");
+    H.hp = Math.min(H.hpMax, H.hp + r.total); it.qty--;
+    if (it.qty <= 0) H.inv.splice(idx, 1);
+    D.saveHero(); S.turn.action = false;
+    log(`🧪 ${it.nom} : +${r.total} PV (${H.hp}/${H.hpMax}).`, "ok");
+    D.pushLog(it.nom, r.total, "potion");
+    save(); render(); D.renderLog();
+  }
+
+  function envAction(i) {
+    if (!S.turn.action) { log("⚠ Action déjà utilisée.", ""); render(); return; }
+    const a = (ctx.scene.combat.env || [])[i]; if (!a) return;
+    const r = D.Dice.d20(a.mod || 0, D.d20mode());
+    const ok = r.total >= a.dc;
+    S.turn.action = false;
+    if (ok) {
+      let extra = "";
+      const e = S.target != null ? S.enemies[S.target] : null;
+      if (a.dmg && e && !e.defeated) {
+        const dr = D.Dice.rollExpr(a.dmg);
+        e.hp = Math.max(0, e.hp - dr.total); e.defeated = e.hp === 0;
+        extra = ` ${dr.total} dégâts à ${e.nom}${e.defeated ? " — VAINCU 💀" : ""}.`;
+      }
+      if (a.koTarget && e && !e.defeated) { e.hp = 0; e.defeated = true; extra = ` ${e.nom} est hors de combat !`; }
+      log(`🌍 ${a.txt} : ${r.total} vs DC ${a.dc} — RÉUSSI ! ${a.reussite || ""}${extra}`, "ok");
+      D.pushLog(a.txt, r.total, "réussite");
+      if (a.cible) { save(); D.renderLog(); exit("jump:" + a.cible); return; }
+    } else {
+      log(`🌍 ${a.txt} : ${r.total} vs DC ${a.dc} — échec. ${a.echec || ""}`, "ko");
+      D.pushLog(a.txt, r.total, "échec");
+    }
+    save(); render(); D.renderLog();
+  }
+
+  function maneuver(m) {
+    const hero = D.heroSheet();
+    if (m === "dodge") {
+      if (!S.turn.action) { log("⚠ Action déjà utilisée.", ""); render(); return; }
+      S.dodge = true; S.turn.action = false;
+      log("🛡️ Esquive totale : leurs attaques seront à DÉSAVANTAGE ce round.", "ok");
+    }
+    if (m === "hide") {
+      if (!S.turn.action) { log("⚠ Action déjà utilisée.", ""); render(); return; }
+      const r = D.Dice.d20(5, D.d20mode());
+      S.turn.action = false;
+      if (r.total >= 12) { S.hidden = true; log(`👤 Discrétion ${r.total} — cachée ! Prochaine attaque avec AVANTAGE.`, "ok"); }
+      else log(`👤 Discrétion ${r.total} — repérée, pas d'avantage.`, "ko");
+    }
+    if (m === "shove") {
+      if (!S.turn.action) { log("⚠ Action déjà utilisée.", ""); render(); return; }
+      const e = needTarget(); if (!e) return;
+      const mine = D.Dice.d20(1, D.d20mode()); const theirs = D.Dice.d20(1, "normal");
+      S.turn.action = false;
+      if (mine.total >= theirs.total) log(`🤜 Bousculade ${mine.total} vs ${theirs.total} : ${e.nom} est À TERRE (avantage au corps-à-corps contre lui) !`, "ok");
+      else log(`🤜 Bousculade ${mine.total} vs ${theirs.total} : ${e.nom} tient bon.`, "ko");
+    }
+    if (m === "flee") {
+      const r = D.Dice.d20(1, D.d20mode());
+      if (r.total >= 12) { log(`🏃 Fuite ${r.total} — tu te dégages !`, "ok"); save(); exit("fled"); return; }
+      log(`🏃 Fuite ${r.total} — bloquée ! Le combat continue.`, "ko");
+      S.turn.action = false;
+    }
+    save(); render();
+  }
+
+  // ---------- tour ennemi automatique ----------
+  function enemyPhase(ambush) {
+    const H = D.getHero(); const hero = D.heroSheet();
+    S.phase = "enemies";
+    const hAC = hero ? hero.ca : 12;
+    let delayLines = [];
+    S.enemies.forEach((e) => {
+      if (e.defeated || !e.atk || !H || H.hp === 0) return;
+      const mode = S.dodge ? "dis" : "normal";
+      const r = D.Dice.d20(e.atk.hit, mode);
+      const hit = r.crit || (!r.fail && r.total >= hAC);
+      if (hit) {
+        const p = D.Dice.parse(e.atk.deg) || { n: 1, sides: 6, mod: 0 };
+        const dr = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
+        const dmg = dr.sum + p.mod;
+        H.hp = Math.max(0, H.hp - dmg);
+        delayLines.push([`👹 ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${hAC} — TOUCHE, ${dmg} dégâts ! (${H.hp}/${H.hpMax} PV)`, "ko"]);
+      } else {
+        delayLines.push([`👹 ${e.nom} : ${r.total} vs CA ${hAC} — te rate${S.dodge ? " (esquive !)" : ""}.`, "ok"]);
+      }
+    });
+    D.saveHero();
+    delayLines.forEach(([m, c]) => log(m, c));
+    // nouveau round
+    S.round += ambush ? 0 : 1;
+    S.phase = "player";
+    S.turn = { action: true, bonus: true, reaction: true };
+    S.dodge = false;
+    log(`— Round ${S.round} : à toi ! —`, "");
+    save(); render();
+  }
+
+  return { init(deps) { D = deps; }, start, isWon,
+    hasState(sc, scene) { return !!stateFor(sc, scene); } };
+})();
+
+
 /* ===== Farland MJ — application ===== */
 (function () {
   "use strict";
@@ -2300,6 +2784,7 @@ window.Dice = (function () {
     const idx = sc.scenes.indexOf(scene);
     curSc = sc; curScene = scene;
     if (sc.heros) { if (!HERO || HERO._scen !== sc.id) loadHero(sc); } else HERO = null;
+    const autoCombat = sceneEntrySource === "combat";
 
     const banner = sceneEntrySource === "combat"
       ? `<div class="chain-banner combat">⚔️ Combat déclenché par ton jet de dé !</div>`
@@ -2332,7 +2817,21 @@ window.Dice = (function () {
       <div class="section-title">Trésor / butin</div>
       <ul class="loot">${scene.tresor.map((t, i) => `<li><span>${esc(t)}</span>${HERO ? ` <button class="loot-add" data-loot="${i}">＋ sac</button>` : ""}</li>`).join("")}</ul>` : "";
 
-    const combatBlock = scene.combat ? `<div id="combat-box"></div>` : "";
+    let combatBlock = "";
+    if (scene.combat) {
+      const won = CombatEngine.isWon(sc, scene);
+      const foesPreview = (scene.combat.ennemis || []).map((g) => {
+        const b = byId(BESTIARY, g.ref);
+        return b ? `<span class="cb-preview-foe">${creatureToken(g.ref, "sm")} ${g.n > 1 ? g.n + "× " : ""}${esc(b.nom)}</span>` : "";
+      }).join("");
+      combatBlock = won
+        ? `<div class="cb-card won"><div class="cb-card-head">🏆 Combat remporté</div>
+            <div class="cb-preview">${foesPreview}</div>
+            <button class="btn-ghost small" id="combat-replay">↺ Rejouer ce combat</button></div>`
+        : `<div class="cb-card"><div class="cb-card-head">⚔️ Combat imminent</div>
+            <div class="cb-preview">${foesPreview}</div>
+            <button class="cb-engage" id="combat-engage">⚔️ ENGAGER LE COMBAT</button></div>`;
+    }
 
     const leadsToCombat = (a) => [a.cibleReussite, a.cibleEchec, a.cible]
       .concat((a.table || []).map((e) => e.cible)).filter(Boolean).some((t) => sceneHasCombat(t));
@@ -2404,7 +2903,12 @@ window.Dice = (function () {
     const bag = $("#hud-bag"); if (bag) bag.addEventListener("click", () => { if (HERO) { showTab("perso"); renderCharSheet(HERO.heroId); } });
     $$("#view-jeu [data-loot]").forEach((b) => b.addEventListener("click", () => addLoot(scene.tresor[+b.dataset.loot])));
 
-    if (scene.combat) initCombat(sc, scene);
+    if (scene.combat) {
+      const eng = $("#combat-engage"), rep = $("#combat-replay");
+      if (eng) eng.addEventListener("click", () => CombatEngine.start(sc, scene));
+      if (rep) rep.addEventListener("click", () => { LS.set(`combatV2:${sc.id}:${scene.id}`, null); localStorage.removeItem(`combatV2:${sc.id}:${scene.id}`); CombatEngine.start(sc, scene); });
+      if (autoCombat && !CombatEngine.isWon(sc, scene)) setTimeout(() => CombatEngine.start(sc, scene), 350);
+    }
     window.scrollTo(0, 0);
   }
 
@@ -2457,16 +2961,8 @@ window.Dice = (function () {
   }
 
   // =====================================================================
-  //  MODULE DE COMBAT (suivi des ennemis, attaques, dégâts)
+  //  ÉTAT DU HÉROS (persistant) — le combat vit dans js/combat.js
   // =====================================================================
-  function combatKey(sc, scene) { return `combat:${sc.id}:${scene.id}`; }
-  function combatSig(scene) { return (scene.combat.ennemis || []).map((e) => e.ref + "x" + e.n).join(","); }
-
-  // Capacités de combat activables (par leur clé, cf. character.combatFeatures)
-  const FEATURES = {
-    mark: { label: "🎯 Marque du chasseur", cost: "bonus", meta: "action bonus · +1d6 sur la cible" },
-    cure: { label: "💚 Soin des blessures", cost: "action", meta: "action · 1 sort · +1d8+3 PV" }
-  };
   // État PERSISTANT du héros (PV, sorts, or, inventaire) — partagé entre toutes les scènes
   let HERO = null;
   function heroKey(sc) { return `hero:${sc.id}:${sc.heros}`; }
@@ -2488,21 +2984,17 @@ window.Dice = (function () {
     const h = HERO && HERO.heroId ? byId(allCharacters(), HERO.heroId) : null;
     return h ? h.nom.split(" ")[0] : "Héros";
   }
+  // Boire une potion HORS combat (fiche perso). En combat, c'est le module CombatEngine qui gère.
   function usePotion(sc, scene, invIdx) {
     if (!HERO) return;
     const it = HERO.inv[invIdx]; if (!it || it.type !== "potion" || it.qty <= 0) return;
-    const inCombat = !!$("#combat-box");
-    if (inCombat && combat && combat.turn) {
-      if (!combat.turn.action) { showCombatOut(`<div class="detail">⚠ Action déjà utilisée ce tour (boire une potion coûte une action).</div>`); return; }
-      combat.turn.action = false; saveCombat(sc, scene);
-    }
     const r = Dice.rollExpr(it.heal || "2d4+2");
     HERO.hp = Math.min(HERO.hpMax, HERO.hp + r.total); it.qty--;
     if (it.qty <= 0) HERO.inv.splice(invIdx, 1);
     saveHero(sc);
     pushLog(it.nom, r.total, "soin"); renderLog();
-    if ($("#combat-box")) { drawCombat(sc, scene); showCombatOut(`<div class="act-verdict ok">🧪 ${esc(it.nom)} : +${r.total} PV</div><div class="act-narr">${esc(heroFirst())} : ${HERO.hp} / ${HERO.hpMax} PV.</div>`); }
-    else { hint(`🧪 +${r.total} PV`); if (curSc) renderCharSheet(HERO.heroId); }
+    hint(`🧪 +${r.total} PV`);
+    renderCharSheet(HERO.heroId);
   }
   function addLoot(txt) {
     if (!HERO) return;
@@ -2525,239 +3017,6 @@ window.Dice = (function () {
       </div>
       <button class="hud-bag" id="hud-bag">🎒</button>
     </div>`;
-  }
-
-  function buildCombat(scene) {
-    const enemies = [];
-    (scene.combat.ennemis || []).forEach((grp) => {
-      const b = byId(BESTIARY, grp.ref); if (!b) return;
-      for (let i = 0; i < grp.n; i++) {
-        const hp = parseInt(b.pv, 10) || 1;
-        enemies.push({ ref: grp.ref, nom: grp.n > 1 ? `${b.nom} ${i + 1}` : b.nom,
-          ac: parseInt(b.ac, 10) || 10, hpMax: hp, hp: hp, atk: b.atk || null, defeated: false });
-      }
-    });
-    return { sig: combatSig(scene), enemies, target: enemies.length ? 0 : null };
-  }
-
-  function initCombat(sc, scene) {
-    if (!$("#combat-box")) return;
-    if (!HERO || HERO._scen !== sc.id) loadHero(sc);
-    const saved = LS.get(combatKey(sc, scene), null);
-    combat = (saved && saved.sig === combatSig(scene)) ? saved : buildCombat(scene);
-    combat.heroId = sc.heros || null;
-    if (!combat.turn) combat.turn = { action: true, bonus: true, reaction: true, mark: null, markName: null };
-    drawCombat(sc, scene);
-  }
-  function saveCombat(sc, scene) { LS.set(combatKey(sc, scene), combat); }
-
-  function applyHeroHp(sc, scene, delta) {
-    if (!HERO) return;
-    HERO.hp = Math.max(0, Math.min(HERO.hpMax, HERO.hp + delta));
-    saveHero(sc); drawCombat(sc, scene);
-  }
-  function newTurn(sc, scene) {
-    const tn = combat.turn; if (!tn) return;
-    tn.action = true; tn.bonus = true; tn.reaction = true;
-    saveCombat(sc, scene); drawCombat(sc, scene);
-    showCombatOut(`<div class="detail">🔄 Nouveau tour — Action, Action bonus et Réaction rechargées.</div>`);
-  }
-  function useFeature(sc, scene, fk) {
-    const tn = combat.turn; if (!tn || !HERO) return;
-    if (fk === "mark") {
-      if (tn.mark != null) { tn.mark = null; tn.markName = null; saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(`<div class="detail">Marque du chasseur retirée.</div>`); return; }
-      if (!tn.bonus) { showCombatOut(`<div class="detail">⚠ Action bonus déjà utilisée ce tour.</div>`); return; }
-      const t = combat.target, e = combat.enemies[t];
-      if (t == null || !e || e.defeated) { showCombatOut(`<div class="detail">🎯 Cible d'abord un ennemi vivant.</div>`); return; }
-      tn.mark = t; tn.markName = e.nom; tn.bonus = false;
-      saveCombat(sc, scene); drawCombat(sc, scene);
-      showCombatOut(`<div class="act-verdict ok">🎯 Marque du chasseur sur ${esc(e.nom)}</div><div class="act-narr">+1d6 dégâts à chacune de tes attaques contre cette cible (tant que tu te concentres).</div>`);
-      return;
-    }
-    if (fk === "cure") {
-      if (!tn.action) { showCombatOut(`<div class="detail">⚠ Action déjà utilisée ce tour.</div>`); return; }
-      if (HERO.slots <= 0) { showCombatOut(`<div class="detail">⚠ Plus d'emplacements de sort.</div>`); return; }
-      const r = Dice.rollExpr("1d8+3");
-      HERO.hp = Math.min(HERO.hpMax, HERO.hp + r.total); tn.action = false; HERO.slots--;
-      saveCombat(sc, scene); saveHero(sc); drawCombat(sc, scene);
-      showCombatOut(`<div class="act-verdict ok">💚 Soin des blessures : +${r.total} PV</div><div class="act-narr">${esc(heroFirst())} : ${HERO.hp} / ${HERO.hpMax} PV · emplacements restants : ${HERO.slots}.</div>`);
-      renderLog();
-    }
-  }
-
-  function attackRoll(hit, degExpr, targetAC, mode) {
-    const r = Dice.d20(hit, mode);
-    const hitOk = r.crit || (!r.fail && r.total >= targetAC);
-    let dmg = 0, detail = "";
-    if (hitOk) {
-      const p = Dice.parse(degExpr) || { n: 1, sides: 4, mod: 0 };
-      const base = Dice.roll(p.n, p.sides);
-      dmg = base.sum + p.mod;
-      let crit = null;
-      if (r.crit) { crit = Dice.roll(p.n, p.sides); dmg += crit.sum; }
-      detail = `[${base.rolls.join(",")}]${crit ? " +crit[" + crit.rolls.join(",") + "]" : ""}${p.mod ? " " + signed(p.mod) : ""}`;
-    }
-    return { r, hitOk, dmg, detail };
-  }
-
-  function drawCombat(sc, scene) {
-    const box = $("#combat-box"); if (!box || !combat) return;
-    const hero = combat.heroId ? byId(allCharacters(), combat.heroId) : null;
-    const allDead = combat.enemies.length && combat.enemies.every((e) => e.defeated);
-    const tgt = combat.target;
-
-    const enemiesHtml = combat.enemies.map((e, i) => {
-      const pct = Math.max(0, Math.min(100, Math.round(e.hp / e.hpMax * 100)));
-      const sel = tgt === i && !e.defeated;
-      const lvl = e.hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
-      return `<div class="enemy ${e.defeated ? "ko" : ""} ${sel ? "sel" : ""}" data-enemy="${i}">
-        <div class="enemy-head">
-          ${creatureToken(e.ref, "sm")}
-          <span class="enemy-name">${e.defeated ? "💀 " : ""}${esc(e.nom)}</span>
-          <span class="enemy-ac">🛡️ ${e.ac}</span>
-          <button class="mini-fiche" data-fiche="${e.ref}">fiche ›</button>
-        </div>
-        <div class="hpbar"><div class="hpfill ${lvl}" style="width:${pct}%"></div><span class="hptxt">${e.hp} / ${e.hpMax} PV</span></div>
-        <div class="hp-ctrl">
-          <button data-dmg="${i}" data-amt="10">−10</button>
-          <button data-dmg="${i}" data-amt="5">−5</button>
-          <button data-dmg="${i}" data-amt="1">−1</button>
-          <button data-heal="${i}" data-amt="5">+5</button>
-          ${sel ? `<span class="target-badge">🎯 cible</span>` : (e.defeated ? "" : `<button class="set-target" data-target="${i}">🎯 cibler</button>`)}
-        </div>
-      </div>`;
-    }).join("");
-
-    const heroAtk = (hero && hero.attaques && !allDead) ? hero.attaques.map((a, i) =>
-      `<button class="atk-btn" data-heroatk="${i}"><span>${esc(a.nom)}</span><span class="act-meta">+${a.bonus} · ${esc(a.degR || a.degats)}</span></button>`
-    ).join("") : "";
-
-    const enemyAtk = (!allDead) ? combat.enemies.map((e, i) => (!e.defeated && e.atk) ?
-      `<button class="enemyatk-btn" data-enemyatk="${i}"><span>${esc(e.nom)}</span><span class="act-meta">+${e.atk.hit} · ${esc(e.atk.deg)}</span></button>` : ""
-    ).join("") : "";
-
-    const tgtName = (tgt != null && combat.enemies[tgt] && !combat.enemies[tgt].defeated) ? esc(combat.enemies[tgt].nom) : "—";
-
-    // Panneau du héros : PV, économie de tour, capacités, potions
-    const tn = combat.turn || { action: true, bonus: true, reaction: true, mark: null, markName: null };
-    let heroPanel = "";
-    if (HERO) {
-      const hpct = Math.max(0, Math.min(100, Math.round(HERO.hp / HERO.hpMax * 100)));
-      const hlvl = HERO.hp === 0 ? "dead" : (hpct <= 33 ? "low" : (hpct <= 66 ? "mid" : "high"));
-      const econ = (k, lbl) => `<span class="econ ${tn[k] ? "on" : "off"}">${tn[k] ? "●" : "○"} ${lbl}</span>`;
-      const feats = (hero && hero.combatFeatures || []).map((fk) => {
-        const f = FEATURES[fk]; if (!f) return "";
-        const active = fk === "mark" && tn.mark != null;
-        const ok = active || (f.cost === "bonus" ? tn.bonus : (tn.action && (fk !== "cure" || HERO.slots > 0)));
-        return `<button class="feat-btn ${active ? "active" : ""} ${ok ? "" : "disabled"}" data-feat="${fk}">
-          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${esc(f.meta)}${fk === "cure" ? " (" + HERO.slots + ")" : ""}</span></button>`;
-      }).join("");
-      const potions = HERO.inv.map((it, idx) => (it.type === "potion" && it.qty > 0)
-        ? `<button class="feat-btn potion ${tn.action ? "" : "disabled"}" data-potion="${idx}"><span>🧪 ${esc(it.nom)}</span><span class="act-meta">action · ×${it.qty}</span></button>` : ""
-      ).join("");
-      heroPanel = `
-        <div class="hero-panel ${HERO.hp === 0 ? "down" : ""}">
-          <div class="hero-head"><span class="tok" style="border-color:#4a7a4a">🧝</span><span class="hero-name">${esc(hero ? hero.nom.split(" ")[0] : "Héros")}</span>
-            <span class="hud-stats">💰 ${HERO.gold} · ✨ ${HERO.slots}/${HERO.slotsMax}</span>
-            ${tn.mark != null ? `<span class="mark-badge">🎯 ${esc(tn.markName || "")}</span>` : ""}</div>
-          <div class="hpbar"><div class="hpfill ${hlvl}" style="width:${hpct}%"></div><span class="hptxt">${HERO.hp} / ${HERO.hpMax} PV${HERO.hp === 0 ? " — À TERRE !" : ""}</span></div>
-          <div class="hp-ctrl">
-            <button data-herohp="-5">−5</button><button data-herohp="-1">−1</button>
-            <button data-herohp="1">+1</button><button data-herohp="5">+5</button>
-          </div>
-          <div class="turn-strip">${econ("action", "Action")}${econ("bonus", "Bonus")}${econ("reaction", "Réaction")}
-            <button id="new-turn">🔄 Nouveau tour</button></div>
-          ${feats || potions ? `<div class="feature-row">${feats}${potions}</div>` : ""}
-        </div>`;
-    }
-
-    box.innerHTML = `
-      ${heroPanel}
-      <div class="section-title" style="color:var(--accent-2)">⚔️ Combat ${allDead ? `— <span style="color:var(--ok)">ennemis vaincus ✔</span>` : "— suivi en direct"}</div>
-      <div class="enemies">${enemiesHtml}</div>
-      ${hero && !allDead ? `<div class="combat-sub">🗡️ Attaques de ${esc(hero.nom.split(" ")[0])} · cible : <b>${tgtName}</b></div>
-      <div class="atk-row hero">${heroAtk}</div>` : ""}
-      ${enemyAtk ? `<div class="combat-sub">👹 Tour des ennemis (jet pour le MJ)</div><div class="atk-row foe">${enemyAtk}</div>` : ""}
-      <div class="dice-result action-out" id="combat-out" style="display:none"></div>
-      <button class="btn-ghost" id="combat-reset" style="margin-top:8px">↺ Réinitialiser le combat</button>`;
-
-    box.querySelectorAll("[data-enemy]").forEach((el) => el.addEventListener("click", (ev) => {
-      if (ev.target.closest("[data-dmg],[data-heal],[data-fiche],[data-target]")) return;
-      const i = +el.dataset.enemy;
-      if (!combat.enemies[i].defeated) { combat.target = i; saveCombat(sc, scene); drawCombat(sc, scene); }
-    }));
-    box.querySelectorAll("[data-target]").forEach((b) => b.addEventListener("click", () => { combat.target = +b.dataset.target; saveCombat(sc, scene); drawCombat(sc, scene); }));
-    box.querySelectorAll("[data-fiche]").forEach((b) => b.addEventListener("click", () => openBestiaryEntry(b.dataset.fiche)));
-    box.querySelectorAll("[data-dmg]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.dmg, -(+b.dataset.amt))));
-    box.querySelectorAll("[data-heal]").forEach((b) => b.addEventListener("click", () => applyHp(sc, scene, +b.dataset.heal, +b.dataset.amt)));
-    box.querySelectorAll("[data-heroatk]").forEach((b) => b.addEventListener("click", () => heroAttack(sc, scene, +b.dataset.heroatk)));
-    box.querySelectorAll("[data-enemyatk]").forEach((b) => b.addEventListener("click", () => enemyAttack(sc, scene, +b.dataset.enemyatk)));
-    box.querySelectorAll("[data-herohp]").forEach((b) => b.addEventListener("click", () => applyHeroHp(sc, scene, +b.dataset.herohp)));
-    box.querySelectorAll("[data-feat]").forEach((b) => b.addEventListener("click", () => useFeature(sc, scene, b.dataset.feat)));
-    box.querySelectorAll("[data-potion]").forEach((b) => b.addEventListener("click", () => usePotion(sc, scene, +b.dataset.potion)));
-    const nt = $("#new-turn"); if (nt) nt.addEventListener("click", () => newTurn(sc, scene));
-    $("#combat-reset").addEventListener("click", () => { combat = buildCombat(scene); combat.heroId = sc.heros || null; combat.turn = { action: true, bonus: true, reaction: true, mark: null, markName: null }; saveCombat(sc, scene); drawCombat(sc, scene); });
-  }
-
-  function applyHp(sc, scene, i, delta) {
-    const e = combat.enemies[i]; if (!e) return;
-    e.hp = Math.max(0, Math.min(e.hpMax, e.hp + delta));
-    e.defeated = e.hp === 0;
-    if (e.defeated && combat.target === i) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
-    saveCombat(sc, scene); drawCombat(sc, scene);
-  }
-
-  function showCombatOut(html) {
-    const out = $("#combat-out"); if (!out) return;
-    out.style.display = "block"; out.innerHTML = html;
-    out.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function heroAttack(sc, scene, ai) {
-    const hero = byId(allCharacters(), combat.heroId); if (!hero || !hero.attaques) return;
-    const a = hero.attaques[ai];
-    const t = combat.target, e = combat.enemies[t];
-    if (t == null || !e || e.defeated) { drawCombat(sc, scene); showCombatOut(`<div class="detail">🎯 Choisis d'abord une cible vivante (bouton « cibler »).</div>`); return; }
-    const res = attackRoll(a.bonus, a.degR || a.degats, e.ac, d20mode);
-    const tn = combat.turn;
-    let html = `<div class="total ${res.hitOk ? "crit" : "fail"}">${res.r.total}</div>
-      <div class="detail">${esc(a.nom)} → ${esc(e.nom)} (CA ${e.ac}) · dé ${res.r.natural} +${a.bonus}${res.r.crit ? " ⭐CRIT" : res.r.fail ? " 💀" : ""}</div>`;
-    if (res.hitOk) {
-      let dmg = res.dmg, detail = res.detail;
-      if (tn && tn.mark === t) { const md = Dice.roll(res.r.crit ? 2 : 1, 6); dmg += md.sum; detail += ` +marque[${md.rolls.join(",")}]`; }
-      e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
-      if (e.defeated) {
-        if (tn && tn.mark === t) { tn.mark = null; tn.markName = null; }
-        if (combat.target === t) { const n = combat.enemies.findIndex((x) => !x.defeated); combat.target = n >= 0 ? n : null; }
-      }
-      html += `<div class="act-verdict ok">✓ TOUCHÉ — ${dmg} dégâts <span class="muted">${detail}</span></div>
-        <div class="act-narr">${esc(e.nom)} : ${e.hp} / ${e.hpMax} PV${e.defeated ? " — VAINCU 💀" : ""}</div>`;
-      pushLog(`${a.nom} → ${e.nom}`, res.r.total, `${dmg} dég.`);
-    } else {
-      html += `<div class="act-verdict ko">✗ RATÉ (il fallait ${e.ac} ou +)</div>`;
-      pushLog(`${a.nom} → ${e.nom}`, res.r.total, "raté");
-    }
-    if (tn) tn.action = false; // l'attaque consomme l'action du tour
-    saveCombat(sc, scene); drawCombat(sc, scene); showCombatOut(html); renderLog();
-  }
-
-  function enemyAttack(sc, scene, i) {
-    const e = combat.enemies[i]; if (!e || !e.atk) return;
-    const heroSheet = combat.heroId ? byId(allCharacters(), combat.heroId) : null;
-    const hAC = heroSheet ? heroSheet.ca : null;
-    const r = Dice.d20(e.atk.hit, "normal");
-    const dp = Dice.rollExpr(e.atk.deg) || { total: 0, rolls: [] };
-    const touche = hAC != null ? (r.crit || (!r.fail && r.total >= hAC)) : null;
-    const html = `<div class="total ${touche === true ? "fail" : ""}">${r.total}</div>
-      <div class="detail">${esc(e.nom)} attaque${hAC != null ? ` (CA de ${esc((heroSheet.nom || "").split(" ")[0])} : ${hAC})` : ""} · dé ${r.natural} +${e.atk.hit}${r.crit ? " ⭐CRIT" : ""}</div>
-      ${touche != null ? `<div class="act-verdict ${touche ? "ko" : "ok"}">${touche ? "✗ TOUCHE le héros" : "✓ raté"}</div>` : ""}
-      <div class="act-narr">Dégâts : <b>${dp.total}</b> (${esc(e.atk.deg)} = [${(dp.rolls || []).join(",")}]).${r.crit ? " Critique : pense à doubler les dés !" : ""}</div>
-      ${HERO && touche !== false ? `<button class="choice apply-hero" data-applyhero="${dp.total}"><span>💥 Infliger ${dp.total} PV à ${esc((heroSheet && heroSheet.nom || "Sylwen").split(" ")[0])}</span><span class="arrow">›</span></button>` : ""}`;
-    pushLog(`${e.nom} attaque`, r.total, `${dp.total} dég.`);
-    drawCombat(sc, scene); showCombatOut(html);
-    const ab = document.querySelector("#combat-out [data-applyhero]");
-    if (ab) ab.addEventListener("click", () => applyHeroHp(sc, scene, -(+ab.dataset.applyhero)));
-    renderLog();
   }
 
   function renderGameTab() {
@@ -3139,6 +3398,25 @@ window.Dice = (function () {
   // =====================================================================
   //  INITIALISATION
   // =====================================================================
+  CombatEngine.init({
+    $, esc, Dice, byId,
+    bestiary: BESTIARY,
+    d20mode: () => d20mode,
+    heroSheet: () => (HERO && HERO.heroId ? byId(allCharacters(), HERO.heroId) : null),
+    getHero: () => HERO,
+    saveHero: () => saveHero(curSc),
+    pushLog, renderLog,
+    tokenHtml: (id) => creatureToken(id, "sm"),
+    openFiche: (id) => openBestiaryEntry(id),
+    onExit: (result) => {
+      if (typeof result === "string" && result.startsWith("jump:")) {
+        navigateTo(result.slice(5), "action");
+        return;
+      }
+      renderScene(); // rafraîchit HUD (PV), carte de combat (victoire ✔), etc.
+    }
+  });
+
   renderGameTab();
   renderDice();
   renderPersoList();

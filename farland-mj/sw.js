@@ -1,13 +1,14 @@
 /* Service worker — stratégie RÉSEAU D'ABORD (network-first).
    En ligne : on récupère toujours la dernière version et on met le cache à jour.
    Hors ligne : on sert la dernière version mise en cache (utile en voiture). */
-const CACHE = "farland-mj-v3";
+const CACHE = "farland-mj-v4";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./css/style.css",
   "./js/dice.js",
+  "./js/combat.js",
   "./js/app.js",
   "./js/data/lore.js",
   "./js/data/bestiary.js",
