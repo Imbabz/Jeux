@@ -322,6 +322,7 @@ window.BESTIARY = [
     id: "fenn", nom: "Fenn — loup de Sylwen (compagnon)", type: "Bête M, compagnon loyal",
     cr: "1/4", tags: ["compagnon", "solo", "aventure2"],
     ac: "13 (armure naturelle)", pv: "11 (2d8+2)", vitesse: "12 m",
+    atk: { hit: 4, deg: "2d4+2" },
     stats: { for: 12, dex: 15, con: 12, int: 3, sag: 12, cha: 6 },
     comp: "Perception +3, Discrétion +4", sens: "Perception passive 13", langues: "comprend Sylwen",
     traits: [

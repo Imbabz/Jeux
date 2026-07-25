@@ -139,6 +139,7 @@ window.PREGENS = [
     race: "Elfe des bois",
     pv: 28, ca: 16, vitesse: "10,50 m", init: 3,
     combatSlots: 3, combatFeatures: ["mark", "cure"],
+    companion: "fenn",
     gold: 20,
     startInv: [
       { id: "pot1", nom: "Potion de soins", qty: 2, type: "potion", heal: "2d4+2" },
@@ -153,14 +154,13 @@ window.PREGENS = [
     dcSort: 13, attaqueSort: 5,
     attaques: [
       { nom: "Arc long", bonus: 5, degats: "1d8+3 perforant", degR: "1d8+3" },
-      { nom: "Épée courte", bonus: 5, degats: "1d6+3 tranchant", degR: "1d6+3" },
-      { nom: "Morsure de Fenn 🐺", bonus: 4, degats: "2d4+2 perforant", degR: "2d4+2" }
+      { nom: "Épée courte", bonus: 5, degats: "1d6+3 tranchant", degR: "1d6+3" }
     ],
     sorts: [
-      "Niv 1 (3 empl.) : marque du chasseur (+1d6 dégâts sur une cible), soin des blessures (1d8+3), foulée prodigieuse, communication avec les animaux, saut."
+      "Niv 1 (3 empl.) : marque du chasseur (+1d6 dégâts sur une cible), soin des blessures (1d8+3, cible Sylwen OU Fenn), foulée prodigieuse, communication avec les animaux, saut."
     ],
     capacites: [
-      "🐺 Compagnon animal : FENN, un loup fidèle (fiche « Fenn » dans le Bestiaire). Il agit à ton tour — un vrai atout pour jouer SEULE.",
+      "🐺 Compagnon animal : FENN, un loup fidèle (fiche « Fenn » dans le Bestiaire). Il combat À CÔTÉ de toi avec ses PROPRES points de vie et sa propre attaque chaque round — un vrai second combattant, pas juste une arme de plus. S'il tombe, soigne-le pour le relever.",
       "Conscience du prédateur : avantage pour pister et se souvenir des morts-vivants.",
       "Sang elfique : avantage contre le charme, immunité au sommeil magique, transe (repos en 4 h).",
       "Masque de la nature : peut se cacher même à peine dissimulée par la végétation.",

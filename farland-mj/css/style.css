@@ -394,3 +394,12 @@ body.combat-open { overflow: hidden; }
 .cb-engage { width: 100%; background: linear-gradient(180deg,#8f3b34,#6e2a24); border: 1px solid #b0524a;
   color: #ffe9e2; font-weight: 800; letter-spacing: .5px; font-size: 17px; border-radius: 12px; padding: 15px; }
 .cb-engage:active { transform: scale(.98); }
+
+/* ---- Compagnon (Fenn) : sa propre ligne dans l'écran de combat ---- */
+.cb-companion { display: flex; align-items: center; gap: 10px; background: #1a2418;
+  border: 1px solid #5a7a3f; border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; }
+.cb-companion.down { border-color: #6a5a34; background: #201c14; opacity: .75; }
+.cb-companion-main { flex: 1; min-width: 0; }
+.cb-companion-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.atk-btn.companion { background: #1a2418; border-color: #5a7a3f; }
+.atk-btn.companion .act-meta { color: #a9c47f; }

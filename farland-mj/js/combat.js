@@ -20,6 +20,15 @@ window.CombatEngine = (function () {
   function sig(scene) { return (scene.combat.ennemis || []).map((e) => e.ref + "x" + e.n).join(","); }
   function key(sc, scene) { return `combatV2:${sc.id}:${scene.id}`; }
 
+  function buildCompanion() {
+    const hero = D.heroSheet();
+    if (!hero || !hero.companion) return null;
+    const b = D.byId(D.bestiary, hero.companion); if (!b) return null;
+    const nom = (b.nom || "").split(" ")[0] || "Allié";
+    return { ref: hero.companion, nom, ac: parseInt(b.ac, 10) || 10,
+      hpMax: parseInt(b.pv, 10) || 1, hp: parseInt(b.pv, 10) || 1, atk: b.atk || null };
+  }
+
   function build(scene) {
     const enemies = [];
     (scene.combat.ennemis || []).forEach((grp) => {
@@ -30,11 +39,12 @@ window.CombatEngine = (function () {
           atk: b.atk || null, defeated: false });
       }
     });
+    const companion = buildCompanion();
     return { sig: sig(scene), round: 1, phase: "player", tab: "atk",
       enemies, target: enemies.length ? 0 : null,
-      turn: { action: true, bonus: true, reaction: true },
+      turn: { action: true, bonus: true, reaction: true, fenn: !!companion },
       mark: null, markName: null, hidden: false, dodge: false, prone: null,
-      initiative: null, log: [] };
+      companion, initiative: null, log: [] };
   }
 
   function save() { if (ctx) localStorage.setItem(ctx.key, JSON.stringify(S)); }
@@ -134,6 +144,17 @@ window.CombatEngine = (function () {
         <div class="cb-round">R${S.round}</div>
       </div>` : "";
 
+    // --- compagnon (Fenn) : ses propres PV, sa propre ligne ---
+    const comp = S.companion;
+    const companionBox = comp ? `
+      <div class="cb-companion ${comp.hp === 0 ? "down" : ""}">
+        ${D.tokenHtml(comp.ref)}
+        <div class="cb-companion-main">
+          <div class="cb-companion-name">${esc(comp.nom)}${comp.hp === 0 ? " — à terre" : ""} <span class="enemy-ac">🛡️ ${comp.ac}</span></div>
+          ${hpbarHtml(comp.hp, comp.hpMax, "sm")}
+        </div>
+      </div>` : "";
+
     // --- panneau d'actions par onglet ---
     let pane = "";
     if (S.phase === "won") {
@@ -172,6 +193,7 @@ window.CombatEngine = (function () {
         <button class="btn-ghost" id="cb-reset">↺</button>
       </div>
       ${heroBox}
+      ${companionBox}
       <div class="cb-foes">${foes}</div>
       ${tabs}
       <div class="cb-pane">${pane}</div>
@@ -189,15 +211,31 @@ window.CombatEngine = (function () {
       const atks = (hero && hero.attaques || []).map((a, i) =>
         `<button class="atk-btn ${S.turn.action ? "" : "disabled"}" data-atk="${i}">
           <span>${esc(a.nom)}${S.hidden ? " 👤" : ""}</span><span class="act-meta">+${a.bonus} · ${esc(a.degR || a.degats)}</span></button>`).join("");
-      return `<div class="cb-hint">Cible : <b>${tgtOk ? esc(tgt.nom) : "—"}</b> · touche un ennemi pour changer${S.hidden ? " · 👤 avantage (cachée)" : ""}</div>${atks}`;
+      const comp = S.companion;
+      const compBtn = comp ? (comp.hp === 0
+        ? `<div class="cb-hint" style="margin-top:10px">🐺 ${esc(comp.nom)} est à terre — soigne-le (onglet Capacités) pour qu'il se batte à nouveau.</div>`
+        : `<div class="cb-hint" style="margin-top:10px">🐺 ${esc(comp.nom)} agit à part — il ne consomme pas ton action.</div>
+           <button class="atk-btn companion ${S.turn.fenn ? "" : "disabled"}" data-fennatk="1">
+             <span>${esc(comp.nom)} mord</span><span class="act-meta">+${comp.atk.hit} · ${esc(comp.atk.deg)}</span></button>`) : "";
+      return `<div class="cb-hint">Cible : <b>${tgtOk ? esc(tgt.nom) : "—"}</b> · touche un ennemi pour changer${S.hidden ? " · 👤 avantage (cachée)" : ""}</div>${atks}${compBtn}`;
     }
     if (S.tab === "cap") {
       const feats = (hero && hero.combatFeatures || []).map((fk) => {
         const f = FEATURES[fk]; if (!f) return "";
+        if (fk === "cure") {
+          // Soin ciblé : Sylwen elle-même, ou Fenn s'il est présent (même blessé/à terre — le soin peut le relever).
+          const ok = S.turn.action && H && H.slots > 0;
+          const meta = `action · 1 sort · +1d8+3 PV (${H ? H.slots : 0})`;
+          const onSelf = `<button class="feat-btn ${ok ? "" : "disabled"}" data-feat="cure" data-curetgt="hero">
+            <span>💚 Soigner Sylwen</span><span class="act-meta">${meta}</span></button>`;
+          const onComp = S.companion ? `<button class="feat-btn ${ok ? "" : "disabled"}" data-feat="cure" data-curetgt="companion">
+            <span>💚 Soigner ${esc(S.companion.nom)}</span><span class="act-meta">${meta}</span></button>` : "";
+          return onSelf + onComp;
+        }
         const active = fk === "mark" && S.mark != null;
-        const ok = active || (f.cost === "bonus" ? S.turn.bonus : (S.turn.action && (fk !== "cure" || (H && H.slots > 0))));
+        const ok = active || (f.cost === "bonus" ? S.turn.bonus : S.turn.action);
         return `<button class="feat-btn ${active ? "active" : ""} ${ok ? "" : "disabled"}" data-feat="${fk}">
-          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${f.cost === "bonus" ? "bonus" : "action"} · ${esc(f.desc)}${fk === "cure" && H ? ` (${H.slots})` : ""}</span></button>`;
+          <span>${f.label}${active ? " ✓" : ""}</span><span class="act-meta">${f.cost === "bonus" ? "bonus" : "action"} · ${esc(f.desc)}</span></button>`;
       }).join("");
       return feats || `<div class="cb-hint">Aucune capacité.</div>`;
     }
@@ -234,7 +272,8 @@ window.CombatEngine = (function () {
     }));
     el.querySelectorAll("[data-fiche]").forEach((b) => b.addEventListener("click", () => { const id = b.dataset.fiche; exit("paused"); D.openFiche(id); }));
     el.querySelectorAll("[data-atk]").forEach((b) => b.addEventListener("click", () => heroAttack(+b.dataset.atk)));
-    el.querySelectorAll("[data-feat]").forEach((b) => b.addEventListener("click", () => useFeature(b.dataset.feat)));
+    el.querySelectorAll("[data-fennatk]").forEach((b) => b.addEventListener("click", () => fennAttack()));
+    el.querySelectorAll("[data-feat]").forEach((b) => b.addEventListener("click", () => useFeature(b.dataset.feat, b.dataset.curetgt)));
     el.querySelectorAll("[data-pot]").forEach((b) => b.addEventListener("click", () => drinkPotion(+b.dataset.pot)));
     el.querySelectorAll("[data-env]").forEach((b) => b.addEventListener("click", () => envAction(+b.dataset.env)));
     el.querySelectorAll("[data-man]").forEach((b) => b.addEventListener("click", () => maneuver(b.dataset.man)));
@@ -305,7 +344,7 @@ window.CombatEngine = (function () {
     save(); render(); D.renderLog();
   }
 
-  function useFeature(fk) {
+  function useFeature(fk, target) {
     const H = D.getHero();
     if (fk === "mark") {
       if (S.mark != null) { S.mark = null; S.markName = null; save(); render(); return; }
@@ -318,11 +357,47 @@ window.CombatEngine = (function () {
       if (!S.turn.action) { log("⚠ Action déjà utilisée.", ""); render(); return; }
       if (!H || H.slots <= 0) { log("⚠ Plus d'emplacements de sort.", ""); render(); return; }
       const r = D.Dice.rollExpr("1d8+3");
-      H.hp = Math.min(H.hpMax, H.hp + r.total); H.slots--; D.saveHero();
+      if (target === "companion" && S.companion) {
+        const comp = S.companion; const wasDown = comp.hp === 0;
+        comp.hp = Math.min(comp.hpMax, comp.hp + r.total);
+        log(`💚 Soin des blessures sur ${comp.nom} : +${r.total} PV (${comp.hp}/${comp.hpMax})${wasDown ? " — il se relève !" : ""}`, "ok");
+      } else {
+        H.hp = Math.min(H.hpMax, H.hp + r.total);
+        log(`💚 Soin des blessures : +${r.total} PV (${H.hp}/${H.hpMax}).`, "ok");
+      }
+      H.slots--; D.saveHero();
       S.turn.action = false;
-      log(`💚 Soin des blessures : +${r.total} PV (${H.hp}/${H.hpMax}).`, "ok");
       D.pushLog("Soin des blessures", r.total, "soin");
     }
+    save(); render(); D.renderLog();
+  }
+
+  // Attaque indépendante du compagnon : ne consomme pas l'action/bonus de Sylwen.
+  function fennAttack() {
+    const comp = S.companion;
+    if (!comp || comp.hp === 0) { log("⚠ Fenn est à terre, il ne peut pas se battre.", ""); render(); return; }
+    if (!S.turn.fenn) { log("⚠ Fenn a déjà agi ce round.", ""); render(); return; }
+    const e = needTarget(); if (!e) return;
+    const t = S.target;
+    const r = D.Dice.d20(comp.atk.hit, D.d20mode());
+    const hitOk = r.crit || (!r.fail && r.total >= e.ac);
+    if (hitOk) {
+      const p = D.Dice.parse(comp.atk.deg) || { n: 1, sides: 4, mod: 2 };
+      const base = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
+      const dmg = base.sum + p.mod;
+      e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
+      log(`🐺 ${comp.nom} mord ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${e.defeated ? " · VAINCU 💀" : ""}`, "ok");
+      D.pushLog(`${comp.nom} → ${e.nom}`, r.total, `${dmg} dég.`);
+      if (e.defeated) {
+        if (S.mark === t) { S.mark = null; S.markName = null; }
+        if (S.prone === t) S.prone = null;
+        if (S.target === t) { const n = S.enemies.findIndex((x) => !x.defeated); S.target = n >= 0 ? n : null; }
+      }
+    } else {
+      log(`🐺 ${comp.nom} mord ${e.nom} : ${r.total}${r.fail ? " 💀" : ""} vs CA ${e.ac} — raté.`, "ko");
+      D.pushLog(`${comp.nom} → ${e.nom}`, r.total, "raté");
+    }
+    S.turn.fenn = false;
     save(); render(); D.renderLog();
   }
 
@@ -404,20 +479,31 @@ window.CombatEngine = (function () {
     const H = D.getHero(); const hero = D.heroSheet();
     S.phase = "enemies";
     const hAC = hero ? hero.ca : 12;
+    const comp = S.companion;
     let delayLines = [];
     S.enemies.forEach((e) => {
       if (e.defeated || !e.atk || !H || H.hp === 0) return;
-      const mode = S.dodge ? "dis" : "normal";
+      // Si Fenn est debout, les ennemis peuvent le viser lui plutôt que Sylwen (chance égale).
+      const targetsCompanion = !!(comp && comp.hp > 0 && Math.random() < 0.5);
+      const targetAC = targetsCompanion ? comp.ac : hAC;
+      const mode = (!targetsCompanion && S.dodge) ? "dis" : "normal"; // l'esquive de Sylwen ne protège pas Fenn
       const r = D.Dice.d20(e.atk.hit, mode);
-      const hit = r.crit || (!r.fail && r.total >= hAC);
+      const hit = r.crit || (!r.fail && r.total >= targetAC);
       if (hit) {
         const p = D.Dice.parse(e.atk.deg) || { n: 1, sides: 6, mod: 0 };
         const dr = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
         const dmg = dr.sum + p.mod;
-        H.hp = Math.max(0, H.hp - dmg);
-        delayLines.push([`👹 ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${hAC} — TOUCHE, ${dmg} dégâts ! (${H.hp}/${H.hpMax} PV)`, "ko"]);
+        if (targetsCompanion) {
+          const wasAlive = comp.hp > 0;
+          comp.hp = Math.max(0, comp.hp - dmg);
+          delayLines.push([`👹 ${e.nom} mord ${comp.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${comp.ac} — TOUCHE, ${dmg} dégâts ! (${comp.hp}/${comp.hpMax} PV)${comp.hp === 0 && wasAlive ? ` · ${comp.nom} s'effondre, à terre !` : ""}`, "ko"]);
+        } else {
+          H.hp = Math.max(0, H.hp - dmg);
+          delayLines.push([`👹 ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${hAC} — TOUCHE, ${dmg} dégâts ! (${H.hp}/${H.hpMax} PV)`, "ko"]);
+        }
       } else {
-        delayLines.push([`👹 ${e.nom} : ${r.total} vs CA ${hAC} — te rate${S.dodge ? " (esquive !)" : ""}.`, "ok"]);
+        const who = targetsCompanion ? comp.nom : "toi";
+        delayLines.push([`👹 ${e.nom} vise ${who} : ${r.total} vs CA ${targetAC} — rate${(!targetsCompanion && S.dodge) ? " (esquive !)" : ""}.`, "ok"]);
       }
     });
     D.saveHero();
@@ -425,7 +511,7 @@ window.CombatEngine = (function () {
     // nouveau round
     S.round += ambush ? 0 : 1;
     S.phase = "player";
-    S.turn = { action: true, bonus: true, reaction: true };
+    S.turn = { action: true, bonus: true, reaction: true, fenn: !!(comp && comp.hp > 0) };
     S.dodge = false;
     if (S.hidden) { S.hidden = false; log("👤 La discrétion s'estompe avec le round.", ""); } // évite qu'elle reste active indéfiniment si non consommée
     log(`— Round ${S.round} : à toi ! —`, "");
