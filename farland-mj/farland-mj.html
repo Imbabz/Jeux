@@ -284,7 +284,8 @@ hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
 .hero-panel.down { border-color: var(--danger); background: #241615; }
 .hero-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .hero-name { font-weight: 700; font-size: 16px; flex: 1; }
-.mark-badge { font-size: 12px; color: #221a08; background: var(--accent); border-radius: 8px; padding: 2px 8px; font-weight: 600; }
+.mark-badge { font-size: 12px; color: #221a08; background: var(--accent); border-radius: 8px; padding: 2px 8px; font-weight: 600; margin-left: 6px; }
+.mark-badge.prone { background: #a9743a; }
 .turn-strip { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0 2px; }
 .econ { font-size: 12px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); }
 .econ.on { color: var(--ok); border-color: #3f7a3f; background: #14231a; }
@@ -2270,7 +2271,7 @@ window.CombatEngine = (function () {
     return { sig: sig(scene), round: 1, phase: "player", tab: "atk",
       enemies, target: enemies.length ? 0 : null,
       turn: { action: true, bonus: true, reaction: true },
-      mark: null, markName: null, hidden: false, dodge: false,
+      mark: null, markName: null, hidden: false, dodge: false, prone: null,
       initiative: null, log: [] };
   }
 
@@ -2299,12 +2300,13 @@ window.CombatEngine = (function () {
       const er = D.Dice.d20(1, "normal");
       S.initiative = hr.total >= er.total ? "hero" : "enemies";
       log(`⚡ Initiative : toi ${hr.total} · eux ${er.total} — ${S.initiative === "hero" ? "TU commences !" : "ILS commencent !"}`, S.initiative === "hero" ? "ok" : "ko");
-      save();
       if (S.initiative === "enemies" && !(opts && opts.noAmbush)) {
-        render();
+        S.phase = "enemies"; // verrouille l'interface joueur pendant l'embuscade (évite d'agir dans la fenêtre du délai)
+        save(); render();
         setTimeout(() => { enemyPhase(true); }, 450);
         return;
       }
+      save();
     }
     render();
   }
@@ -2344,7 +2346,7 @@ window.CombatEngine = (function () {
         ${D.tokenHtml(e.ref)}
         <div class="cb-foe-main">
           <div class="cb-foe-name">${e.defeated ? "💀 " : ""}${esc(e.nom)} <span class="enemy-ac">🛡️ ${e.ac}</span>
-            ${S.mark === i ? `<span class="mark-badge">🎯</span>` : ""}</div>
+            ${S.mark === i ? `<span class="mark-badge">🎯</span>` : ""}${S.prone === i ? `<span class="mark-badge prone">⬇️ à terre</span>` : ""}</div>
           ${hpbarHtml(e.hp, e.hpMax, "sm")}
         </div>
         <button class="mini-fiche" data-fiche="${e.ref}">›</button>
@@ -2378,10 +2380,18 @@ window.CombatEngine = (function () {
         <p>Les ennemis sont vaincus. Pense à ramasser le butin dans la scène.</p>
         <button class="btn-accent btn-block" id="cb-exit-won">Retour à l'aventure ▶</button></div>`;
     } else if (S.phase === "lost") {
+      const potIdx = H ? H.inv.findIndex((it) => it.type === "potion" && it.qty > 0) : -1;
       pane = `<div class="cb-end lost">
         <div class="cb-end-title">💀 À TERRE…</div>
-        <p>Tout devient noir… puis une mâchoire se referme sur ton col : Fenn te traîne à l'abri. Tu te réveilles, meurtrie mais vivante.</p>
-        <button class="btn-accent btn-block" id="cb-exit-lost">Se relever à 1 PV ▶</button></div>`;
+        <p>Le monde vacille, les bruits du combat s'étouffent… Fenn aboie, affolé.</p>
+        ${potIdx >= 0
+          ? `<button class="btn-accent btn-block" id="cb-emergency-potion">🧪 Boire une potion in extremis !</button>
+             <button class="btn-ghost btn-block" id="cb-exit-lost">Non, laisser tomber ▶</button>`
+          : `<p>Une mâchoire se referme sur ton col : Fenn te traîne à l'abri. Tu te réveilles, meurtrie mais vivante.</p>
+             <button class="btn-accent btn-block" id="cb-exit-lost">Se relever à 1 PV ▶</button>`}
+      </div>`;
+    } else if (S.phase === "enemies") {
+      pane = `<div class="cb-hint">⏳ Les ennemis agissent…</div>`;
     } else {
       pane = renderTab(hero, H);
     }
@@ -2474,6 +2484,23 @@ window.CombatEngine = (function () {
       const H = D.getHero(); H.hp = 1; D.saveHero();
       S = build(ctx.scene); save(); exit("lost");
     });
+    const ep = el.querySelector("#cb-emergency-potion"); if (ep) ep.addEventListener("click", emergencyPotion);
+  }
+
+  // Dernière chance à 0 PV : si une potion est disponible, la boire relance le combat au lieu de le perdre.
+  function emergencyPotion() {
+    const H = D.getHero(); if (!H) return;
+    const idx = H.inv.findIndex((it) => it.type === "potion" && it.qty > 0);
+    if (idx < 0) return;
+    const it = H.inv[idx];
+    const r = D.Dice.rollExpr(it.heal || "2d4+2");
+    H.hp = Math.max(1, Math.min(H.hpMax, r.total));
+    it.qty--; if (it.qty <= 0) H.inv.splice(idx, 1);
+    D.saveHero();
+    S.phase = "player";
+    log(`🧪 IN EXTREMIS : ${it.nom} te ramène à ${H.hp} PV — le combat continue !`, "ok");
+    D.pushLog(it.nom, r.total, "urgence");
+    save(); render(); D.renderLog();
   }
 
   function needTarget() {
@@ -2484,23 +2511,28 @@ window.CombatEngine = (function () {
 
   function heroAttack(ai) {
     if (!S.turn.action) { log("⚠ Action déjà utilisée — termine ton tour.", ""); render(); return; }
-    const hero = D.heroSheet(); const a = hero.attaques[ai];
+    const hero = D.heroSheet(); const a = hero && hero.attaques && hero.attaques[ai];
+    if (!a) return;
     const e = needTarget(); if (!e) return;
     const t = S.target;
-    const mode = S.hidden ? "adv" : D.d20mode();
+    const proneBonus = S.prone === t;
+    const mode = (S.hidden || proneBonus) ? "adv" : D.d20mode();
     const r = D.Dice.d20(a.bonus, mode);
     const hitOk = r.crit || (!r.fail && r.total >= e.ac);
     S.hidden = false;
+    if (proneBonus) S.prone = null; // avantage consommé sur cette attaque
     if (hitOk) {
       const p = D.Dice.parse(a.degR || a.degats) || { n: 1, sides: 6, mod: 0 };
       const base = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
       let dmg = base.sum + p.mod, extra = "";
       if (S.mark === t) { const md = D.Dice.roll(r.crit ? 2 : 1, 6); dmg += md.sum; extra = " (+marque)"; }
       e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
-      log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${extra}${e.defeated ? " · VAINCU 💀" : ""}`, "ok");
+      const advTag = mode === "adv" ? " (avantage)" : "";
+      log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""}${advTag} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${extra}${e.defeated ? " · VAINCU 💀" : ""}`, "ok");
       D.pushLog(`${a.nom} → ${e.nom}`, r.total, `${dmg} dég.`);
       if (e.defeated) {
         if (S.mark === t) { S.mark = null; S.markName = null; }
+        if (S.prone === t) S.prone = null;
         if (S.target === t) { const n = S.enemies.findIndex((x) => !x.defeated); S.target = n >= 0 ? n : null; }
       }
     } else {
@@ -2589,8 +2621,12 @@ window.CombatEngine = (function () {
       const e = needTarget(); if (!e) return;
       const mine = D.Dice.d20(1, D.d20mode()); const theirs = D.Dice.d20(1, "normal");
       S.turn.action = false;
-      if (mine.total >= theirs.total) log(`🤜 Bousculade ${mine.total} vs ${theirs.total} : ${e.nom} est À TERRE (avantage au corps-à-corps contre lui) !`, "ok");
-      else log(`🤜 Bousculade ${mine.total} vs ${theirs.total} : ${e.nom} tient bon.`, "ko");
+      if (mine.total >= theirs.total) {
+        S.prone = S.target;
+        log(`🤜 Bousculade ${mine.total} vs ${theirs.total} : ${e.nom} est À TERRE — ta prochaine attaque contre lui aura l'AVANTAGE !`, "ok");
+      } else {
+        log(`🤜 Bousculade ${mine.total} vs ${theirs.total} : ${e.nom} tient bon.`, "ko");
+      }
     }
     if (m === "flee") {
       const r = D.Dice.d20(1, D.d20mode());
@@ -2629,6 +2665,7 @@ window.CombatEngine = (function () {
     S.phase = "player";
     S.turn = { action: true, bonus: true, reaction: true };
     S.dodge = false;
+    if (S.hidden) { S.hidden = false; log("👤 La discrétion s'estompe avec le round.", ""); } // évite qu'elle reste active indéfiniment si non consommée
     log(`— Round ${S.round} : à toi ! —`, "");
     save(); render();
   }
