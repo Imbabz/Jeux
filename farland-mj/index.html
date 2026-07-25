@@ -17,7 +17,7 @@
   <header class="topbar">
     <span class="logo">🐉</span>
     <h1>Farland <span class="muted" style="font-weight:400;font-size:14px">— MJ</span></h1>
-    <span class="sub" id="topbar-sub">Compagnon de table</span>
+    <button class="sub" id="force-update" title="Forcer la mise à jour">v1.1 ⟳</button>
   </header>
 
   <main>
@@ -52,10 +52,35 @@
   <script src="js/dice.js"></script>
   <script src="js/app.js"></script>
   <script>
+    // Enregistrement du service worker + auto-mise à jour quand une nouvelle version est dispo
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () =>
-        navigator.serviceWorker.register('sw.js').catch(()=>{}));
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return; refreshing = true; location.reload();
+      });
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('sw.js');
+          reg.update();
+          setInterval(() => reg.update(), 60000);
+        } catch (e) {}
+      });
     }
+    // Bouton « ⟳ » : vide les caches + le service worker et recharge (garde la progression)
+    async function forceUpdate() {
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+        if (window.caches) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k)));
+        }
+      } catch (e) {}
+      location.reload();
+    }
+    document.getElementById('force-update').addEventListener('click', forceUpdate);
   </script>
 </body>
 </html>

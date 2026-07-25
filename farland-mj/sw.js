@@ -1,5 +1,7 @@
-/* Service worker — cache hors-ligne (utile en voiture, sans réseau) */
-const CACHE = "farland-mj-v1";
+/* Service worker — stratégie RÉSEAU D'ABORD (network-first).
+   En ligne : on récupère toujours la dernière version et on met le cache à jour.
+   Hors ligne : on sert la dernière version mise en cache (utile en voiture). */
+const CACHE = "farland-mj-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -21,22 +23,24 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
-// Cache-first : tout est local et statique
+self.addEventListener("message", (e) => { if (e.data === "skipWaiting") self.skipWaiting(); });
+
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const req = e.request;
+  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(
-    caches.match(e.request).then((hit) =>
-      hit || fetch(e.request).then((res) => {
+    fetch(req)
+      .then((res) => {
         const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => caches.match("./index.html"))
-    )
+      })
+      .catch(() => caches.match(req).then((hit) => hit || caches.match("./index.html")))
   );
 });
