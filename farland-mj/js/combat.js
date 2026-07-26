@@ -36,7 +36,7 @@ window.CombatEngine = (function () {
       for (let i = 0; i < grp.n; i++) {
         enemies.push({ ref: grp.ref, nom: grp.n > 1 ? `${b.nom} ${i + 1}` : b.nom,
           ac: parseInt(b.ac, 10) || 10, hpMax: parseInt(b.pv, 10) || 1, hp: parseInt(b.pv, 10) || 1,
-          atk: b.atk || null, defeated: false });
+          atk: b.atk || null, special: b.special || null, defeated: false, fled: false, fleeChecked: false });
       }
     });
     const companion = buildCompanion();
@@ -55,7 +55,7 @@ window.CombatEngine = (function () {
     } catch (e) {}
     return null;
   }
-  function isWon(sc, scene) { const s = stateFor(sc, scene); return !!(s && s.enemies.length && s.enemies.every((e) => e.defeated)); }
+  function isWon(sc, scene) { const s = stateFor(sc, scene); return !!(s && s.enemies.length && s.enemies.every((e) => e.defeated || e.fled)); }
 
   function log(msg, cls) {
     S.log.unshift({ t: msg, c: cls || "" });
@@ -98,6 +98,12 @@ window.CombatEngine = (function () {
   }
 
   // ---------- rendu ----------
+  // Amène la dernière ligne de journal en vue (le résultat d'une action) sans forcer un retour en haut de l'écran.
+  function scrollToLog() {
+    const first = document.querySelector("#combat-screen .cb-log-line");
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   function hpbarHtml(hp, hpMax, extra) {
     const pct = Math.max(0, Math.min(100, Math.round(hp / hpMax * 100)));
     const lvl = hp === 0 ? "dead" : (pct <= 33 ? "low" : (pct <= 66 ? "mid" : "high"));
@@ -113,18 +119,24 @@ window.CombatEngine = (function () {
       document.body.classList.add("combat-open");
     }
     const esc = D.esc, hero = D.heroSheet(), H = D.getHero();
-    const allDead = S.enemies.length && S.enemies.every((e) => e.defeated);
+    const allDead = S.enemies.length && S.enemies.every((e) => e.defeated || e.fled);
     const lost = H && H.hp === 0;
-    if (allDead && S.phase !== "won") { S.phase = "won"; log("🏆 Victoire ! Tous les ennemis sont vaincus.", "ok"); save(); }
+    if (allDead && S.phase !== "won") {
+      S.phase = "won";
+      const anyFled = S.enemies.some((e) => e.fled);
+      log(anyFled ? "🏆 Le champ est libre ! Un ou plusieurs ennemis ont pris la fuite." : "🏆 Victoire ! Tous les ennemis sont vaincus.", "ok");
+      save();
+    }
     if (lost && S.phase !== "lost") { S.phase = "lost"; save(); }
 
     // --- ennemis ---
     const foes = S.enemies.map((e, i) => {
-      const sel = S.target === i && !e.defeated;
-      return `<div class="cb-foe ${e.defeated ? "ko" : ""} ${sel ? "sel" : ""}" data-tgt="${i}">
+      const sel = S.target === i && !e.defeated && !e.fled;
+      const statusIcon = e.defeated ? "💀 " : (e.fled ? "🏃 " : "");
+      return `<div class="cb-foe ${e.defeated ? "ko" : ""} ${e.fled ? "fled" : ""} ${sel ? "sel" : ""}" data-tgt="${i}">
         ${D.tokenHtml(e.ref)}
         <div class="cb-foe-main">
-          <div class="cb-foe-name">${e.defeated ? "💀 " : ""}${esc(e.nom)} <span class="enemy-ac">🛡️ ${e.ac}</span>
+          <div class="cb-foe-name">${statusIcon}${esc(e.nom)}${e.fled ? " (a fui)" : ""} <span class="enemy-ac">🛡️ ${e.ac}</span>
             ${S.mark === i ? `<span class="mark-badge">🎯</span>` : ""}${S.prone === i ? `<span class="mark-badge prone">⬇️ à terre</span>` : ""}</div>
           ${hpbarHtml(e.hp, e.hpMax, "sm")}
         </div>
@@ -275,7 +287,7 @@ window.CombatEngine = (function () {
     el.querySelectorAll("[data-tgt]").forEach((f) => f.addEventListener("click", (ev) => {
       if (ev.target.closest("[data-fiche]")) return;
       const i = +f.dataset.tgt;
-      if (!S.enemies[i].defeated) { S.target = i; save(); render(); }
+      if (!S.enemies[i].defeated && !S.enemies[i].fled) { S.target = i; save(); render(); }
     }));
     el.querySelectorAll("[data-fiche]").forEach((b) => b.addEventListener("click", () => { const id = b.dataset.fiche; exit("paused"); D.openFiche(id); }));
     el.querySelectorAll("[data-atk]").forEach((b) => b.addEventListener("click", () => heroAttack(+b.dataset.atk)));
@@ -313,8 +325,35 @@ window.CombatEngine = (function () {
 
   function needTarget() {
     const t = S.target, e = t != null ? S.enemies[t] : null;
-    if (!e || e.defeated) { log("🎯 Choisis d'abord une cible vivante.", ""); render(); return null; }
+    if (!e || e.defeated || e.fled) { log("🎯 Choisis d'abord une cible vivante.", ""); render(); return null; }
     return e;
+  }
+
+  // Applique des dégâts à un ennemi ; déclenche sa capacité spéciale de fuite si le seuil est franchi.
+  // Retourne un texte à ajouter au journal (fuite réussie/ratée), ou "" sinon.
+  function damageEnemy(e, dmg) {
+    e.hp = Math.max(0, e.hp - dmg);
+    if (e.hp === 0) { e.defeated = true; return ""; }
+    const fa = e.special && e.special.fleeAtHalf;
+    if (fa && !e.fleeChecked && e.hp <= e.hpMax / 2) {
+      e.fleeChecked = true;
+      const r = D.Dice.d20(fa.mod || 0, "normal");
+      if (r.total >= (fa.dc || 12)) {
+        return ` ⚠️ Blessé, ${e.nom} tente de fuir — rattrapé de justesse ! (jet ${r.total} vs DC ${fa.dc || 12})`;
+      }
+      e.fled = true;
+      return ` ⚠️ Blessé, ${e.nom} détale et quitte le combat ! (jet ${r.total} vs DC ${fa.dc || 12})`;
+    }
+    return "";
+  }
+
+  // Après une défaite/fuite : libère marque/à-terre s'ils visaient cette cible, choisit une nouvelle cible par défaut.
+  function clearRefsIfGone(e, t) {
+    if (e.defeated || e.fled) {
+      if (S.mark === t) { S.mark = null; S.markName = null; }
+      if (S.prone === t) S.prone = null;
+      if (S.target === t) { const n = S.enemies.findIndex((x) => !x.defeated && !x.fled); S.target = n >= 0 ? n : null; }
+    }
   }
 
   function heroAttack(ai) {
@@ -334,21 +373,17 @@ window.CombatEngine = (function () {
       const base = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
       let dmg = base.sum + p.mod, extra = "";
       if (S.mark === t) { const md = D.Dice.roll(r.crit ? 2 : 1, 6); dmg += md.sum; extra = " (+marque)"; }
-      e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
+      const flee = damageEnemy(e, dmg);
       const advTag = mode === "adv" ? " (avantage)" : "";
-      log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""}${advTag} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${extra}${e.defeated ? " · VAINCU 💀" : ""}`, "ok");
+      log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""}${advTag} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${extra}${e.defeated ? " · VAINCU 💀" : ""}${flee}`, "ok");
       D.pushLog(`${a.nom} → ${e.nom}`, r.total, `${dmg} dég.`);
-      if (e.defeated) {
-        if (S.mark === t) { S.mark = null; S.markName = null; }
-        if (S.prone === t) S.prone = null;
-        if (S.target === t) { const n = S.enemies.findIndex((x) => !x.defeated); S.target = n >= 0 ? n : null; }
-      }
+      clearRefsIfGone(e, t);
     } else {
       log(`⚔️ ${a.nom} → ${e.nom} : ${r.total}${r.fail ? " 💀" : ""} vs CA ${e.ac} — raté.`, "ko");
       D.pushLog(`${a.nom} → ${e.nom}`, r.total, "raté");
     }
     S.turn.action = false;
-    save(); render(); D.renderLog();
+    save(); render(); D.renderLog(); scrollToLog();
   }
 
   function useFeature(fk, target) {
@@ -376,7 +411,7 @@ window.CombatEngine = (function () {
       S.turn.action = false;
       D.pushLog("Soin des blessures", r.total, "soin");
     }
-    save(); render(); D.renderLog();
+    save(); render(); D.renderLog(); scrollToLog();
   }
 
   // Attaque indépendante du compagnon : ne consomme pas l'action/bonus de Sylwen.
@@ -392,20 +427,16 @@ window.CombatEngine = (function () {
       const p = D.Dice.parse(comp.atk.deg) || { n: 1, sides: 4, mod: 2 };
       const base = D.Dice.roll(r.crit ? p.n * 2 : p.n, p.sides);
       const dmg = base.sum + p.mod;
-      e.hp = Math.max(0, e.hp - dmg); e.defeated = e.hp === 0;
-      log(`🐺 ${comp.nom} mord ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${e.defeated ? " · VAINCU 💀" : ""}`, "ok");
+      const flee = damageEnemy(e, dmg);
+      log(`🐺 ${comp.nom} mord ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${e.ac} — TOUCHÉ, ${dmg} dégâts${e.defeated ? " · VAINCU 💀" : ""}${flee}`, "ok");
       D.pushLog(`${comp.nom} → ${e.nom}`, r.total, `${dmg} dég.`);
-      if (e.defeated) {
-        if (S.mark === t) { S.mark = null; S.markName = null; }
-        if (S.prone === t) S.prone = null;
-        if (S.target === t) { const n = S.enemies.findIndex((x) => !x.defeated); S.target = n >= 0 ? n : null; }
-      }
+      clearRefsIfGone(e, t);
     } else {
       log(`🐺 ${comp.nom} mord ${e.nom} : ${r.total}${r.fail ? " 💀" : ""} vs CA ${e.ac} — raté.`, "ko");
       D.pushLog(`${comp.nom} → ${e.nom}`, r.total, "raté");
     }
     S.turn.fenn = false;
-    save(); render(); D.renderLog();
+    save(); render(); D.renderLog(); scrollToLog();
   }
 
   function drinkPotion(idx) {
@@ -418,7 +449,7 @@ window.CombatEngine = (function () {
     D.saveHero(); S.turn.action = false;
     log(`🧪 ${it.nom} : +${r.total} PV (${H.hp}/${H.hpMax}).`, "ok");
     D.pushLog(it.nom, r.total, "potion");
-    save(); render(); D.renderLog();
+    save(); render(); D.renderLog(); scrollToLog();
   }
 
   function envAction(i) {
@@ -429,13 +460,14 @@ window.CombatEngine = (function () {
     S.turn.action = false;
     if (ok) {
       let extra = "";
-      const e = S.target != null ? S.enemies[S.target] : null;
-      if (a.dmg && e && !e.defeated) {
+      const t = S.target, e = t != null ? S.enemies[t] : null;
+      if (a.dmg && e && !e.defeated && !e.fled) {
         const dr = D.Dice.rollExpr(a.dmg);
-        e.hp = Math.max(0, e.hp - dr.total); e.defeated = e.hp === 0;
-        extra = ` ${dr.total} dégâts à ${e.nom}${e.defeated ? " — VAINCU 💀" : ""}.`;
+        const flee = damageEnemy(e, dr.total);
+        extra = ` ${dr.total} dégâts à ${e.nom}${e.defeated ? " — VAINCU 💀" : ""}${flee}.`;
+        clearRefsIfGone(e, t);
       }
-      if (a.koTarget && e && !e.defeated) { e.hp = 0; e.defeated = true; extra = ` ${e.nom} est hors de combat !`; }
+      if (a.koTarget && e && !e.defeated && !e.fled) { e.hp = 0; e.defeated = true; extra = ` ${e.nom} est hors de combat !`; clearRefsIfGone(e, t); }
       log(`🌍 ${a.txt} : ${r.total} vs DC ${a.dc} — RÉUSSI ! ${a.reussite || ""}${extra}`, "ok");
       D.pushLog(a.txt, r.total, "réussite");
       if (a.cible) { save(); D.renderLog(); exit("jump:" + a.cible); return; }
@@ -443,7 +475,7 @@ window.CombatEngine = (function () {
       log(`🌍 ${a.txt} : ${r.total} vs DC ${a.dc} — échec. ${a.echec || ""}`, "ko");
       D.pushLog(a.txt, r.total, "échec");
     }
-    save(); render(); D.renderLog();
+    save(); render(); D.renderLog(); scrollToLog();
   }
 
   function maneuver(m) {
@@ -478,7 +510,15 @@ window.CombatEngine = (function () {
       log(`🏃 Fuite ${r.total} — bloquée ! Le combat continue.`, "ko");
       S.turn.action = false;
     }
-    save(); render();
+    save(); render(); scrollToLog();
+  }
+
+  // Moisson sinistre (Beryn) : se soigne quand son attaque met à terre le héros ou son compagnon.
+  function grimHarvest(e) {
+    const cfg = e.special.grimHarvest;
+    const r = D.Dice.rollExpr(cfg.heal || "2d6");
+    e.hp = Math.min(e.hpMax, e.hp + r.total);
+    return ` 🩸 Moisson sinistre : ${e.nom} se soigne de ${r.total} PV (${e.hp}/${e.hpMax}) !`;
   }
 
   // ---------- tour ennemi automatique ----------
@@ -489,7 +529,7 @@ window.CombatEngine = (function () {
     const comp = S.companion;
     let delayLines = [];
     S.enemies.forEach((e) => {
-      if (e.defeated || !e.atk || !H || H.hp === 0) return;
+      if (e.defeated || e.fled || !e.atk || !H || H.hp === 0) return;
       // Si Fenn est debout, les ennemis peuvent le viser lui plutôt que Sylwen (chance égale).
       const targetsCompanion = !!(comp && comp.hp > 0 && Math.random() < 0.5);
       const targetAC = targetsCompanion ? comp.ac : hAC;
@@ -503,10 +543,15 @@ window.CombatEngine = (function () {
         if (targetsCompanion) {
           const wasAlive = comp.hp > 0;
           comp.hp = Math.max(0, comp.hp - dmg);
-          delayLines.push([`👹 ${e.nom} mord ${comp.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${comp.ac} — TOUCHE, ${dmg} dégâts ! (${comp.hp}/${comp.hpMax} PV)${comp.hp === 0 && wasAlive ? ` · ${comp.nom} s'effondre, à terre !` : ""}`, "ko"]);
+          const downedNow = comp.hp === 0 && wasAlive;
+          const harvest = (downedNow && e.special && e.special.grimHarvest) ? grimHarvest(e) : "";
+          delayLines.push([`👹 ${e.nom} mord ${comp.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${comp.ac} — TOUCHE, ${dmg} dégâts ! (${comp.hp}/${comp.hpMax} PV)${downedNow ? ` · ${comp.nom} s'effondre, à terre !` : ""}${harvest}`, "ko"]);
         } else {
+          const wasAlive = H.hp > 0;
           H.hp = Math.max(0, H.hp - dmg);
-          delayLines.push([`👹 ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${hAC} — TOUCHE, ${dmg} dégâts ! (${H.hp}/${H.hpMax} PV)`, "ko"]);
+          const downedNow = H.hp === 0 && wasAlive;
+          const harvest = (downedNow && e.special && e.special.grimHarvest) ? grimHarvest(e) : "";
+          delayLines.push([`👹 ${e.nom} : ${r.total}${r.crit ? " ⭐CRIT" : ""} vs CA ${hAC} — TOUCHE, ${dmg} dégâts ! (${H.hp}/${H.hpMax} PV)${harvest}`, "ko"]);
         }
       } else {
         const who = targetsCompanion ? comp.nom : "toi";
@@ -522,7 +567,7 @@ window.CombatEngine = (function () {
     S.dodge = false;
     if (S.hidden) { S.hidden = false; log("👤 La discrétion s'estompe avec le round.", ""); } // évite qu'elle reste active indéfiniment si non consommée
     log(`— Round ${S.round} : à toi ! —`, "");
-    save(); render();
+    save(); render(); scrollToLog();
   }
 
   return { init(deps) { D = deps; }, start, isWon,

@@ -128,6 +128,7 @@ window.BESTIARY = [
   {
     id: "drokag", nom: "Drokag le Hobgobelin", type: "Gobelinoïde M, Loyal Mauvais",
     atk: { hit: 5, deg: "1d8+2" },
+    special: { fleeAtHalf: { dc: 12, mod: 4 } },
     cr: "2", tags: ["aventure2", "pnj", "boss"],
     ac: "18 (cotte de mailles, bouclier)", pv: "28 (4d8+8)", vitesse: "9 m",
     stats: { for: 14, dex: 12, con: 14, int: 10, sag: 10, cha: 10 },
@@ -144,6 +145,7 @@ window.BESTIARY = [
   {
     id: "beryn", nom: "Beryn le Nécromancien", type: "Humain M, Loyal Mauvais",
     atk: { hit: 4, deg: "1d8" },
+    special: { grimHarvest: { heal: "2d6" } },
     cr: "2", tags: ["aventure2", "pnj", "boss"],
     ac: "11", pv: "20 (5d6+5)", vitesse: "9 m",
     stats: { for: 10, dex: 12, con: 13, int: 15, sag: 12, cha: 11 },

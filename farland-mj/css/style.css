@@ -353,6 +353,8 @@ body.combat-open { overflow: hidden; }
   border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: border-color .15s, transform .1s; }
 .cb-foe.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; background: #241a12; }
 .cb-foe.ko { opacity: .45; } .cb-foe.ko .cb-foe-name { text-decoration: line-through; }
+.cb-foe.fled { opacity: .55; border-style: dashed; cursor: default; }
+.cb-foe.fled .cb-foe-name { font-style: italic; }
 .cb-foe-main { flex: 1; min-width: 0; }
 .cb-foe-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
 

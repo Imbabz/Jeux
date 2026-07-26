@@ -173,18 +173,17 @@
         return m ? `<button class="mini-mob" data-mob="${m.id}">👹 ${esc(m.nom)} <span class="cr">FP ${esc(m.cr)}</span></button>` : "";
       }).join("")}</div>` : "";
 
-    const loot = (scene.tresor && scene.tresor.length) ? `
-      <div class="section-title">Trésor / butin</div>
-      <ul class="loot">${scene.tresor.map((t, i) => `<li><span>${esc(t)}</span>${HERO ? ` <button class="loot-add" data-loot="${i}">＋ sac</button>` : ""}</li>`).join("")}</ul>` : "";
+    // Le combat (s'il y en a un) doit être remporté avant que le butin ne devienne accessible —
+    // évite de pouvoir vider un cadavre sans avoir mené le combat, et place le bon ordre de lecture.
+    const combatWon = scene.combat ? CombatEngine.isWon(sc, scene) : true;
 
     let combatBlock = "";
     if (scene.combat) {
-      const won = CombatEngine.isWon(sc, scene);
       const foesPreview = (scene.combat.ennemis || []).map((g) => {
         const b = byId(BESTIARY, g.ref);
         return b ? `<span class="cb-preview-foe">${creatureToken(g.ref, "sm")} ${g.n > 1 ? g.n + "× " : ""}${esc(b.nom)}</span>` : "";
       }).join("");
-      combatBlock = won
+      combatBlock = combatWon
         ? `<div class="cb-card won"><div class="cb-card-head">🏆 Combat remporté</div>
             <div class="cb-preview">${foesPreview}</div>
             <button class="btn-ghost small" id="combat-replay">↺ Rejouer ce combat</button></div>`
@@ -192,6 +191,12 @@
             <div class="cb-preview">${foesPreview}</div>
             <button class="cb-engage" id="combat-engage">⚔️ ENGAGER LE COMBAT</button></div>`;
     }
+
+    const loot = (scene.tresor && scene.tresor.length) ? (combatWon ? `
+      <div class="section-title">Trésor / butin</div>
+      <ul class="loot">${scene.tresor.map((t, i) => `<li><span>${esc(t)}</span>${HERO ? ` <button class="loot-add" data-loot="${i}">＋ sac</button>` : ""}</li>`).join("")}</ul>` : `
+      <div class="section-title">Trésor / butin</div>
+      <p class="muted small">🔒 À découvrir une fois le combat remporté.</p>`) : "";
 
     const leadsToCombat = (a) => [a.cibleReussite, a.cibleEchec, a.cible]
       .concat((a.table || []).map((e) => e.cible)).filter(Boolean).some((t) => sceneHasCombat(t));
@@ -240,8 +245,8 @@
       ${lecture}
       ${mjNotes}
       ${mobs}
-      ${loot}
       ${combatBlock}
+      ${loot}
       ${actionsBlock}
       ${choices}
       <div id="jump-panel"></div>`;
