@@ -1,0 +1,10 @@
+[
+  { "id": "general", "name": "Général", "emoji": "🌍", "description": "Les classiques, pour tout le monde" },
+  { "id": "scotland", "name": "Écosse", "emoji": "🦄", "description": "Highlands, inventeurs et légendes" },
+  { "id": "belgium", "name": "Belgique", "emoji": "🇧🇪", "description": "BD, frites, surréalisme et compromis" },
+  { "id": "pop", "name": "Culture pop", "emoji": "🎬", "description": "Films, séries, musique, jeux vidéo, BD" },
+  { "id": "sport", "name": "Sport", "emoji": "⚽", "description": "Records, compétitions, légendes" },
+  { "id": "history-science", "name": "Histoire & sciences", "emoji": "🔭", "description": "Grandes dates, découvertes, inventions" },
+  { "id": "geo-travel", "name": "Géographie & voyages", "emoji": "🧭", "description": "Pays, villes, reliefs, distances" },
+  { "id": "food", "name": "Gastronomie", "emoji": "🧀", "description": "Plats, produits, chiffres de cuisine" }
+]

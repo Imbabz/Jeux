@@ -1,0 +1,29 @@
+name: Copilote CI
+
+on:
+  push:
+    branches: [main]
+    paths: ['copilote/**', '.github/workflows/copilote.yml']
+  pull_request:
+    paths: ['copilote/**', '.github/workflows/copilote.yml']
+
+defaults:
+  run:
+    working-directory: copilote
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: copilote/.nvmrc
+          cache: npm
+          cache-dependency-path: copilote/package-lock.json
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run build
