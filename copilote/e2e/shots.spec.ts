@@ -80,7 +80,7 @@ async function playBac(page: Page, turn: number) {
   await once(page, 'bac-3-chrono');
   // Un mot validé, puis on ouvre la liste des mots acceptés.
   await page.getByRole('button', { name: 'Validé' }).click();
-  await page.getByRole('button', { name: /^Dictionnaire/ }).click();
+  await page.getByRole('button', { name: /Dictionnaire/ }).click();
   await once(page, 'bac-4-liste');
   if (turn % 2 === 0) await page.getByRole('button', { name: /Raté/ }).click();
   else {
@@ -170,4 +170,53 @@ test('réglages : temps par mot en saisie libre', async ({ page }) => {
   await page.reload();
   await page.getByRole('button', { name: 'Réglages' }).click();
   await expect(page.getByLabel('Temps par mot, en secondes')).toHaveValue('11');
+});
+
+test('dictionnaire du Bac : catégorie riche', async ({ page }) => {
+  await page.goto('/?seed=7');
+  await page.getByRole('button', { name: 'Jouer' }).click();
+  await page.getByLabel('Prénom du joueur 1').fill('Léa');
+  await page.getByLabel('Prénom du joueur 2').fill('Tom');
+  for (const g of ['Quelle année ?', 'Estimation'])
+    await page.getByText(g, { exact: true }).click();
+  // Seul le pack Général : catégories larges (animal, pays, métier…).
+  for (const p of [
+    'Écosse',
+    'Belgique',
+    'Culture pop',
+    'Sport',
+    'Histoire',
+    'Géographie',
+    'Gastronomie',
+  ])
+    await page.getByRole('button', { name: new RegExp(p) }).click();
+  await page.getByRole('radio', { name: 'Express' }).click();
+  await page.getByRole('button', { name: 'Lancer' }).click();
+  await page.getByRole('button', { name: /C’est parti/ }).click();
+  await page.getByRole('button', { name: 'Première question' }).click();
+  for (let i = 0; i < 40; i++) {
+    await page.getByRole('button', { name: 'Retourner la carte' }).first().click();
+    const label = page.getByRole('button', { name: /Dictionnaire · \d+ mots/ });
+    await label.waitFor();
+    const text = (await label.textContent()) ?? '';
+    console.log('carte :', text);
+    if (
+      await page
+        .getByText(/^(Un animal|Un métier|Un animal sauvage|Un verbe|Une ville de France)$/)
+        .isVisible()
+    )
+      break;
+    await page.getByRole('button', { name: 'Passer' }).click();
+  }
+  const flip = page.getByRole('button', { name: 'Retourner la carte' }).first();
+  if (await flip.isVisible()) await flip.click();
+  await page.getByRole('button', { name: /de commencer/ }).click();
+  await page.getByRole('button', { name: /Dictionnaire/ }).click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'e2e/screenshots/bac-7-dictionnaire.png' });
+  const chips = page.getByRole('button', { name: 'Tous' });
+  if (await chips.isVisible()) {
+    await page.getByLabel('Filtrer par famille').getByRole('button').nth(1).click();
+    await page.screenshot({ path: 'e2e/screenshots/bac-8-dictionnaire-filtre.png' });
+  }
 });

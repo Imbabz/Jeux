@@ -259,25 +259,6 @@ export function Styleguide() {
             ['annonce', { hidden: false, progress: 1, alert: false }],
             ['chrono du mot', { hidden: false, progress: 0.6, alert: false }],
             ['alerte (≤ 2 s)', { hidden: false, progress: 0.2, alert: true }],
-            [
-              'dictionnaire',
-              {
-                hidden: false,
-                progress: 0.6,
-                alert: false,
-                dictionary: (
-                  <DictionaryPanel
-                    letter="B"
-                    entries={[
-                      ['baleine', 'n.f. · mammifère'],
-                      ['bécasse', 'n.f. · oiseau'],
-                      ['bison', 'n.m. · mammifère'],
-                      ['blaireau', 'n.m. · mammifère'],
-                    ]}
-                  />
-                ),
-              },
-            ],
             ['temps écoulé', { hidden: false, progress: 0, alert: false, dimmed: true }],
           ] as const
         ).map(([name, state]) => (
@@ -287,6 +268,27 @@ export function Styleguide() {
             </div>
           </State>
         ))}
+      </Section>
+
+      <Section title="Dictionnaire (Bac Éclair)">
+        <State label="entrées, filtres et index">
+          <div className="flex h-96">
+            <DictionaryPanel
+              letter="B"
+              entries={[
+                ['baleine', 'n.f. · mammifère'],
+                ['bécasse', 'n.f. · oiseau'],
+                ['bergeronnette', 'n.f. · oiseau'],
+                ['biche', 'n.f. · mammifère'],
+                ['bison', 'n.m. · mammifère'],
+                ['blaireau', 'n.m. · mammifère'],
+                ['bourdon', 'n.m. · insecte'],
+                ['brochet', 'n.m. · poisson'],
+                ['buse', 'n.f. · oiseau'],
+              ]}
+            />
+          </div>
+        </State>
       </Section>
 
       <Section title="RevealRuler">

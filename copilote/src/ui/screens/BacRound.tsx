@@ -166,26 +166,66 @@ function BacPhase({
       </GhostButton>
     ) : null;
 
+  const progress = phase === 'turn' ? remaining / turnMs : phase === 'announce' ? 1 : 0;
+  const alert = phase === 'turn' && remaining <= 2000;
+
   return (
     <div className="flex h-full flex-col gap-3">
-      <LetterCard
-        hidden={phase === 'hidden'}
-        label={label}
-        letter={round.letter}
-        progress={phase === 'turn' ? remaining / turnMs : phase === 'announce' ? 1 : 0}
-        alert={phase === 'turn' && remaining <= 2000}
-        dimmed={phase === 'timeout'}
-        corner={questionLabel}
-        onFlip={phase === 'hidden' ? actions.flipBac : undefined}
-        dictionary={
-          showList && round.letter ? (
-            <DictionaryPanel entries={entries} letter={round.letter} />
-          ) : null
-        }
-        onToggleWords={phase === 'hidden' ? undefined : toggleList}
-        wordCount={entries?.length ?? null}
-        footer={status}
-      />
+      {showList && round.letter ? (
+        // Dictionnaire ouvert : il prend toute la hauteur, la carte se réduit à un bandeau.
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
+          <div className="flex shrink-0 flex-col gap-1 rounded-card bg-bac px-3 py-1.5 text-white shadow-card">
+            <div className="flex items-center gap-2">
+              <span className="font-display text-xl leading-none font-black">{round.letter}</span>
+              <span className="line-clamp-2 min-w-0 flex-1 text-sm leading-tight font-bold tracking-wide uppercase">
+                {label}
+              </span>
+              <button
+                type="button"
+                onClick={toggleList}
+                aria-label="Fermer le dictionnaire"
+                className="min-h-9 shrink-0 rounded-chip bg-white/20 px-3 text-sm font-bold"
+              >
+                ✕ Fermer
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-chip bg-white/25">
+                <div
+                  className={`h-full ${alert ? 'bg-ink' : 'bg-white'}`}
+                  style={{ width: `${Math.round(progress * 100)}%` }}
+                />
+              </div>
+              {phase === 'turn' || phase === 'timeout' ? (
+                <span
+                  className={`shrink-0 rounded-chip px-2.5 py-0.5 text-xs font-bold ${speakerTheme.bg} ${speakerTheme.text}`}
+                >
+                  {phase === 'timeout' ? 'Temps écoulé' : `À ${names[speaker]}`}
+                  {round.words > 0 ? ` · ${plural(round.words, 'mot', 'mots')}` : ''}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <DictionaryPanel entries={entries} letter={round.letter} />
+        </div>
+      ) : (
+        <LetterCard
+          hidden={phase === 'hidden'}
+          label={label}
+          letter={round.letter}
+          progress={progress}
+          alert={alert}
+          dimmed={phase === 'timeout'}
+          corner={questionLabel}
+          onFlip={phase === 'hidden' ? actions.flipBac : undefined}
+          onToggleWords={phase === 'hidden' ? undefined : toggleList}
+          wordCount={entries?.length ?? null}
+          footer={status}
+        />
+      )}
+      {phase === 'resolved' && showList && last ? (
+        <p className="text-center text-sm font-bold">{verdict(last, names)}</p>
+      ) : null}
       {buttons}
     </div>
   );
@@ -201,7 +241,6 @@ export function LetterCard({
   dimmed = false,
   corner,
   onFlip,
-  dictionary = null,
   onToggleWords,
   wordCount = null,
   footer,
@@ -214,8 +253,6 @@ export function LetterCard({
   dimmed?: boolean;
   corner?: string;
   onFlip?: (() => void) | undefined;
-  /** Dictionnaire affiché à la place de l'anneau, ou `null`. */
-  dictionary?: ReactNode;
   onToggleWords?: (() => void) | undefined;
   /** Nombre d'entrées pour la lettre (`null` pendant le chargement). */
   wordCount?: number | null;
@@ -242,19 +279,6 @@ export function LetterCard({
           </span>
           <span className="text-md font-bold">Touchez pour retourner</span>
         </button>
-      ) : dictionary ? (
-        <div className="flex min-h-0 flex-1 flex-col gap-2 px-4">
-          <p className="text-center text-md font-bold tracking-wide uppercase text-balance">
-            {label} · <span className="font-display text-xl font-black">{letter}</span>
-          </p>
-          <div className="h-1.5 shrink-0 overflow-hidden rounded-chip bg-white/25">
-            <div
-              className={`h-full ${alert ? 'bg-ink' : 'bg-white'}`}
-              style={{ width: `${Math.round(progress * 100)}%` }}
-            />
-          </div>
-          {dictionary}
-        </div>
       ) : (
         <div
           className={`flex min-h-0 flex-1 flex-col items-center justify-center gap-2 px-4 ${dimmed ? 'opacity-70' : ''}`}
@@ -306,12 +330,9 @@ export function LetterCard({
           <button
             type="button"
             onClick={onToggleWords}
-            aria-pressed={dictionary !== null}
-            className="min-h-10 rounded-chip px-3 text-sm font-semibold underline underline-offset-4 opacity-90"
+            className="min-h-10 rounded-chip bg-white/15 px-4 text-sm font-bold"
           >
-            {dictionary
-              ? 'Fermer le dictionnaire'
-              : `Dictionnaire${wordCount === null ? '' : ` (${wordCount} mots)`}`}
+            📖 Dictionnaire{wordCount === null ? '' : ` · ${wordCount} mots`}
           </button>
         ) : null}
       </div>
