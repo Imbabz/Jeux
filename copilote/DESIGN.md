@@ -1,7 +1,7 @@
 # Copilote : Design System et écrans
 
 > **Intention** : l'esthétique d'un grand jeu de quiz de plateau, soigné, coloré et chaleureux. On manipule de vraies **cartes** et de vrais **jetons**. Chaque jeu a sa couleur, la question est une carte, et la révélation est un retournement.
-> **Règle n° 1 : une information principale par écran.** Aucun élément de marque existant n'est utilisé (pas de camembert, de plateau ni de logo connu).
+> **Règle n° 1 : une information principale par écran.** Il n'y a pas de voix de synthèse : c'est le **copilote** qui lit l'écran à voix haute. Chaque texte important est donc écrit pour être dit tel quel, en grand, sans abréviation. Aucun élément de marque existant n'est utilisé (pas de camembert, de plateau ni de logo connu).
 
 Source de vérité des tokens : `src/ui/theme/tokens.css` (bloc `@theme` de Tailwind v4, qui génère les utilitaires `bg-bac`, `text-ink-soft`, `font-display`, `shadow-card`…). **Aucune couleur, taille ou durée en dur dans les écrans.**
 
@@ -89,7 +89,6 @@ Option « Grand texte » (Paramètres) : `text-sm`, `text-md` et `text-lg` passe
 | « +1 » flottant | monte de 24 px et s'efface en 700 ms | affiché 700 ms, sans mouvement |
 | Compteur de réponse | défile jusqu'à la valeur en 600 ms | valeur directe |
 | Confettis | **fin de partie uniquement**, 1,5 s, couleurs des jeux | aucun |
-| VoiceIndicator | 3 barres qui oscillent | barres fixes |
 
 ---
 
@@ -102,7 +101,7 @@ Ce sont des SVG maison géométriques, avec un trait de 2,5 px, des coins et des
 | **Bac Éclair** | Éclair en zigzag à 3 segments, dans un cercle ouvert |
 | **Quelle année ?** | Sablier : deux triangles opposés, un trait de sable |
 | **Estimation** | Balance : fléau horizontal, pivot triangulaire, deux plateaux en arc |
-| Interface | rejouer la voix (haut-parleur et onde), annuler (flèche courbe), pause, menu (3 points), drapeau (signaler), passer (double chevron) |
+| Interface | annuler (flèche courbe), pause, menu (3 points), drapeau (signaler), passer (double chevron) |
 
 ---
 
@@ -125,11 +124,11 @@ Le cadre commun de tous les écrans de jeu, à hauteur fixe de `100dvh`, sans sc
 ├──────────────────────────────────────┤
 │ Zone d'actions (boutons du jeu)      │ ≈ 80-160 px selon l'état
 ├──────────────────────────────────────┤
-│ ActionBar  🔊 rejouer · ↶ annuler · ⏸ │ 64 px + safe-area
+│ ActionBar   ↶ annuler   ·   ⏸ pause   │ 64 px + safe-area
 └──────────────────────────────────────┘
 ```
 
-Rejouer la voix, Annuler et Pause sont **toujours au même endroit**, dans l'ActionBar en bas. Passer et Signaler sont des GhostButtons situés **dans** la zone carte, en bas de la carte.
+Annuler et Pause sont **toujours au même endroit**, dans l'ActionBar en bas. Passer et Signaler sont des GhostButtons situés **dans** la zone carte, en bas de la carte.
 
 ### 3.2 ScoreBar
 
@@ -190,7 +189,7 @@ Rejouer la voix, Annuler et Pause sont **toujours au même endroit**, dans l'Act
 
 | État | Rendu |
 |---|---|
-| `hidden` (announce) | dos de carte rouge à motif d'éclairs ton sur ton, VoiceIndicator |
+| `hidden` | dos de carte rouge à motif d'éclairs ton sur ton, avec « Touchez pour retourner » |
 | `countdown` | lettre visible, chiffre « 3/2/1 » en surimpression |
 | `running` | anneau blanc qui se vide dans le sens horaire |
 | `alert` (≤ 5 s) | anneau `ink`, battement léger de la lettre (scale 1 → 1.04, 1 Hz) |
@@ -224,7 +223,7 @@ Tous les boutons sont en Inter 700, 20 px, avec un rayon de 16 px.
 
 ```
 ┌──────────────────────────────────┐
-│ ▌Au tour de Léa                  │  bord gauche 6 px player-a
+│ ▌Léa a dit…                      │  bord gauche 6 px player-a
 │ ┌──────────────────────────────┐ │
 │ │          1 9 _ _             │ │  Fraunces 900, 56 px
 │ └──────────────────────────────┘ │
@@ -266,7 +265,6 @@ Tous les boutons sont en Inter 700, 20 px, avec un rayon de 16 px.
 | Composant | Description | États |
 |---|---|---|
 | **TokenChip** (jeton) | Pastille ronde de 28 px à la couleur du jeu, liseré blanc de 2 px, `shadow-token` | normal, mini (14 px), qui vole, vide (contour pointillé `line`) |
-| **VoiceIndicator** | 3 barres de 4 × 16 px à la couleur du jeu | parle, silencieux (barres basses), voix coupée (icône barrée) |
 | **RoundIntro** | Plein écran à la couleur du jeu, icône géante (120 px, blanche), « Manche 3 » (Inter 700, 20 px), nom du jeu (Fraunces 900, 56 px, blanc) | normal, dernière manche (bandeau « Points doublés ! » en `ink`), mort subite |
 | **GameTile** | Carte blanche avec bandeau de couleur, icône, nom et « 42 questions » | activée (coche, bordure de la couleur du jeu), désactivée par l'utilisateur, indisponible (grisée + raison) |
 | **PackChip** | Pilule blanche avec emoji, nom et compteurs (« ⚡30 ⌛42 ⚖35 ») | sélectionnée (fond `ink`, texte blanc), non sélectionnée, vide (compteurs à 0, grisée) |
@@ -344,11 +342,10 @@ L'écran défile (il est hors manche). Le bouton « Lancer » est collé en bas.
 - prénoms identiques : message d'erreur sous les champs ;
 - jeu indisponible : GameTile grisée avec « pas assez de questions dans ces packs » ;
 - aucun pack ou aucun jeu : « Lancer » inactif, avec la raison ;
-- voix en chargement : petite ligne « Préparation de la voix… » sous « Lancer », qui ne bloque rien.
 
 ### 4.3 Ouverture
 
-C'est une carte « titre » centrée : « Léa contre Tom », le palmarès de la paire (« Au général : Léa 4 – 3 Tom ») et le VoiceIndicator. Un tap passe à la suite.
+C'est une carte « titre » centrée : « Léa contre Tom », le palmarès de la paire (« Au général : Léa 4 – 3 Tom ») et un bouton « C'est parti ! ».
 
 ### 4.4 RoundIntro
 
@@ -364,12 +361,12 @@ C'est une carte « titre » centrée : « Léa contre Tom », le palmarès de la
 └──────────────────────────────────────┘
 ```
 
-Il dure le temps de la voix (environ 5 s). Un tap permet de passer.
+Le copilote lit l'écran ; un tap lance la manche. Il n'y a pas d'avance automatique : l'intro attend que la lecture soit finie.
 
 ### 4.5 Bac Éclair
 
 ```
-announce / running                      timeout                      resolved
+countdown / running                     timeout                      resolved
 ┌──────────────────────────┐ ┌──────────────────────────┐ ┌──────────────────────────┐
 │ (L)Léa 3   M2/6   (T)Tom 2│ │ (L)Léa 3   M2/6   (T)Tom 2│ │ (L)Léa 4 +1 M2/6 (T)Tom 2 │
 │ ╭──────────────────────╮ │ │ ╭──────────────────────╮ │ │ ╭──────────────────────╮ │
@@ -382,7 +379,7 @@ announce / running                      timeout                      resolved
 │ ╰──────────────────────╯ │ │ [      Personne       ]  │ │                          │
 │ [(L) Léa  ][(T) Tom   ]  │ │                          │ │                          │
 │ [     Ensemble !      ]  │ │                          │ │                          │
-│  🔊      ↶       ⏸       │ │  🔊      ↶       ⏸       │ │  🔊      ↶       ⏸       │
+│      ↶          ⏸        │ │      ↶          ⏸        │ │      ↶          ⏸        │
 └──────────────────────────┘ └──────────────────────────┘ └──────────────────────────┘
 ```
 
@@ -392,7 +389,11 @@ announce / running                      timeout                      resolved
 
 ### 4.6 Quelle année ? et Estimation : question
 
-C'est la QuestionCard recto, aussi haute que possible, avec la barre de réflexion sous l'énoncé (une jauge fine à la couleur du jeu) et un indice « Touchez pour annoncer ». En `countdown`, le chiffre géant se superpose à la carte.
+C'est la QuestionCard recto, aussi haute que possible. L'énoncé est en Fraunces 700, 26 px, pour que le copilote le lise d'un coup d'œil.
+
+- `read` : un PrimaryButton **[C'est lu ▶]** de 72 px sous la carte.
+- `think` : une jauge fine à la couleur du jeu se vide sous l'énoncé. La carte affiche « Prêts ? Touchez pour lancer le décompte ».
+- `countdown` : le chiffre géant « 3 · 2 · 1 » (150 px) se superpose à la carte, puis « Annoncez ! » (Fraunces 900, 56 px) apparaît pendant 600 ms.
 
 ### 4.7 Saisie (A puis B)
 
@@ -418,11 +419,13 @@ C'est la carte Numpad (§3.5), qui remplace la zone carte. Un petit rappel de l'
 │ ┌──────────────────────────────────┐ │
 │ │            Suivant ▶             │ │
 │ └──────────────────────────────────┘ │
-│  🔊        ↶         ⏸               │
+│        ↶               ⏸             │
 └──────────────────────────────────────┘
 ```
 
-L'état `ready` (avant le tap) montre le recto avec les deux propositions en pions et un PrimaryButton **[Révéler]** de 72 px.
+L'état `ready` (avant le tap) montre le recto en version compacte, puis les **deux propositions en grand** : deux cartouches aux couleurs des joueurs, avec le prénom et l'année en Fraunces 900, 36 px. Le copilote les relit avant de toucher le PrimaryButton **[Révéler]** de 72 px.
+
+Après la révélation, la ScoreBar met à jour le score avec un rebond, et une ligne « Léa 14 – 9 Tom » en Fraunces 700, 26 px, apparaît sous la réglette, prête à être lue.
 
 ### 4.9 Fin de manche
 
@@ -486,9 +489,9 @@ Les cartes suivantes défilent :
 
 ### 4.14 Paramètres
 
-Une liste groupée en cartes : Voix, Sons et vibrations, Chronos, Déroulement, Bac Éclair, Règles de score, Questions vues, Affichage. Chaque ligne fait 56 px et porte un Toggle ou un SegmentedControl. Le bouton « Tester la voix » lit une phrase de l'animateur.
+Une liste groupée en cartes : Sons et vibrations, Chronos, Déroulement, Bac Éclair, Règles de score, Questions vues, Affichage. Chaque ligne fait 56 px et porte un Toggle ou un SegmentedControl. Le bouton « Tester les bips » joue la séquence du décompte.
 
-**États** : aucune voix française (message et voix par défaut) ; voix en chargement (squelette de la liste).
+**États** : audio bloqué (message « Activez le son du téléphone pour entendre les bips »).
 
 ### 4.15 Menu en jeu (Sheet)
 
