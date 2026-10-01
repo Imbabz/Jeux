@@ -204,7 +204,7 @@ export function MatchScreen() {
           <BacRound
             round={round}
             label={bacItem?.label ?? itemId}
-            words={(round.letter && bacItem?.words[round.letter]) || []}
+            itemId={itemId}
             names={names}
             totals={score}
             paused={paused}
@@ -495,7 +495,6 @@ function cardView(index: ContentIndex, kind: 'year' | 'estim', id: string): Card
       chip: item.category,
       text: item.text,
       context: item.context,
-      prefill: item.centuryHint,
       answerLabel: String(item.year),
       ...(item.hint ? { hint: item.hint } : {}),
     };

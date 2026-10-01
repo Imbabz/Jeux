@@ -4,11 +4,13 @@ import bacJson from './data/bac.json';
 import estimJson from './data/estim.json';
 import packsJson from './data/packs.json';
 import yearJson from './data/year.json';
+import { loadBacDictionary } from './dictionary.ts';
 import { buildContent, LocalJsonSource, type Content } from './source.ts';
 
 /** Tests de contenu (cahier des charges §15). */
 
 const content: Content = await new LocalJsonSource().load();
+const dictionary = await loadBacDictionary();
 const GAMES = ['year', 'estim', 'bac'] as const;
 const REGIONAL = ['scotland', 'belgium'];
 
@@ -78,7 +80,7 @@ describe('contenu', () => {
       expect(allowed.length, item.label).toBeGreaterThanOrEqual(8);
       for (const letter of allowed) {
         expect(
-          item.words[letter]?.length ?? 0,
+          dictionary[item.id]?.[letter]?.length ?? 0,
           `${item.label} en ${letter}`,
         ).toBeGreaterThanOrEqual(3);
       }
@@ -92,14 +94,33 @@ describe('contenu', () => {
       return new Set([plain(word), plain(rest), word.startsWith('œ') ? 'O' : '']);
     };
     for (const item of content.bac) {
-      for (const [letter, words] of Object.entries(item.words)) {
+      for (const [letter, entries] of Object.entries(dictionary[item.id] ?? {})) {
         expect(item.excludedLetters, `${item.label} : liste pour une lettre exclue`).not.toContain(
           letter,
         );
-        for (const word of words)
+        for (const [word] of entries)
           expect(initials(word).has(letter), `${word} (${letter})`).toBe(true);
       }
     }
+  });
+
+  it('le dictionnaire est sans doublon et ne couvre que des catégories existantes', () => {
+    const ids = new Set(content.bac.map((i) => i.id));
+    const plain = (w: string) =>
+      w
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    let total = 0;
+    for (const [id, letters] of Object.entries(dictionary)) {
+      expect(ids.has(id), id).toBe(true);
+      for (const entries of Object.values(letters)) {
+        const keys = entries.map(([w]) => plain(w));
+        expect(new Set(keys).size, id).toBe(keys.length);
+        total += entries.length;
+      }
+    }
+    expect(total).toBeGreaterThanOrEqual(12000);
   });
 
   it('écarte les items invalides ou rattachés à un pack inconnu, sans planter', () => {

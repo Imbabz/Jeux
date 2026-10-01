@@ -30,8 +30,6 @@ export interface CardView {
   readonly context: string;
   /** Unité (Estimation) ; absente pour les années. */
   readonly unit?: string;
-  /** Chiffres pré-remplis du pavé (indice de siècle). */
-  readonly prefill?: string;
   /** Réponse telle qu'affichée au verso. */
   readonly answerLabel: string;
   /** Indice facultatif, révélé à la demande. */
@@ -86,12 +84,7 @@ export function ClosestRound(props: Props) {
               onSubmit={onSubmit}
             />
           ) : (
-            <YearNumpad
-              player={player}
-              name={props.names[player]}
-              prefill={view.prefill ?? ''}
-              onSubmit={onSubmit}
-            />
+            <YearNumpad player={player} name={props.names[player]} onSubmit={onSubmit} />
           )}
         </div>
       );

@@ -80,7 +80,7 @@ async function playBac(page: Page, turn: number) {
   await once(page, 'bac-3-chrono');
   // Un mot validé, puis on ouvre la liste des mots acceptés.
   await page.getByRole('button', { name: 'Validé' }).click();
-  await page.getByRole('button', { name: /Mots acceptés/ }).click();
+  await page.getByRole('button', { name: /^Dictionnaire/ }).click();
   await once(page, 'bac-4-liste');
   if (turn % 2 === 0) await page.getByRole('button', { name: /Raté/ }).click();
   else {

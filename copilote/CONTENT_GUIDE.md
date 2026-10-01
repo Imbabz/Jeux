@@ -65,7 +65,17 @@ Les ids sont **stables** et ne sont jamais réutilisés : on supprime un item, o
 }
 ```
 
-Les listes `words` sont rédigées dans `scripts/bac_words/` (un bloc « L: mot, mot, … » par lettre) et fusionnées par `scripts/build_bac.py`. En alternance, une carte demande plusieurs mots : **une lettre n'est jouable que si sa liste compte au moins 3 mots** (sinon elle passe dans `excludedLetters`), et une catégorie n'est gardée que si elle offre au moins 8 lettres jouables. Les listes sont **indicatives** : le copilote peut valider un mot absent.
+Le **dictionnaire du Bac** (`bac-dictionary.json`, chargé à la demande) fusionne deux sources :
+
+1. les listes rédigées et relues à la main (`scripts/bac_words/`, un bloc « L: mot, mot, … » par lettre) ;
+2. les listes extraites de ressources lexicales libres par `scripts/dictionary/build_dictionary.py`, puis relues (`scripts/dictionary/review.py` écarte les intrus ou ne garde que les mots validés) :
+   - **WOLF** (WordNet Libre du Français, INRIA, CeCILL-C) aligné sur **Princeton WordNet 3.0** : classification par hyponymie (« merle → passereau → oiseau ») pour les animaux, métiers, fruits, instruments, vêtements, etc. ;
+   - **Lexique 3.83** (New & Pallier, CC BY-SA 4.0) : nature, genre (n.m., n.f.) et fréquence, pour ne garder que des mots connus ; verbes et adjectifs courants ;
+   - **@etalab/decoupage-administratif** (Licence Ouverte) : communes de France de plus de 10 000 habitants, avec leur département ;
+   - **i18n-iso-countries** (MIT) : noms des pays en français ;
+   - **prénoms et patronymes INSEE / data.gouv.fr** (via @socialgouv/match-entities) : prénoms et noms de famille les plus portés.
+
+Les sources se téléchargent avec `scripts/dictionary/fetch_sources.sh` (cache non versionné) ; le résultat, `generated.json`, est versionné. Chaque entrée porte une note affichée en italique : nature, genre et sous-classe (« abeille — *n.f. · insecte* », « Rennes — *Ille-et-Vilaine* »). En alternance, une carte demande plusieurs mots : **une lettre n'est jouable que si sa liste compte au moins 3 mots** (sinon elle passe dans `excludedLetters`), et une catégorie n'est gardée que si elle offre au moins 8 lettres jouables. Les listes sont **indicatives** : le copilote peut valider un mot absent.
 
 ### 4.2 Quelle année ? (`year.json`)
 

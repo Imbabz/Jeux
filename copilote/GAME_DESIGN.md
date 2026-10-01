@@ -22,6 +22,10 @@
 | D8 | **Bac Éclair en alternance** (retour de partie test) : plus de « 3, 2, 1 » ni de course au buzzer. Chacun son tour donne un mot, chrono court par mot ; celui qui sèche perd la carte (§7) | ✅ |
 | D9 | **Listes de mots acceptés** par catégorie et par lettre, affichables par le copilote. Indicatives : le copilote peut valider un autre mot. Une lettre n'est jouable que si sa liste compte au moins 3 mots (CONTENT_GUIDE §6) | ✅ |
 | D10 | **Ajustement manuel des scores** (menu de partie) : événement `SCORE_ADJUSTED`, annulable comme une décision (§6.3) | ✅ |
+| D12 | **Pavé d'année vide** : plus de siècle pré-rempli (il orientait les réponses ; un joueur perdu doit pouvoir se tromper franchement) (§8.2) | ✅ |
+| D13 | **Temps par mot du Bac en saisie libre** (2 à 60 s), dans les réglages et sur l'écran de configuration | ✅ |
+| D14 | **Dictionnaire du Bac** : ≈ 15 000 entrées issues de ressources lexicales libres (WOLF/WordNet, Lexique 3.83, communes Etalab, ISO 3166, prénoms et noms INSEE), relues, avec nature, genre et sous-classe (« abeille *n.f. · insecte* ») ; recherche sans accents (CONTENT_GUIDE §6) | ✅ |
+| D15 | **Bips en éléments audio** débloqués au premier tap, précédés d'un court silence pour réveiller le Bluetooth/CarPlay ; session audio « transient » (la musique est baissée, pas coupée) (§10.1) | ✅ |
 | D11 | **Indice facultatif** sur les questions d'Estimation (et d'Année si renseigné), révélé à la demande du copilote (§9) | ✅ |
 
 ---
@@ -243,12 +247,12 @@ hidden ──FLIP──► announce ──START──► turn ──WORD──�
 |---|---|---|---|
 | `hidden` | annonce « Attention… » | LetterCard **face cachée** : « Touchez pour retourner » | `FLIP` |
 | `announce` | lit à son rythme « Un animal… en B ! », sans chrono | Catégorie et lettre géante. Bouton **[À Léa de commencer]** aux couleurs du joueur. | `START` |
-| `turn` | écoute le mot du joueur et le juge | Anneau du chrono **par mot** (6 s par défaut, réglable 4 à 10 s), alerte et bips à 2 s et 1 s, bip long à 0. Pastille « À Tom ! · 3 mots ». Boutons **[✗ Raté] [✓ Validé]**. | `WORD`, `MISS`, `TIMER_EXPIRED` |
+| `turn` | écoute le mot du joueur et le juge | Anneau du chrono **par mot** (6 s par défaut, saisie libre de 2 à 60 s — D13), alerte et bips à 2 s et 1 s, bip long à 0. Pastille « À Tom ! · 3 mots ». Boutons **[✗ Raté] [✓ Validé]**. | `WORD`, `MISS`, `TIMER_EXPIRED` |
 | `timeout` | tranche un mot dit pile au buzzer | « Temps écoulé pour Tom ! ». Mêmes boutons. | `WORD`, `MISS` |
 | `resolved` | annonce « Tom sèche après 4 mots : point pour Léa ! » | Verdict et **score en grand** (proposition A). **[Carte suivante]** | `NEXT` |
 
 - **Qui commence** : le premier joueur alterne d'une manche à l'autre (A en manche 1, B en manche 2…), puis d'une carte à l'autre dans la manche. Chacun ouvre donc autant de cartes.
-- **Liste des mots acceptés** (D9) : un lien « Mots acceptés (n) » sur la carte affiche, à la place de l'anneau, la liste de la lettre en cours (le chrono reste visible en barre). Elle reste ouverte d'un mot à l'autre et se referme à la carte suivante. La liste est **indicative** : le copilote peut valider un mot absent.
+- **Dictionnaire** (D9, D14) : un lien « Dictionnaire (n mots) » sur la carte affiche, à la place de l'anneau, les entrées de la lettre en cours, classées comme dans un dictionnaire (rubriques « BA », « BE »…, mot en gras, nature et sous-classe en italique) avec une recherche sans accents ; le chrono reste visible en barre. Elle reste ouverte d'un mot à l'autre et se referme à la carte suivante. La liste est **indicative** : le copilote peut valider un mot absent.
 - **Contester** : il n'y a plus de bouton dédié ; « Annuler » retire le dernier mot validé ou le dernier « Raté ».
 
 ### 7.2 Règles de résolution
@@ -288,7 +292,7 @@ read ──READ──► think ──THINK_DONE──► countdown ──COUNTDO
 | `read` | lit à voix haute « Histoire : la chute du mur de Berlin. » | QuestionCard **recto** : bandeau bleu, catégorie, énoncé en grand. **Jamais l'année.** Bouton **[C'est lu ▶]** | `READ` |
 | `think` | réfléchit en silence (il joue aussi) | Énoncé et jauge de réflexion (10 s par défaut). « Prêts ? » : un tap sur la carte passe | `THINK_DONE` (chrono ou tap) |
 | `countdown` | crie « Annoncez ! » au signal | « 3 · 2 · 1 » géant, un bip par temps, puis un bip aigu et **« Annoncez ! »** | `COUNTDOWN_DONE` |
-| `inputA` | saisit l'année annoncée par A | Numpad encadré jaune « Léa a dit… », pré-rempli avec `centuryHint` (« 19 _ _ ») · **[Pas de réponse]** | `INPUT { player: 'A', value \| null }` |
+| `inputA` | saisit l'année annoncée par A | Numpad encadré jaune « Léa a dit… », vide (D12) · **[Pas de réponse]** | `INPUT { player: 'A', value \| null }` |
 | `inputB` | idem pour B | Numpad encadré violet « Tom a dit… » | `INPUT { player: 'B', … }` |
 | `ready` | relit les deux propositions : « Léa dit 1990, Tom dit 1985… » (proposition B) | Recto, plus les **deux propositions en grand** dans leurs couleurs, et un gros bouton **[Révéler]** | `REVEAL` |
 | `revealed` | lit « C'était en 1989 ! », le gagnant et l'anecdote | **Flip** de la carte. Verso : l'année en 56 px, la réglette, les écarts, le gagnant, « +2 exact ! », le **score en grand**, puis l'anecdote. **[Suivant]** · [Signaler] | `NEXT` |
@@ -296,7 +300,7 @@ read ──READ──► think ──THINK_DONE──► countdown ──COUNTDO
 ### 8.2 Saisie
 
 - Le numpad accepte 4 chiffres maximum. Il propose un effacement, **[Valider]** et **[Pas de réponse]**.
-- `centuryHint` pré-remplit les 2 premiers chiffres, qui restent modifiables comme les autres.
+- Le pavé démarre vide : aucun indice de siècle (D12). `centuryHint` reste dans le contenu, inutilisé.
 - [Valider] reste inactif tant qu'il n'y a pas 4 chiffres.
 - ✅ Les années vont de **1000 à 2025** en v1, sans « av. J.-C. ».
 - L'ordre de saisie, A puis B, n'influence rien : les annonces ont été simultanées.

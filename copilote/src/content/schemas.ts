@@ -57,7 +57,18 @@ export const bacItemSchema = z.object({
   label: z.string().min(1).max(56),
   difficulty: difficultySchema,
   excludedLetters: z.array(z.string().regex(LETTER)),
-  /** Mots acceptés par lettre, affichés au copilote pour valider (liste indicative, pas stricte). */
-  words: z.record(z.string().regex(LETTER), z.array(z.string().min(1))).default({}),
 });
 export type BacContentItem = z.infer<typeof bacItemSchema>;
+
+/**
+ * Dictionnaire du Bac Éclair (bac-dictionary.json, chargé à la demande) : pour chaque catégorie
+ * et chaque lettre jouable, les entrées « mot, note » (« abeille », « n.f. · insecte »).
+ * Indicatif : le copilote peut valider un mot absent.
+ */
+export const dictionaryEntrySchema = z.tuple([z.string().min(1), z.string()]);
+export type DictionaryEntry = z.infer<typeof dictionaryEntrySchema>;
+export const bacDictionarySchema = z.record(
+  z.string().regex(/^bac-\d{4}$/),
+  z.record(z.string().regex(LETTER), z.array(dictionaryEntrySchema)),
+);
+export type BacDictionary = z.infer<typeof bacDictionarySchema>;

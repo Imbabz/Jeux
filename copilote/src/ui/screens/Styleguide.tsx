@@ -20,6 +20,7 @@ import {
 import { EstimNumpad, YearNumpad } from '../components/Numpad.tsx';
 import { ConfirmDialog } from '../components/Overlay.tsx';
 import { LogRuler, YearRuler } from '../components/RevealRuler.tsx';
+import { DictionaryPanel } from '../components/DictionaryPanel.tsx';
 import { LetterCard } from './BacRound.tsx';
 import { ScoreBar } from '../components/ScoreBar.tsx';
 import { Segmented } from '../components/Segmented.tsx';
@@ -259,12 +260,22 @@ export function Styleguide() {
             ['chrono du mot', { hidden: false, progress: 0.6, alert: false }],
             ['alerte (≤ 2 s)', { hidden: false, progress: 0.2, alert: true }],
             [
-              'liste des mots',
+              'dictionnaire',
               {
                 hidden: false,
                 progress: 0.6,
                 alert: false,
-                words: ['Baleine', 'Blaireau', 'Bison'],
+                dictionary: (
+                  <DictionaryPanel
+                    letter="B"
+                    entries={[
+                      ['baleine', 'n.f. · mammifère'],
+                      ['bécasse', 'n.f. · oiseau'],
+                      ['bison', 'n.m. · mammifère'],
+                      ['blaireau', 'n.m. · mammifère'],
+                    ]}
+                  />
+                ),
               },
             ],
             ['temps écoulé', { hidden: false, progress: 0, alert: false, dimmed: true }],
@@ -303,10 +314,10 @@ export function Styleguide() {
 
       <Section title="Numpad">
         <div className="h-[460px]">
-          <YearNumpad player="A" name="Léa" prefill="19" onSubmit={() => undefined} />
+          <YearNumpad player="A" name="Léa" onSubmit={() => undefined} />
         </div>
         <div className="h-[460px]">
-          <YearNumpad player="B" name="Tom" prefill="1969" onSubmit={() => undefined} />
+          <YearNumpad player="B" name="Tom" onSubmit={() => undefined} />
         </div>
         <div className="h-[500px]">
           <EstimNumpad player="A" name="Léa" unit="habitants" onSubmit={() => undefined} />

@@ -4,3 +4,4 @@
  */
 export * from './schemas.ts';
 export * from './source.ts';
+export * from './dictionary.ts';

@@ -3,7 +3,9 @@ import { actions } from '../../app/session.ts';
 import type { BacAction, BacResult, BacRoundState, PerPlayer } from '../../engine/index.ts';
 import { haptics, sound } from '../../services/index.ts';
 import { Button, GhostButton } from '../components/Button.tsx';
+import { DictionaryPanel } from '../components/DictionaryPanel.tsx';
 import { BoltIcon, CheckIcon, SkipIcon } from '../components/icons.tsx';
+import { useBacEntries } from '../hooks/useDictionary.ts';
 import { useTimeline } from '../hooks/useClock.ts';
 import { plural, scoreLine } from '../format.ts';
 import { PLAYER_THEME } from '../theme/games.ts';
@@ -16,9 +18,9 @@ import { PLAYER_THEME } from '../theme/games.ts';
 
 interface Props {
   round: BacRoundState;
+  /** Id de la catégorie, pour retrouver ses entrées dans le dictionnaire. */
+  itemId: string;
   label: string;
-  /** Mots acceptés pour la lettre en cours (liste indicative pour le copilote). */
-  words: readonly string[];
   names: PerPlayer<string>;
   totals: PerPlayer<number>;
   paused: boolean;
@@ -54,8 +56,8 @@ export function BacRound(props: Props) {
 
 function BacPhase({
   round,
+  itemId,
   label,
-  words,
   names,
   totals,
   paused,
@@ -65,12 +67,15 @@ function BacPhase({
   toggleList,
 }: Props & { showList: boolean; toggleList: () => void }) {
   const phase = round.phase;
+  const entries = useBacEntries(itemId, round.letter);
   const turnMs = wordSeconds * 1000;
   const steps = useMemo(() => {
     if (phase !== 'turn') return [];
     return [
-      { at: Math.max(0, turnMs - 2000), run: () => sound.beep('alert') },
-      { at: Math.max(0, turnMs - 1000), run: () => sound.beep('alert') },
+      // Bips d'alerte à 2 s et 1 s de la fin, seulement si le chrono est assez long pour ça.
+      ...[2000, 1000]
+        .filter((before) => turnMs - before >= 1000)
+        .map((before) => ({ at: turnMs - before, run: () => sound.beep('alert') })),
       {
         at: turnMs,
         run: () => {
@@ -109,7 +114,7 @@ function BacPhase({
           send({ type: 'START' });
         }}
       >
-        À {names[speaker]} de commencer
+        {round.words > 0 ? `À ${names[speaker]} de reprendre` : `À ${names[speaker]} de commencer`}
       </Button>
     );
   } else if (phase === 'resolved') {
@@ -172,9 +177,13 @@ function BacPhase({
         dimmed={phase === 'timeout'}
         corner={questionLabel}
         onFlip={phase === 'hidden' ? actions.flipBac : undefined}
-        words={showList ? words : null}
+        dictionary={
+          showList && round.letter ? (
+            <DictionaryPanel entries={entries} letter={round.letter} />
+          ) : null
+        }
         onToggleWords={phase === 'hidden' ? undefined : toggleList}
-        wordCount={words.length}
+        wordCount={entries?.length ?? null}
         footer={status}
       />
       {buttons}
@@ -192,9 +201,9 @@ export function LetterCard({
   dimmed = false,
   corner,
   onFlip,
-  words = null,
+  dictionary = null,
   onToggleWords,
-  wordCount = 0,
+  wordCount = null,
   footer,
 }: {
   hidden: boolean;
@@ -205,10 +214,11 @@ export function LetterCard({
   dimmed?: boolean;
   corner?: string;
   onFlip?: (() => void) | undefined;
-  /** Liste des mots acceptés à afficher à la place de l'anneau, ou `null`. */
-  words?: readonly string[] | null;
+  /** Dictionnaire affiché à la place de l'anneau, ou `null`. */
+  dictionary?: ReactNode;
   onToggleWords?: (() => void) | undefined;
-  wordCount?: number;
+  /** Nombre d'entrées pour la lettre (`null` pendant le chargement). */
+  wordCount?: number | null;
   footer?: ReactNode;
 }) {
   const R = 84;
@@ -232,7 +242,7 @@ export function LetterCard({
           </span>
           <span className="text-md font-bold">Touchez pour retourner</span>
         </button>
-      ) : words ? (
+      ) : dictionary ? (
         <div className="flex min-h-0 flex-1 flex-col gap-2 px-4">
           <p className="text-center text-md font-bold tracking-wide uppercase text-balance">
             {label} · <span className="font-display text-xl font-black">{letter}</span>
@@ -243,22 +253,7 @@ export function LetterCard({
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </div>
-          <ul
-            className="flex min-h-0 flex-1 flex-wrap content-start gap-1.5 overflow-y-auto pb-1"
-            aria-label="Mots acceptés"
-          >
-            {words.length === 0 ? (
-              <li className="text-sm font-semibold opacity-80">
-                Pas de liste pour cette lettre : le copilote juge.
-              </li>
-            ) : (
-              words.map((w) => (
-                <li key={w} className="rounded-chip bg-white/15 px-2.5 py-1 text-sm font-semibold">
-                  {w}
-                </li>
-              ))
-            )}
-          </ul>
+          {dictionary}
         </div>
       ) : (
         <div
@@ -311,10 +306,12 @@ export function LetterCard({
           <button
             type="button"
             onClick={onToggleWords}
-            aria-pressed={words !== null}
+            aria-pressed={dictionary !== null}
             className="min-h-10 rounded-chip px-3 text-sm font-semibold underline underline-offset-4 opacity-90"
           >
-            {words ? 'Masquer la liste' : `Mots acceptés (${wordCount})`}
+            {dictionary
+              ? 'Fermer le dictionnaire'
+              : `Dictionnaire${wordCount === null ? '' : ` (${wordCount} mots)`}`}
           </button>
         ) : null}
       </div>

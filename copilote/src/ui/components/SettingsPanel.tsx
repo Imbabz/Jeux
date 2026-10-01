@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { actions, useSession } from '../../app/session.ts';
-import type { Settings } from '../../app/schemas.ts';
+import { BAC_SECONDS_MAX, BAC_SECONDS_MIN, type Settings } from '../../app/schemas.ts';
 import { Button } from './Button.tsx';
 import { Segmented } from './Segmented.tsx';
 
@@ -30,12 +31,7 @@ export function SettingsPanel() {
       <p className="pt-2 text-xs font-bold uppercase tracking-wide text-ink-soft">
         Bac Éclair : temps par mot
       </p>
-      <Segmented
-        label="Temps par mot"
-        value={settings.bacWordSeconds}
-        onChange={(v: Settings['bacWordSeconds']) => actions.saveSettings({ bacWordSeconds: v })}
-        options={([4, 6, 8, 10] as const).map((n) => ({ value: n, label: `${n} s` }))}
-      />
+      <BacSecondsField />
       <p className="pt-2 text-xs font-bold uppercase tracking-wide text-ink-soft">
         Temps de réflexion (Année, Estimation)
       </p>
@@ -49,5 +45,48 @@ export function SettingsPanel() {
         }))}
       />
     </div>
+  );
+}
+
+/**
+ * Temps par mot du Bac Éclair, saisi librement (en secondes).
+ * La valeur est enregistrée dès qu'elle est valide ; hors bornes, le champ le signale.
+ */
+export function BacSecondsField() {
+  const { settings } = useSession();
+  const [text, setText] = useState(String(settings.bacWordSeconds));
+  const value = Number(text);
+  const valid = /^\d+$/.test(text) && value >= BAC_SECONDS_MIN && value <= BAC_SECONDS_MAX;
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="flex items-center gap-2">
+        <input
+          aria-label="Temps par mot, en secondes"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={text}
+          onChange={(e) => {
+            const next = e.target.value.replace(/\D/g, '').slice(0, 2);
+            setText(next);
+            const n = Number(next);
+            if (next !== '' && n >= BAC_SECONDS_MIN && n <= BAC_SECONDS_MAX) {
+              actions.saveSettings({ bacWordSeconds: n });
+            }
+          }}
+          onBlur={() => {
+            if (!valid) setText(String(settings.bacWordSeconds));
+          }}
+          className={`min-h-12 w-24 rounded-key border bg-table px-3 text-center font-display text-xl font-black tabular-nums ${
+            valid ? 'border-line' : 'border-bac'
+          }`}
+        />
+        <span className="text-md font-semibold">secondes par mot</span>
+      </span>
+      {valid ? null : (
+        <span className="text-xs font-semibold text-bac">
+          Entre {BAC_SECONDS_MIN} et {BAC_SECONDS_MAX} secondes.
+        </span>
+      )}
+    </label>
   );
 }

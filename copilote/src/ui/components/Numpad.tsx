@@ -7,21 +7,20 @@ import { Button } from './Button.tsx';
 import { BackspaceIcon, CheckIcon } from './icons.tsx';
 
 /**
- * Pavé de saisie d'une année (DESIGN §3.5) : 4 chiffres, pré-remplis par l'indice de siècle.
+ * Pavé de saisie d'une année (DESIGN §3.5) : 4 chiffres, sans pré-remplissage
+ * (un siècle pré-rempli orientait les réponses ; un joueur perdu doit pouvoir se tromper franchement).
  * Le composant ne connaît aucune règle de score : il renvoie une valeur ou `null` (pas de réponse).
  */
 export function YearNumpad({
   player,
   name,
-  prefill,
   onSubmit,
 }: {
   player: PlayerId;
   name: string;
-  prefill: string;
   onSubmit: (value: number | null) => void;
 }) {
-  const [digits, setDigits] = useState(prefill.slice(0, 4));
+  const [digits, setDigits] = useState('');
   const [shake, setShake] = useState(0);
   const valid = digits.length === 4 && Number(digits) >= 1000;
   const theme = PLAYER_THEME[player];

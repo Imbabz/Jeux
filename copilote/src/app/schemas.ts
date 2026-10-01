@@ -83,11 +83,15 @@ export const seenSchema = z.object({
 });
 export type SeenStore = z.infer<typeof seenSchema>;
 
+/** Bornes du temps par mot du Bac Éclair, saisi librement dans les réglages. */
+export const BAC_SECONDS_MIN = 2;
+export const BAC_SECONDS_MAX = 60;
+
 export const settingsSchema = z.object({
   schemaVersion: z.literal(1),
   thinkSeconds: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15)]),
   /** Bac Éclair : temps laissé à chaque joueur pour donner son mot. */
-  bacWordSeconds: z.union([z.literal(4), z.literal(6), z.literal(8), z.literal(10)]).default(6),
+  bacWordSeconds: z.number().int().min(BAC_SECONDS_MIN).max(BAC_SECONDS_MAX).catch(6).default(6),
   sound: z.boolean(),
   haptics: z.boolean(),
   avoidSeen: z.boolean(),
