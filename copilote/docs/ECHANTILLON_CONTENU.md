@@ -2,7 +2,7 @@
 
 Tirage aléatoire de 20 items par jeu (graine fixe). Signale-moi tout item douteux : il sera corrigé ou supprimé.
 
-Volumes : 250 « Quelle année ? », 203 Estimations, 120 catégories de Bac Éclair. Les sources : `scripts/*_items.py` (contenu) et `scripts/build_*.py` (génération du JSON).
+Volumes : 250 « Quelle année ? », 202 Estimations, 120 catégories de Bac Éclair. Les sources : `scripts/*_items.py` (contenu) et `scripts/build_*.py` (génération du JSON). Les corrections de la seconde vérification, sources à l'appui, sont dans `scripts/fact_check.py`.
 
 
 ## Quelle année ?
@@ -19,7 +19,7 @@ Volumes : 250 « Quelle année ? », 203 Estimations, 120 catégories de Bac Éc
 | yr-0122 | L’invention du volley-ball | **1895** | 3 | Son inventeur voulait un sport moins brutal que le basket, inventé quatre ans plus tôt. |
 | yr-0161 | La fondation de Montréal | **1642** | 3 | La ville s'appelait d'abord Ville-Marie. |
 | yr-0149 | La rétrocession de Hong Kong à la Chine | **1997** | 1 | Le territoire était britannique depuis plus de 150 ans. |
-| yr-0017 | La découverte de la pénicilline par Alexander Fleming | **1928** | 3 | Fleming, un Écossais, a remarqué qu'une moisissure tuait ses bactéries en rentrant de vacances. |
+| yr-0017 | La découverte de la pénicilline par Alexander Fleming | **1928** | 3 | Fleming a reçu le prix Nobel de médecine en 1945, avec Florey et Chain, qui ont rendu le médicament utilisable. |
 | yr-0156 | La prise de Constantinople par les Ottomans | **1453** | 2 | Pour beaucoup d'historiens, cette date marque la fin du Moyen Âge. |
 | yr-0004 | La naissance de Dolly, la brebis clonée, près d'Édimbourg | **1996** | 2 | Elle doit son prénom à Dolly Parton, car elle a été clonée à partir d'une cellule de glande mammaire. |
 | yr-0233 | La découverte de la tombe de Toutânkhamon | **1922** | 2 | Le jeune pharaon n'avait qu'environ 19 ans à sa mort. |
@@ -34,12 +34,12 @@ Volumes : 250 « Quelle année ? », 203 Estimations, 120 catégories de Bac Éc
 
 | id | Question | Réponse | Diff. | Anecdote |
 |---|---|---|---|---|
-| est-0184 | Combien de cépages sont autorisés pour élaborer le champagne ? | **7 cépages** | 3 | Trois dominent : chardonnay, pinot noir et meunier. |
+| est-0184 | Combien de cépages traditionnels sont autorisés pour élaborer le champagne ? | **7 cépages** | 3 | Trois dominent : chardonnay, pinot noir et meunier. Un huitième, le voltis, est admis à l'essai depuis 2022. |
 | est-0121 | Combien de livres compte la saga Harry Potter ? | **7 livres** | 1 | Au cinéma, le dernier tome a été découpé en deux films. |
 | est-0139 | Combien de films compte la saga Harry Potter au cinéma ? | **8 films** | 1 | Le dernier livre a été découpé en deux films. |
 | est-0141 | Combien de chansons compte l'album « Thriller » de Michael Jackson ? | **9 chansons** | 2 | Sept d'entre elles sont sorties en single. |
 | est-0122 | Combien de Pokémon compte la toute première génération ? | **151 Pokémon** | 2 | Le premier du Pokédex, n° 1, est Bulbizarre. |
-| est-0102 | Combien d'habitants compte la ville de Glasgow ? | **630 000 habitants** (réf. 2025) | 2 | Son métro, ouvert en 1896, est l'un des plus anciens du monde. |
+| est-0102 | Combien d'habitants compte la ville de Glasgow ? | **650 000 habitants** (réf. 2025) | 2 | Son métro, ouvert en 1896, est l'un des plus anciens du monde. |
 | est-0164 | À combien de mètres du but se tire un penalty ? | **11 mètres** | 1 | Soit 12 yards, une mesure anglaise. |
 | est-0039 | Quelle est la superficie de la Russie ? | **17 000 000 km²** | 2 | Elle s'étend sur onze fuseaux horaires. |
 | est-0060 | Quelle est la longueur du canal de Panama ? | **82 km** | 2 | Les navires y sont hissés par des écluses jusqu'à un lac en altitude. |
@@ -49,7 +49,7 @@ Volumes : 250 « Quelle année ? », 203 Estimations, 120 catégories de Bac Éc
 | est-0190 | Combien de verres de 12,5 cl peut-on servir avec une bouteille de vin standard ? | **6 verres** | 1 | Une bouteille standard contient 75 centilitres. |
 | est-0004 | Combien pèse un cerveau humain adulte ? | **1,4 kilos** | 2 | Il consomme environ 20 % de l'énergie du corps. |
 | est-0172 | À quelle distance se trouve la cible au tir à l’arc olympique ? | **70 mètres** | 2 | Le centre de la cible ne mesure que 12,2 centimètres de diamètre. |
-| est-0199 | Combien de litres d’eau conseille-t-on pour cuire 100 grammes de pâtes ? | **1 litres** | 1 | On sale l'eau quand elle bout, avec environ 10 grammes de sel par litre. |
+| est-0199 | Combien de litres d’eau conseille-t-on pour cuire 500 grammes de pâtes ? | **5 litres** | 1 | On sale l'eau quand elle bout, avec environ 10 grammes de sel par litre. |
 | est-0017 | Quelle est la température à la surface du Soleil ? | **5 500 °C** | 2 | En son cœur, la température dépasse 15 millions de degrés. |
 | est-0041 | Quelle est la longueur du tunnel sous la Manche ? | **50 km** | 2 | Dont environ 38 kilomètres sous la mer. |
 | est-0195 | Combien de minutes faut-il pour cuire un œuf à la coque ? | **3 minutes** | 1 | Comptez six minutes pour un œuf mollet, une dizaine pour un œuf dur. |

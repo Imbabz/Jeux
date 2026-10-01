@@ -18,6 +18,8 @@ for i, (packs, question, unit, answer, _d, ctx, ref) in enumerate(ITEMS):
         item["referenceYear"] = ref
     out.append(item)
 path = pathlib.Path(__file__).parent.parent / 'src/content/data/estim.json'
+from fact_check import apply
+out = apply(out)
 with open(path, 'w') as f:
     f.write('[\n' + ',\n'.join('  ' + json.dumps(x, ensure_ascii=False) for x in out) + '\n]\n')
 from collections import Counter

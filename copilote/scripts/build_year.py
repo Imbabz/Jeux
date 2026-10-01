@@ -10,6 +10,8 @@ for i, (packs, cat, text, year, _d, ctx) in enumerate(ITEMS):
     d = 1 if i in D1 else 2 if i in D2 else 3
     base.append({"id": f"yr-{31 + i:04d}", "packs": packs, "category": cat, "text": text, "year": year,
                  "centuryHint": str(year)[:2], "difficulty": d, "context": ctx})
+from fact_check import apply
+base = apply(base)
 with open(path, 'w') as f:
     f.write('[\n' + ',\n'.join('  ' + json.dumps(x, ensure_ascii=False) for x in base) + '\n]\n')
 from collections import Counter
