@@ -1,6 +1,14 @@
 /**
  * Moteur de jeu — logique PURE (aucun React, aucun effet de bord, pas de Date ni de DOM).
- * L'état d'une partie est dérivé de { config, seed, events[] } par `reduce`.
- * Contenu prévu (étape 2) : rng.ts, match.ts, games/<jeu>/{machine,scoring,draw}.ts.
+ * L'état d'une partie est dérivé de { config, seed, events[] } par `reduceMatch`.
  */
-export {};
+export * from './types.ts';
+export * from './rng.ts';
+export * from './plan.ts';
+export * from './draw.ts';
+export * from './events.ts';
+export * from './match.ts';
+export * from './games/closest/machine.ts';
+export * from './games/closest/scoring.ts';
+export * from './games/year/draw.ts';
+export { YEAR_MIN, YEAR_MAX } from './games/year/scoring.ts';

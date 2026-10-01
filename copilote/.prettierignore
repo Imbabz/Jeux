@@ -6,3 +6,4 @@ package-lock.json
 e2e/.results
 e2e/screenshots
 *.md
+src/content/data
