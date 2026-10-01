@@ -124,11 +124,11 @@ Le cadre commun de tous les écrans de jeu, à hauteur fixe de `100dvh`, sans sc
 ├──────────────────────────────────────┤
 │ Zone d'actions (boutons du jeu)      │ ≈ 80-160 px selon l'état
 ├──────────────────────────────────────┤
-│ ActionBar   ↶ annuler   ·   ⏸ pause   │ 64 px + safe-area
+│ ActionBar  ↶ annuler · ⏸ pause · ⋮ menu │ 64 px + safe-area
 └──────────────────────────────────────┘
 ```
 
-Annuler et Pause sont **toujours au même endroit**, dans l'ActionBar en bas. Passer et Signaler sont des GhostButtons situés **dans** la zone carte, en bas de la carte.
+Annuler, Pause et Menu sont **toujours au même endroit**, dans l'ActionBar en bas. Passer et Signaler sont des GhostButtons situés **dans** la zone carte, en bas de la carte.
 
 ### 3.2 ScoreBar
 
@@ -142,7 +142,7 @@ Annuler et Pause sont **toujours au même endroit**, dans l'ActionBar en bas. Pa
 - **Pastille joueur** : cercle de 36 px à la couleur du joueur avec l'initiale (Inter 700), le prénom (Inter 600, 16 px, tronqué à 10 caractères) et le score (Fraunces 900, 36 px, tabulaire).
 - **Jetons** : alignés sous chaque joueur (mini-jetons de 14 px dans la barre, 28 px ailleurs).
 - **Centre** : « Manche 3/6 » (14 px, `ink-soft`), et un badge **×2** en dernière manche (pastille `ink`, texte blanc).
-- **Menu** à droite, avec une zone tactile de 48 px.
+- Le **menu** est dans l'ActionBar, en bas à droite : à 375 px, la ScoreBar garde ainsi la place des prénoms.
 
 | État | Rendu |
 |---|---|

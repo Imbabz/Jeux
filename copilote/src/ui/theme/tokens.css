@@ -1,17 +1,25 @@
 /*
- * Design tokens Copilote — source unique (voir DESIGN.md).
- * Tailwind v4 : chaque variable de @theme génère ses utilitaires (bg-table, text-ink, font-display…).
- * Aucune couleur ni taille en dur dans les écrans : tout passe par ces tokens.
+ * Design tokens Copilote — source unique (voir DESIGN.md §1).
+ * Tailwind v4 : chaque variable de @theme génère ses utilitaires (bg-table, text-ink-soft, font-display…).
+ * Les palettes et échelles par défaut de Tailwind sont désactivées (`initial`) :
+ * seuls ces tokens existent, ce qui rend impossible une couleur ou une taille « en dur ».
  */
 @theme {
+  /* ── Couleurs ─────────────────────────────────────────── */
+  --color-*: initial;
+  --color-white: #ffffff;
+
   /* Table & encre */
   --color-table: #f7f1e5;
   --color-card: #fffdf8;
   --color-ink: #1e2230;
-  --color-ink-soft: #646874; /* #6B6F7B du brief → 4,46:1 sur la table, assombri pour passer AA (4,95:1) */
+  --color-ink-deep: #0b0d14;
+  --color-ink-soft: #646874; /* #6B6F7B du brief → 4,46:1 sur la table ; assombri pour l'AA (4,95:1) */
   --color-line: #e4dccb;
+  --color-line-deep: #cfc4ad;
   --color-neutral: #b9b2a3;
   --color-neutral-deep: #948c7b;
+  --color-veil: rgb(30 34 48 / 0.45);
 
   /* Jeux */
   --color-bac: #e5484d;
@@ -29,27 +37,91 @@
   --color-player-b-deep: #5f3cab;
   --color-on-player-b: #ffffff;
 
-  /* Typographie */
+  /* ── Typographie ──────────────────────────────────────── */
+  --font-*: initial;
   --font-display: 'Fraunces Variable', 'Georgia', serif;
   --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
 
+  --text-*: initial;
   --text-xs: 14px;
+  --text-xs--line-height: 20px;
   --text-sm: 16px;
+  --text-sm--line-height: 24px;
   --text-md: 20px;
+  --text-md--line-height: 28px;
   --text-lg: 26px;
+  --text-lg--line-height: 34px;
   --text-xl: 36px;
+  --text-xl--line-height: 40px;
   --text-2xl: 56px;
+  --text-2xl--line-height: 60px;
   --text-giant: 150px;
+  --text-giant--line-height: 1;
 
-  /* Matière */
+  /* ── Matière ──────────────────────────────────────────── */
+  --radius-*: initial;
+  --radius-chip: 999px;
   --radius-card: 20px;
   --radius-button: 16px;
+  --radius-key: 14px;
+
+  --shadow-*: initial;
   --shadow-card: 0 8px 24px rgb(30 34 48 / 0.12);
   --shadow-token: 0 2px 4px rgb(30 34 48 / 0.18);
+  --shadow-sheet: 0 -8px 32px rgb(30 34 48 / 0.18);
 
-  /* Mouvement */
+  /* ── Mouvement ────────────────────────────────────────── */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 180ms;
   --duration-base: 250ms;
   --duration-flip: 500ms;
+
+  --animate-bump: bump var(--duration-fast) var(--ease-out-soft);
+  --animate-float-up: float-up 700ms var(--ease-out-soft) forwards;
+  --animate-shake: shake var(--duration-fast) ease-in-out;
+  --animate-pop: pop var(--duration-base) var(--ease-out-soft);
+  --animate-fade-in: fade-in var(--duration-base) var(--ease-out-soft);
+
+  @keyframes bump {
+    50% {
+      transform: scale(1.2);
+    }
+  }
+  @keyframes float-up {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-24px);
+    }
+  }
+  @keyframes shake {
+    25% {
+      transform: translateX(-6px);
+    }
+    75% {
+      transform: translateX(6px);
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }

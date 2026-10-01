@@ -1,6 +1,6 @@
 # Copilote
 
-Quiz oral pour 2 joueurs en voiture. Un seul téléphone, tenu par le passager (arbitre et joueur), et une app qui fait l'animateur à voix haute. Trois jeux : **Bac Éclair**, **Quelle année ?**, **Estimation**.
+Quiz oral pour 2 joueurs en voiture. Un seul téléphone, tenu par le copilote, qui lit les cartes à voix haute, arbitre et joue. L'app tire les cartes, chronomètre, bipe et compte les points. Trois jeux : **Bac Éclair**, **Quelle année ?**, **Estimation**.
 
 - Règles et moteur : [`GAME_DESIGN.md`](./GAME_DESIGN.md)
 - Design system et écrans : [`DESIGN.md`](./DESIGN.md)
@@ -18,7 +18,7 @@ npm test               # Vitest
 npm run test:coverage  # couverture (100 % exigé sur src/engine)
 npm run lint && npm run typecheck
 npm run build          # build de production + service worker PWA
-npm run e2e:shots      # captures 375×667 dans e2e/screenshots/
+npm run e2e:shots      # partie Express jouée de bout en bout + captures 375×667 dans e2e/screenshots/
 ```
 
 Dans une session cloud Claude Code, Chromium est préinstallé. On lance les captures avec :
@@ -31,7 +31,8 @@ src/
 ├── engine/    logique PURE (aucun React, DOM, Date ni stockage), testée à 100 %
 │              état = reduce(config, seed, events[])
 ├── content/   JSON par jeu, packs, répliques de l'animateur, schémas zod, ContentSource
-├── services/  voice, sound, haptics, wakeLock, storage, logger (effets de bord)
+├── services/  sound (bips WebAudio), haptics, wakeLock, storage, logger : effets de bord
+├── app/       session : relie le moteur, le contenu et les services (tirages, persistance, vus)
 └── ui/        écrans et composants ; aucune règle de jeu, l'UI affiche l'état et envoie des événements
 ```
 
@@ -47,3 +48,5 @@ Le déploiement passe par **Vercel**. Le projet `copilote` (équipe Imbabz) est 
 GitHub Pages continue de servir le dépôt pour les autres jeux. `/Jeux/copilote/` y affiche des sources non buildées : on utilise l'URL Vercel.
 
 **Installer sur iPhone** : Safari → Partager → « Sur l'écran d'accueil ». L'app fonctionne ensuite hors-ligne.
+
+Astuce de test : `?seed=42` dans l'URL rend une partie reproductible.

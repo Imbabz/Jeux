@@ -32,6 +32,8 @@ export default defineConfig({
         // Contenu, polices et code précachés : l'app doit tourner sans réseau en voiture.
         globPatterns: ['**/*.{js,css,html,svg,woff2,json}'],
         navigateFallback: '/index.html',
+        // Seuls les sous-ensembles latins des polices sont utiles (français) : inutile de précacher le reste.
+        globIgnores: ['**/*-cyrillic*', '**/*-greek*', '**/*-vietnamese*'],
       },
     }),
   ],
