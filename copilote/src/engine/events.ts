@@ -1,3 +1,4 @@
+import type { BacAction } from './games/bac/machine.ts';
 import type { ClosestAction } from './games/closest/machine.ts';
 import type { GameId, RoundItem } from './types.ts';
 
@@ -16,7 +17,8 @@ export type MatchEventBody =
   | { readonly type: 'TURN_RESTARTED' }
   | { readonly type: 'MATCH_ABANDONED' }
   | { readonly type: 'year'; readonly action: ClosestAction }
-  | { readonly type: 'estim'; readonly action: ClosestAction };
+  | { readonly type: 'estim'; readonly action: ClosestAction }
+  | { readonly type: 'bac'; readonly action: BacAction };
 
 export type MatchEvent = MatchEventBody & { readonly at: number };
 
@@ -31,6 +33,12 @@ export function isDecision(event: MatchEventBody): boolean {
     case 'year':
     case 'estim':
       return event.action.type === 'INPUT' || event.action.type === 'REVEAL';
+    case 'bac':
+      return (
+        event.action.type === 'BUZZ' ||
+        event.action.type === 'NOBODY' ||
+        event.action.type === 'CONTESTED'
+      );
     default:
       return false;
   }
@@ -47,7 +55,5 @@ export function undoLastDecision<E extends MatchEventBody>(events: readonly E[])
 
 /** Libellé court pour le journal et le debug : « year/INPUT », « ROUND_STARTED »… */
 export function eventLabel(event: MatchEventBody): string {
-  return event.type === 'year' || event.type === 'estim'
-    ? `${event.type}/${event.action.type}`
-    : event.type;
+  return 'action' in event ? `${event.type}/${event.action.type}` : event.type;
 }

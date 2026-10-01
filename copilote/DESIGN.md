@@ -148,7 +148,7 @@ Annuler, Pause et Menu sont **toujours au même endroit**, dans l'ActionBar en b
 |---|---|
 | normal | comme ci-dessus |
 | score qui change | le chiffre fait un rebond `scale(1.2)` sur 180 ms et un « +1 » s'élève |
-| meneur | prénom en 700 et petit chevron ▲ `ink` |
+| meneur | prénom en 700, couleur `ink` |
 | dernière manche | badge ×2 visible |
 | mort subite | le centre affiche « Mort subite » en `bac` |
 

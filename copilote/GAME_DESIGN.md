@@ -11,7 +11,7 @@
 | D0 | **Voix de synthèse** | ✅ **Supprimée.** C'est le **copilote** (le passager) qui lit tout à voix haute. L'app est le paquet de cartes, le chrono, les bips et le tableau des scores. |
 | D1 | Les événements portent les items tirés et leurs réponses (§6.2) | ✅ |
 | D2 | Annuler retire aussi les saisies (§6.4) | ✅ |
-| D3 | Plafond de 3 rejeux par tour de Bac Éclair (§7.2) | 🎲 réglage par défaut, à revoir en jouant |
+| D3 | Plafond de 3 rejeux par tour de Bac Éclair : le tour est clos sans point (§7.2) | 🎲 réglage par défaut, à revoir en jouant |
 | D4 | Années comprises entre 1000 et 2025 en v1 (§8.2) | ✅ |
 | D5 | Courbes de difficulté pour Q = 3 et Q = 7 (§4.3) | ✅ |
 | D6 | Seuil de 10 lettres pour les catégories Écosse et Belgique du Bac Éclair (CONTENT_GUIDE §6) | 🎲 réglage par défaut, à revoir en jouant |
@@ -258,7 +258,7 @@ hidden ──FLIP──► countdown ──COUNTDOWN_DONE──► running
   - mode *rejoué* (défaut) : retour en `hidden`, avec la même catégorie et une nouvelle lettre ;
   - mode *1 pt chacun* : `resolved`, avec +1 pour chacun.
 - **Contesté** (règle d'or n° 3) : le point est annulé, et on revient en `hidden` avec la même catégorie et une nouvelle lettre.
-- 🎲 **Plafond de rejeux** : au 3e rejeu consécutif d'un même tour, le tour est annulé sans point et remplacé par une nouvelle catégorie.
+- 🎲 **Plafond de rejeux** : au 3e rejeu consécutif d'un même tour, le tour est clos sans point (« Trop de rejeux ») et on passe au suivant.
 - **Auto-avance** : `NEXT` part automatiquement `max(3 s, délai d'auto-avance)` après la résolution. Cela laisse toujours les 3 s de contestation.
 
 ### 7.3 Tirage

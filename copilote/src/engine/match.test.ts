@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MatchEventBody } from './events.ts';
+import type { BacAction } from './games/bac/machine.ts';
 import {
   activeItem,
   currentRoundPoints,
@@ -215,9 +216,8 @@ describe('déroulé d’une partie', () => {
       expect(then.usedItemIds).toContain('yr-0021');
     });
 
-    it('n’accepte le démarrage qu’en intro de mort subite et pour un jeu supporté', () => {
-      const s = run(tied);
-      expect(reduceMatch(s, { type: 'SUDDEN_DEATH_STARTED', game: 'bac', item: item(1) })).toBe(s);
+    it('n’accepte le démarrage qu’en intro de mort subite', () => {
+      expect(reduceMatch(run(tied), { type: 'ROUND_RECAP_DONE' }).phase).toBe('suddenDeathIntro');
       const playing = run([...tied, sd(20)]);
       expect(reduceMatch(playing, sd(21))).toBe(playing);
       expect(playing.current?.multiplier).toBe(1);
@@ -236,11 +236,8 @@ describe('événements de partie', () => {
   const intro = run([{ type: 'OPENING_DONE' }]);
   const playing = reduceMatch(intro, started(0, [1, 2, 3]));
 
-  it('valide ROUND_STARTED : manche, jeu supporté, items non vides', () => {
+  it('valide ROUND_STARTED : manche et items non vides', () => {
     expect(reduceMatch(intro, started(1, [1]))).toBe(intro);
-    expect(
-      reduceMatch(intro, { type: 'ROUND_STARTED', round: 0, game: 'bac', items: [item(1)] }),
-    ).toBe(intro);
     expect(reduceMatch(intro, { type: 'ROUND_STARTED', round: 0, game: 'year', items: [] })).toBe(
       intro,
     );
@@ -305,5 +302,69 @@ describe('événements de partie', () => {
     const finished: MatchState = { ...playing, phase: 'finished' };
     expect(reduceMatch(finished, { type: 'MATCH_ABANDONED' })).toBe(finished);
     expect(activeItem(intro)).toBeNull();
+  });
+});
+
+describe('partie avec Bac Éclair', () => {
+  const bacConfig: MatchConfig = {
+    ...baseConfig,
+    games: ['bac'],
+    rules: { ...baseConfig.rules, doubleFinalRound: false },
+  };
+  const bac = (action: BacAction): MatchEventBody => ({ type: 'bac', action });
+  const turn = (letter: string, who: 'A' | 'B' | null): MatchEventBody[] => [
+    bac({ type: 'FLIP', letter }),
+    bac({ type: 'COUNTDOWN_DONE' }),
+    ...(who
+      ? [bac({ type: 'BUZZ', who })]
+      : [bac({ type: 'TIMER_EXPIRED' }), bac({ type: 'NOBODY' })]),
+    bac({ type: 'NEXT' }),
+  ];
+  const bacRound = (round: number, winners: ('A' | 'B' | null)[]): MatchEventBody[] => [
+    { type: 'ROUND_STARTED', round, game: 'bac', items: [item(1), item(2), item(3)] },
+    ...turn('A', winners[0] ?? null),
+    ...turn('B', winners[1] ?? null),
+    ...turn('C', winners[2] ?? null),
+    { type: 'ROUND_RECAP_DONE' },
+  ];
+
+  it('joue une partie complète et reprend un tour au décompte', () => {
+    const s = run(
+      [
+        { type: 'OPENING_DONE' },
+        ...bacRound(0, ['A', 'A', 'A']),
+        ...bacRound(1, ['B', 'B', 'B']),
+        ...bacRound(2, ['A', 'A', null]),
+      ],
+      bacConfig,
+    );
+    expect(totals(s)).toEqual({ A: 5, B: 3 });
+    expect(s).toMatchObject({ phase: 'finished', winner: 'A' });
+    const running = run(
+      [
+        { type: 'OPENING_DONE' },
+        { type: 'ROUND_STARTED', round: 0, game: 'bac', items: [item(1)] },
+        bac({ type: 'FLIP', letter: 'A' }),
+        bac({ type: 'COUNTDOWN_DONE' }),
+      ],
+      bacConfig,
+    );
+    expect(needsRestart(running)).toBe(true);
+    expect(reduceMatch(running, { type: 'TURN_RESTARTED' }).current?.phase).toBe('countdown');
+  });
+
+  it('départage une égalité par un tour de Bac Éclair', () => {
+    const tied: MatchEventBody[] = [
+      { type: 'OPENING_DONE' },
+      ...bacRound(0, ['A', 'A', null]),
+      ...bacRound(1, ['B', 'B', null]),
+      ...bacRound(2, [null, null, null]),
+    ];
+    expect(run(tied, bacConfig).phase).toBe('suddenDeathIntro');
+    const sd = run(
+      [...tied, { type: 'SUDDEN_DEATH_STARTED', game: 'bac', item: item(7) }, ...turn('D', 'B')],
+      bacConfig,
+    );
+    expect(sd).toMatchObject({ phase: 'finished', winner: 'B', wonBySuddenDeath: true });
   });
 });

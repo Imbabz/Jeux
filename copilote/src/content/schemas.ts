@@ -29,3 +29,29 @@ export const yearItemSchema = z
     path: ['centuryHint'],
   });
 export type YearContentItem = z.infer<typeof yearItemSchema>;
+
+const LETTER = /^[A-Z]$/;
+
+export const estimItemSchema = z.object({
+  id: z.string().regex(/^est-\d{4}$/),
+  packs: z.array(z.string()).min(1),
+  question: z.string().min(1).max(110),
+  unit: z.string().min(1).max(24),
+  answer: z.number().positive().finite(),
+  /** Réponse affichée si le format automatique ne convient pas. */
+  answerLabel: z.string().min(1).max(40).optional(),
+  difficulty: difficultySchema,
+  context: z.string().min(1).max(160),
+  /** Année de référence d'une valeur qui évolue (population, record…). */
+  referenceYear: z.number().int().min(1900).max(2026).optional(),
+});
+export type EstimContentItem = z.infer<typeof estimItemSchema>;
+
+export const bacItemSchema = z.object({
+  id: z.string().regex(/^bac-\d{4}$/),
+  packs: z.array(z.string()).min(1),
+  label: z.string().min(1).max(56),
+  difficulty: difficultySchema,
+  excludedLetters: z.array(z.string().regex(LETTER)),
+});
+export type BacContentItem = z.infer<typeof bacItemSchema>;

@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { actions, useSession } from '../../app/session.ts';
-import type { YearContentItem } from '../../content/index.ts';
+import type { Content } from '../../content/index.ts';
 import {
   currentRoundPoints,
   exactCount,
@@ -22,17 +22,16 @@ import { ScoreBar } from '../components/ScoreBar.tsx';
 import { Token, TokenRow } from '../components/Token.tsx';
 import { plural, scoreLine } from '../format.ts';
 import { GAME_THEME, PLAYER_THEME } from '../theme/games.ts';
-import { YearRound } from './YearRound.tsx';
+import { estimAnswerLabel } from '../format.ts';
+import { BacRound } from './BacRound.tsx';
+import { ClosestRound, type CardView } from './ClosestRound.tsx';
 
 /** Écran de partie : choisit la vue selon la phase de la partie (GAME_DESIGN §3). */
 export function MatchScreen() {
   const { match, content, paused, settings } = useSession();
   const [menu, setMenu] = useState(false);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
-  const yearIndex = useMemo(
-    () => new Map<string, YearContentItem>((content?.year ?? []).map((i) => [i.id, i])),
-    [content],
-  );
+  const index = useMemo(() => buildIndex(content), [content]);
   if (!match || !content) return null;
 
   const names: PerPlayer<string> = {
@@ -144,16 +143,31 @@ export function MatchScreen() {
       const suddenDeath = match.phase === 'suddenDeath';
       const round = match.current;
       if (!round) return null;
+      const itemId = round.items[round.index]?.id ?? '';
+      const body =
+        round.kind === 'bac' ? (
+          <BacRound
+            round={round}
+            label={index.bac.get(itemId)?.label ?? itemId}
+            names={names}
+            totals={score}
+            paused={paused}
+            bacSeconds={settings.bacSeconds}
+            suddenDeath={suddenDeath}
+          />
+        ) : (
+          <ClosestRound
+            round={round}
+            view={cardView(index, round.kind, itemId)}
+            names={names}
+            totals={score}
+            paused={paused}
+            thinkSeconds={settings.thinkSeconds}
+            suddenDeath={suddenDeath}
+          />
+        );
       return shell(
-        <YearRound
-          round={round}
-          items={yearIndex}
-          names={names}
-          totals={score}
-          paused={paused}
-          thinkSeconds={settings.thinkSeconds}
-          suddenDeath={suddenDeath}
-        />,
+        body,
         suddenDeath
           ? 'sudden'
           : isFinalRound(match) && match.config.rules.doubleFinalRound
@@ -190,8 +204,8 @@ function Opening({ names, drivers }: { names: PerPlayer<string>; drivers: MatchS
           {names.A} contre {names.B}
         </h2>
         <p className="text-md text-ink-soft text-balance">
-          Le copilote lit les cartes à voix haute. Pour les années, on annonce en même temps au
-          signal.
+          Le copilote lit les cartes à voix haute. Pour les années et les estimations, on annonce en
+          même temps au signal.
         </p>
         {driver ? <p className="text-sm font-semibold">{driver}, les yeux sur la route !</p> : null}
       </Card>
@@ -240,7 +254,8 @@ function RoundIntro({
         {actions.canUndo() ? (
           <GhostButton
             icon={<UndoIcon size={20} />}
-            className="self-center text-white"
+            tone="inverse"
+            className="self-center"
             onClick={actions.undo}
           >
             Annuler le dernier résultat
@@ -398,4 +413,46 @@ function Finished({
       ) : null}
     </main>
   );
+}
+
+interface ContentIndex {
+  readonly year: ReadonlyMap<string, Content['year'][number]>;
+  readonly estim: ReadonlyMap<string, Content['estim'][number]>;
+  readonly bac: ReadonlyMap<string, Content['bac'][number]>;
+}
+
+function buildIndex(content: Content | null): ContentIndex {
+  return {
+    year: new Map((content?.year ?? []).map((i) => [i.id, i])),
+    estim: new Map((content?.estim ?? []).map((i) => [i.id, i])),
+    bac: new Map((content?.bac ?? []).map((i) => [i.id, i])),
+  };
+}
+
+/** Ce que la carte affiche pour un item « au plus proche ». */
+function cardView(index: ContentIndex, kind: 'year' | 'estim', id: string): CardView {
+  if (kind === 'year') {
+    const item = index.year.get(id);
+    if (!item)
+      return { chip: '?', text: `Question introuvable : ${id}`, context: '', answerLabel: '?' };
+    return {
+      chip: item.category,
+      text: item.text,
+      context: item.context,
+      prefill: item.centuryHint,
+      answerLabel: String(item.year),
+    };
+  }
+  const item = index.estim.get(id);
+  if (!item)
+    return { chip: '?', text: `Question introuvable : ${id}`, context: '', answerLabel: '?' };
+  return {
+    chip: item.unit,
+    text: item.question,
+    context: item.referenceYear ? `${item.context} (Valeur ${item.referenceYear}.)` : item.context,
+    unit: item.unit,
+    answerLabel:
+      item.answerLabel ??
+      estimAnswerLabel(item.answer, item.unit, item.referenceYear !== undefined),
+  };
 }

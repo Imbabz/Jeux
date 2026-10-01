@@ -34,7 +34,6 @@ export function ScoreBar({
           <span
             className={`truncate text-xs ${leader === id ? 'font-bold text-ink' : 'font-semibold text-ink-soft'}`}
           >
-            {leader === id ? '▲ ' : ''}
             {p.name}
           </span>
           <TokenRow games={p.tokens} />

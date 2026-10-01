@@ -17,9 +17,10 @@ import {
   SkipIcon,
   UndoIcon,
 } from '../components/icons.tsx';
-import { YearNumpad } from '../components/Numpad.tsx';
+import { EstimNumpad, YearNumpad } from '../components/Numpad.tsx';
 import { ConfirmDialog } from '../components/Overlay.tsx';
-import { YearRuler } from '../components/RevealRuler.tsx';
+import { LogRuler, YearRuler } from '../components/RevealRuler.tsx';
+import { LetterCard } from './BacRound.tsx';
 import { ScoreBar } from '../components/ScoreBar.tsx';
 import { Segmented } from '../components/Segmented.tsx';
 import { Token, TokenRow } from '../components/Token.tsx';
@@ -250,6 +251,24 @@ export function Styleguide() {
         </button>
       </Section>
 
+      <Section title="LetterCard (Bac Éclair)">
+        {(
+          [
+            ['face cachée', { hidden: true, progress: 0, alert: false }],
+            ['décompte', { hidden: false, progress: 1, alert: false, countdown: '2' }],
+            ['chrono en cours', { hidden: false, progress: 0.6, alert: false }],
+            ['alerte (≤ 5 s)', { hidden: false, progress: 0.2, alert: true }],
+            ['temps écoulé', { hidden: false, progress: 0, alert: false, dimmed: true }],
+          ] as const
+        ).map(([name, state]) => (
+          <State key={name} label={name}>
+            <div className="flex h-80">
+              <LetterCard label="Un animal" letter="B" corner="2/5" {...state} />
+            </div>
+          </State>
+        ))}
+      </Section>
+
       <Section title="RevealRuler">
         <State label="deux pions">
           <Card className="p-3">
@@ -259,6 +278,11 @@ export function Styleguide() {
         <State label="exact + pas de réponse">
           <Card className="p-3">
             <YearRuler answer={1903} proposals={{ A: 1903, B: null }} names={names} />
+          </Card>
+        </State>
+        <State label="Estimation : échelle log, pion écrêté">
+          <Card className="p-3">
+            <LogRuler answer={384400} proposals={{ A: 500000, B: 2000 }} names={names} />
           </Card>
         </State>
         <State label="propositions identiques">
@@ -274,6 +298,9 @@ export function Styleguide() {
         </div>
         <div className="h-[460px]">
           <YearNumpad player="B" name="Tom" prefill="1969" onSubmit={() => undefined} />
+        </div>
+        <div className="h-[500px]">
+          <EstimNumpad player="A" name="Léa" unit="habitants" onSubmit={() => undefined} />
         </div>
       </Section>
 

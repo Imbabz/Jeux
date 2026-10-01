@@ -1,7 +1,18 @@
 import type { z } from 'zod';
 import packsJson from './data/packs.json';
+import bacJson from './data/bac.json';
+import estimJson from './data/estim.json';
 import yearJson from './data/year.json';
-import { packSchema, yearItemSchema, type Pack, type YearContentItem } from './schemas.ts';
+import {
+  bacItemSchema,
+  estimItemSchema,
+  packSchema,
+  yearItemSchema,
+  type BacContentItem,
+  type EstimContentItem,
+  type Pack,
+  type YearContentItem,
+} from './schemas.ts';
 
 export interface RejectedItem {
   readonly file: string;
@@ -12,6 +23,8 @@ export interface RejectedItem {
 export interface Content {
   readonly packs: readonly Pack[];
   readonly year: readonly YearContentItem[];
+  readonly estim: readonly EstimContentItem[];
+  readonly bac: readonly BacContentItem[];
   /** Items écartés par la validation (affichés dans les statistiques du debug). */
   readonly rejected: readonly RejectedItem[];
 }
@@ -52,16 +65,33 @@ export function validateItems<T extends { id: string; packs: string[] }>(
   return { items, rejected };
 }
 
-export function buildContent(rawPacks: unknown, rawYear: unknown): Content {
-  const packs = packSchema.array().parse(rawPacks);
+export interface RawContent {
+  readonly packs: unknown;
+  readonly year: unknown;
+  readonly estim: unknown;
+  readonly bac: unknown;
+}
+
+export function buildContent(raw: RawContent): Content {
+  const packs = packSchema.array().parse(raw.packs);
   const packIds = new Set(packs.map((p) => p.id));
-  const year = validateItems('year.json', rawYear, yearItemSchema, packIds);
-  return { packs, year: year.items, rejected: year.rejected };
+  const year = validateItems('year.json', raw.year, yearItemSchema, packIds);
+  const estim = validateItems('estim.json', raw.estim, estimItemSchema, packIds);
+  const bac = validateItems('bac.json', raw.bac, bacItemSchema, packIds);
+  return {
+    packs,
+    year: year.items,
+    estim: estim.items,
+    bac: bac.items,
+    rejected: [...year.rejected, ...estim.rejected, ...bac.rejected],
+  };
 }
 
 /** Implémentation v1 : JSON embarqué dans le build (précaché par le service worker). */
 export class LocalJsonSource implements ContentSource {
   load(): Promise<Content> {
-    return Promise.resolve(buildContent(packsJson, yearJson));
+    return Promise.resolve(
+      buildContent({ packs: packsJson, year: yearJson, estim: estimJson, bac: bacJson }),
+    );
   }
 }

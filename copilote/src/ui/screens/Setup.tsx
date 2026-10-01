@@ -45,10 +45,15 @@ export function Setup() {
   const [rounds, setRounds] = useState<RoundCount>(last?.rounds ?? 6);
   const [q, setQ] = useState<QuestionCount>(last?.questionsPerRound ?? 5);
   const [custom, setCustom] = useState(false);
+  const [chosen, setChosen] = useState<GameId[]>(last?.games ?? [...GAME_IDS]);
 
+  // Jeux cochés ET disposant d'assez de questions dans les packs choisis (GAME_DESIGN §11.3).
   const playable = useMemo(
-    () => (content ? GAME_IDS.filter((g) => isGamePlayable(content, g, packs)) : []),
-    [content, packs],
+    () =>
+      content
+        ? GAME_IDS.filter((g) => chosen.includes(g) && isGamePlayable(content, g, packs))
+        : [],
+    [content, packs, chosen],
   );
   if (!content) return null;
 
@@ -59,9 +64,11 @@ export function Setup() {
     ? 'Deux prénoms différents, sinon on s’emmêle !'
     : packs.length === 0
       ? 'Choisissez au moins un pack.'
-      : playable.length === 0
-        ? 'Pas assez de questions dans ces packs.'
-        : null;
+      : chosen.length === 0
+        ? 'Choisissez au moins un jeu.'
+        : playable.length === 0
+          ? 'Pas assez de questions dans ces packs.'
+          : null;
 
   const launch = () => {
     const finalNames: [string, string] = [trimmed[0] || 'Joueur 1', trimmed[1] || 'Joueur 2'];
@@ -85,6 +92,7 @@ export function Setup() {
     actions.saveSettings({
       lastSetup: {
         names: [trimmed[0] ?? '', trimmed[1] ?? ''],
+        games: chosen,
         driver,
         packs,
         difficulty,
@@ -97,6 +105,8 @@ export function Setup() {
 
   const togglePack = (id: string) =>
     setPacks((cur) => (cur.includes(id) ? cur.filter((p) => p !== id) : [...cur, id]));
+  const toggleGame = (id: GameId) =>
+    setChosen((cur) => (cur.includes(id) ? cur.filter((g) => g !== id) : [...cur, id]));
 
   return (
     <main className="pt-safe mx-auto flex min-h-full max-w-md flex-col">
@@ -149,35 +159,39 @@ export function Setup() {
               <GameTile
                 key={g}
                 game={g}
-                active={playable.includes(g)}
-                implemented={g === 'year'}
+                chosen={chosen.includes(g)}
+                playable={isGamePlayable(content, g, packs)}
                 count={countItems(content, g, packs)}
+                onToggle={() => toggleGame(g)}
               />
             ))}
           </div>
         </Section>
 
         <Section title="Packs">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2">
             {content.packs.map((p) => {
               const on = packs.includes(p.id);
-              const n = countItems(content, 'year', [p.id]);
+              const [bac, year, estim] = (['bac', 'year', 'estim'] as const).map((g) =>
+                countItems(content, g, [p.id]),
+              );
               return (
                 <button
                   key={p.id}
                   type="button"
                   aria-pressed={on}
                   onClick={() => togglePack(p.id)}
-                  className={`flex min-h-12 items-center gap-2 rounded-chip border px-3 text-sm font-semibold ${
+                  className={`flex min-h-12 w-full items-center gap-2 rounded-chip border px-4 text-sm font-semibold ${
                     on ? 'border-ink bg-ink text-white' : 'border-line bg-card text-ink'
                   }`}
                 >
                   <span aria-hidden="true">{p.emoji}</span>
-                  {p.name}
+                  <span className="truncate">{p.name}</span>
                   <span
-                    className={`text-xs tabular-nums ${on ? 'text-white/75' : 'text-ink-soft'}`}
+                    className={`ml-auto shrink-0 text-xs whitespace-nowrap tabular-nums ${on ? 'text-white/75' : 'text-ink-soft'}`}
+                    aria-label={`${bac} catégories, ${year} années, ${estim} estimations`}
                   >
-                    ⌛{n}
+                    ⚡{bac} · ⌛{year} · ⚖{estim}
                   </span>
                 </button>
               );
@@ -235,8 +249,8 @@ export function Setup() {
             </div>
           ) : null}
           <p className="text-sm text-ink-soft">
-            {rounds} manches × {q} questions · environ {estimateMinutes(rounds, q)}
-            {'\u00a0'}min
+            {rounds} manches × {q} questions ·{' '}
+            <span className="whitespace-nowrap">environ {estimateMinutes(rounds, q)} min</span>
           </p>
         </Section>
       </div>
@@ -255,33 +269,38 @@ export function Setup() {
 
 function GameTile({
   game,
-  active,
-  implemented,
+  chosen,
+  playable,
   count,
+  onToggle,
 }: {
   game: GameId;
-  active: boolean;
-  implemented: boolean;
+  chosen: boolean;
+  playable: boolean;
   count: number;
+  onToggle: () => void;
 }) {
   const theme = GAME_THEME[game];
+  const active = chosen && playable;
   return (
-    <div
-      className={`flex flex-col overflow-hidden rounded-key border-2 bg-card ${active ? theme.border : 'border-line opacity-55'}`}
-      aria-label={`${theme.name} : ${active ? 'activé' : implemented ? 'indisponible' : 'bientôt'}`}
+    <button
+      type="button"
+      aria-pressed={chosen}
+      onClick={onToggle}
+      className={`flex flex-col overflow-hidden rounded-key border-2 bg-card text-left ${active ? theme.border : 'border-line'} ${chosen ? '' : 'opacity-55'}`}
     >
       <div
-        className={`flex h-10 items-center justify-between px-2 text-white ${active ? theme.bg : 'bg-neutral'}`}
+        className={`flex h-10 w-full items-center justify-between px-2 text-white ${active ? theme.bg : 'bg-neutral'}`}
       >
         <GameIcon game={game} size={20} />
         {active ? <CheckIcon size={18} /> : null}
       </div>
       <div className="flex flex-col p-2">
         <span className="text-xs leading-tight font-bold">{theme.name}</span>
-        <span className="text-xs text-ink-soft">
-          {implemented ? `${count} questions` : 'Bientôt'}
+        <span className={`text-xs ${playable ? 'text-ink-soft' : 'font-semibold text-bac'}`}>
+          {playable ? `${count} cartes` : 'Pas assez de cartes'}
         </span>
       </div>
-    </div>
+    </button>
   );
 }

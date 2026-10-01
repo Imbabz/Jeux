@@ -5,7 +5,7 @@ import { initialOf, PLAYER_THEME } from '../theme/games.ts';
 
 /** Boutons « physiques » (DESIGN §3.4) : fond plein, relief bas de 4 px, s'enfoncent au tap. */
 
-type Variant = 'primary' | 'neutral' | 'card' | 'playerA' | 'playerB' | 'year';
+type Variant = 'primary' | 'neutral' | 'card' | 'playerA' | 'playerB' | 'year' | 'estim' | 'bac';
 
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-ink text-white [--btn-deep:var(--color-ink-deep)]',
@@ -14,6 +14,8 @@ const VARIANTS: Record<Variant, string> = {
   playerA: `bg-player-a text-on-player-a ${PLAYER_THEME.A.deep}`,
   playerB: `bg-player-b text-on-player-b ${PLAYER_THEME.B.deep}`,
   year: 'bg-year text-white [--btn-deep:var(--color-year-deep)]',
+  estim: 'bg-estim text-white [--btn-deep:var(--color-estim-deep)]',
+  bac: 'bg-bac text-white [--btn-deep:var(--color-bac-deep)]',
 };
 
 const SIZES = {
@@ -79,16 +81,26 @@ export function PlayerButton({
 }
 
 /** Bouton discret : Passer, Signaler, Pas de réponse secondaire (DESIGN §3.4). */
+const GHOST_TONES = {
+  soft: 'text-ink-soft active:bg-line',
+  danger: 'text-bac active:bg-line',
+  inverse: 'text-white active:bg-white/15',
+} as const;
+
 export function GhostButton({
   icon,
+  tone = 'soft',
   children,
   className = '',
   ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & { icon?: ReactNode }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  icon?: ReactNode;
+  tone?: keyof typeof GHOST_TONES;
+}) {
   return (
     <button
       type="button"
-      className={`inline-flex min-h-12 items-center gap-2 rounded-button px-3 text-sm font-semibold text-ink-soft transition-colors active:bg-line disabled:opacity-40 ${className}`}
+      className={`inline-flex min-h-12 items-center gap-2 rounded-button px-3 text-sm font-semibold transition-colors disabled:opacity-40 ${GHOST_TONES[tone]} ${className}`}
       {...rest}
     >
       {icon}

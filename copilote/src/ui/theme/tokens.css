@@ -58,6 +58,9 @@
   --text-2xl--line-height: 60px;
   --text-giant: 150px;
   --text-giant--line-height: 1;
+  /* Lettre du Bac Éclair dans son anneau (la carte doit tenir sans scroll à 375 × 667). */
+  --text-letter: 112px;
+  --text-letter--line-height: 1;
 
   /* ── Matière ──────────────────────────────────────────── */
   --radius-*: initial;

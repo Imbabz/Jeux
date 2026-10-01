@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
 /**
- * Captures 375 × 667 de chaque écran (relecture design avant chaque point d'arrêt)
- * et vérification « aucun scroll pendant une manche ».
+ * Captures 375 × 667 de chaque écran (relecture design avant chaque point d'arrêt),
+ * partie Express jouée de bout en bout avec les trois jeux, et vérification « aucun scroll en manche ».
  */
 
 async function shot(page: Page, name: string) {
@@ -17,46 +17,75 @@ async function expectNoScroll(page: Page) {
   expect(overflow).toBeLessThanOrEqual(0);
 }
 
+const taken = new Set<string>();
+async function once(page: Page, name: string) {
+  if (taken.has(name)) return;
+  taken.add(name);
+  await expectNoScroll(page);
+  await shot(page, name);
+}
+
 async function typeYear(page: Page, year: string) {
-  // Le pavé est pré-rempli avec l'indice de siècle : on efface puis on tape.
   for (let i = 0; i < 4; i++) await page.getByRole('button', { name: 'Effacer' }).click();
   for (const d of year) await page.getByRole('button', { name: d, exact: true }).click();
   await page.getByRole('button', { name: 'Valider' }).click();
 }
 
-async function playQuestion(page: Page, a: string | null, b: string | null, capture = false) {
-  if (capture) await shot(page, '04-lecture');
+async function typeEstim(page: Page, digits: string, multiplier?: string) {
+  for (const d of digits) {
+    await page.getByRole('button', { name: d === ',' ? 'Virgule' : d, exact: true }).click();
+  }
+  if (multiplier) await page.getByRole('radio', { name: multiplier }).click();
+  await page.getByRole('button', { name: 'Valider' }).click();
+}
+
+async function playClosest(page: Page, game: 'year' | 'estim') {
+  await once(page, `${game}-1-lecture`);
   await page.getByRole('button', { name: /C’est lu/ }).click();
-  if (capture) await shot(page, '05-reflexion');
+  await once(page, `${game}-2-reflexion`);
   await page.getByRole('button', { name: /On est prêts/ }).click();
-  if (capture) {
-    await page.waitForTimeout(300);
-    await shot(page, '06-decompte');
-  }
+  await page.waitForTimeout(300);
+  await once(page, `${game}-3-decompte`);
   await page.getByText(/a dit…/).waitFor({ timeout: 6000 });
-  if (capture) {
-    await expectNoScroll(page);
-    await shot(page, '07-saisie-A');
+  if (game === 'year') {
+    await once(page, 'year-4-saisie');
+    await typeYear(page, '1950');
+    await page.getByRole('button', { name: 'Pas de réponse' }).click();
+  } else {
+    await typeEstim(page, '6,5', 'million');
+    await once(page, 'estim-4-saisie-B');
+    await typeEstim(page, '120');
   }
-  if (a) await typeYear(page, a);
-  else await page.getByRole('button', { name: 'Pas de réponse' }).click();
-  if (b) await typeYear(page, b);
-  else await page.getByRole('button', { name: 'Pas de réponse' }).click();
-  if (capture) await shot(page, '08-pret');
+  await once(page, `${game}-5-pret`);
   await page.getByRole('button', { name: 'Révéler' }).click();
   await page.waitForTimeout(700);
-  if (capture) {
-    await expectNoScroll(page);
-    await shot(page, '09-revelation');
-  }
+  await once(page, `${game}-6-revelation`);
   await page
     .getByRole('button', { name: /Question suivante|Fin de la manche|Voir le résultat/ })
     .click();
 }
 
-test('accueil, configuration, partie Express complète', async ({ page }) => {
-  test.setTimeout(120_000);
-  await page.goto('/?seed=42');
+async function playBac(page: Page, turn: number) {
+  await once(page, 'bac-1-face-cachee');
+  await page.getByRole('button', { name: 'Retourner la carte' }).first().click();
+  await page.waitForTimeout(500);
+  await once(page, 'bac-2-decompte');
+  await page
+    .getByRole('button', { name: 'Ensemble !' })
+    .and(page.locator(':enabled'))
+    .waitFor({ timeout: 6000 });
+  await page.waitForTimeout(1200);
+  await once(page, 'bac-3-chrono');
+  await page.getByRole('button', { name: turn % 2 === 0 ? 'Léa' : 'Tom', exact: true }).click();
+  await once(page, 'bac-4-resolu');
+  await page
+    .getByRole('button', { name: /Tour suivant|Fin de la manche|Voir le résultat/ })
+    .click();
+}
+
+test('accueil, configuration, partie Express avec les trois jeux', async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.goto('/?seed=7');
   await page.evaluate(() => document.fonts.ready);
   await shot(page, '01-accueil');
 
@@ -64,36 +93,33 @@ test('accueil, configuration, partie Express complète', async ({ page }) => {
   await page.getByLabel('Prénom du joueur 1').fill('Léa');
   await page.getByLabel('Prénom du joueur 2').fill('Tom');
   await page.getByRole('radio', { name: 'Express' }).click();
-  await shot(page, '02-configuration');
+  await page.screenshot({ path: 'e2e/screenshots/02-configuration.png', fullPage: true });
   await page.getByRole('button', { name: 'Lancer' }).click();
 
   await expectNoScroll(page);
   await shot(page, '03-ouverture');
   await page.getByRole('button', { name: /C’est parti/ }).click();
-  await shot(page, '03b-intro-manche');
 
   for (let round = 0; round < 3; round++) {
+    const heading = await page.getByRole('heading', { level: 1 }).textContent();
+    await shot(page, `04-intro-manche-${round + 1}`);
     await page.getByRole('button', { name: 'Première question' }).click();
+    const game = heading?.includes('Bac')
+      ? 'bac'
+      : heading?.includes('Estimation')
+        ? 'estim'
+        : 'year';
     for (let q = 0; q < 3; q++) {
-      await playQuestion(
-        page,
-        round === 0 ? '1950' : null,
-        round === 0 ? null : '1950',
-        round === 0 && q === 1,
-      );
+      if (game === 'bac') await playBac(page, q + round);
+      else await playClosest(page, game);
     }
-    if (round === 0) {
-      await expectNoScroll(page);
-      await shot(page, '10-fin-de-manche');
-    }
-    if (round === 2) await shot(page, '10b-fin-derniere-manche');
+    await once(page, `05-fin-de-manche-${round + 1}`);
     await page.getByRole('button', { name: /Manche suivante|Résultat final/ }).click();
-    if (round === 1) await shot(page, '03c-intro-derniere-manche');
   }
 
-  // Score : A marque la manche 1, B les manches 2 et 3 (doublée) → partie terminée.
-  await page.getByText(/gagne\s!/).waitFor();
-  await shot(page, '11-fin-de-partie');
+  const end = page.getByText(/gagne\s!|Mort subite/).first();
+  await end.waitFor();
+  await shot(page, '06-fin-ou-mort-subite');
 });
 
 test('styleguide', async ({ page }) => {

@@ -1,11 +1,14 @@
 import { useSyncExternalStore } from 'react';
-import type { Content, YearContentItem } from '../content/index.ts';
+import type { Content } from '../content/index.ts';
 import {
   activeItem,
   availableItems,
   canUndo,
   createRng,
   difficultyCurve,
+  drawBac,
+  drawEstim,
+  drawLetter,
   drawYear,
   eventLabel,
   MIN_ITEMS_PER_GAME,
@@ -15,6 +18,7 @@ import {
   SALT,
   singleDifficulty,
   undoLastDecision,
+  type Difficulty,
   type DrawContext,
   type GameId,
   type MatchConfig,
@@ -101,8 +105,11 @@ function markSeen(ids: readonly string[]) {
 
 // ── Contenu ───────────────────────────────────────────────────────────────
 
-function poolFor(content: Content, game: GameId): readonly YearContentItem[] {
-  return game === 'year' ? content.year : [];
+function poolFor(
+  content: Content,
+  game: GameId,
+): readonly { id: string; packs: string[]; difficulty: Difficulty }[] {
+  return content[game];
 }
 
 /** Nombre d'items du jeu dans les packs sélectionnés (pour la configuration). */
@@ -110,9 +117,9 @@ export function countItems(content: Content, game: GameId, packs: readonly strin
   return availableItems(poolFor(content, game), packs, new Set()).length;
 }
 
-/** Un jeu est jouable s'il est implémenté et dispose d'au moins 10 items (GAME_DESIGN §11.3). */
+/** Un jeu est jouable s'il dispose d'au moins 10 items dans les packs choisis (GAME_DESIGN §11.3). */
 export function isGamePlayable(content: Content, game: GameId, packs: readonly string[]): boolean {
-  return game === 'year' && countItems(content, game, packs) >= MIN_ITEMS_PER_GAME;
+  return countItems(content, game, packs) >= MIN_ITEMS_PER_GAME;
 }
 
 function drawContext(state: MatchState): DrawContext {
@@ -128,14 +135,16 @@ function drawContext(state: MatchState): DrawContext {
 function draw(
   state: MatchState,
   game: GameId,
-  targets: readonly number[],
+  targets: readonly Difficulty[],
   ...salt: number[]
 ): RoundItem[] {
   const content = snapshot.content;
   if (!content) return [];
   const rng = createRng(state.seed, ...salt);
-  const pool = poolFor(content, game);
-  return drawYear(pool, targets as Parameters<typeof drawYear>[1], drawContext(state), rng);
+  const ctx = drawContext(state);
+  if (game === 'bac') return drawBac(content.bac, targets, ctx, rng);
+  if (game === 'estim') return drawEstim(content.estim, targets, ctx, rng);
+  return drawYear(content.year, targets, ctx, rng);
 }
 
 // ── Journal de partie ─────────────────────────────────────────────────────
@@ -155,7 +164,10 @@ function dispatch(body: MatchEventBody) {
     return;
   }
   // Une carte lue ou passée est marquée « vue » (GAME_DESIGN §11.2).
-  if ((body.type === 'year' || body.type === 'estim') && body.action.type === 'READ') {
+  const shown =
+    ((body.type === 'year' || body.type === 'estim') && body.action.type === 'READ') ||
+    (body.type === 'bac' && body.action.type === 'FLIP');
+  if (shown) {
     const item = activeItem(match);
     if (item) markSeen([item.id]);
   }
@@ -220,7 +232,9 @@ export const actions = {
   startSuddenDeath() {
     const match = snapshot.match;
     if (!match || match.phase !== 'suddenDeathIntro') return;
-    const game: GameId = match.config.games.includes('estim') ? 'estim' : 'year';
+    // Mort subite : Estimation, sinon Quelle année ?, sinon Bac Éclair (GAME_DESIGN §14).
+    const game: GameId =
+      (['estim', 'year', 'bac'] as const).find((g) => match.config.games.includes(g)) ?? 'year';
     const [item] = draw(
       match,
       game,
@@ -233,7 +247,8 @@ export const actions = {
 
   canSkip(): boolean {
     const match = snapshot.match;
-    if (!match?.current || match.current.phase === 'revealed') return false;
+    const phase = match?.current?.phase;
+    if (!match?.current || phase === 'revealed' || phase === 'resolved') return false;
     return draw(match, match.current.kind, [1], SALT.skip, match.usedItemIds.length).length > 0;
   },
 
@@ -249,6 +264,20 @@ export const actions = {
       match.usedItemIds.length,
     );
     if (replacement) dispatch({ type: 'ITEM_SKIPPED', replacement });
+  },
+
+  /** Retourne la carte du Bac Éclair : tire la lettre et l'inscrit dans le journal (GAME_DESIGN §7.3). */
+  flipBac() {
+    const { match, content, record } = snapshot;
+    const round = match?.current;
+    if (!match || !content || !record || round?.kind !== 'bac' || round.phase !== 'hidden') return;
+    const item = content.bac.find((c) => c.id === round.items[round.index]?.id);
+    const excluded = item?.excludedLetters ?? [];
+    const rng = createRng(match.seed, SALT.letter, record.events.length);
+    const letter =
+      drawLetter(excluded, round.usedLetters, match.config.rules.rareLetters, rng) ??
+      drawLetter([], round.usedLetters, true, rng);
+    if (letter) dispatch({ type: 'bac', action: { type: 'FLIP', letter } });
   },
 
   canUndo(): boolean {

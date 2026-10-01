@@ -1,15 +1,15 @@
 import type { MatchEventBody } from './events.ts';
+import type { RoundSummary } from './games/closest/machine.ts';
 import {
-  currentItem,
-  initClosestRound,
-  needsRestartClosest,
-  reduceClosest,
-  restartClosest,
-  skipClosest,
-  summarizeClosest,
-  type ClosestRoundState,
-  type RoundSummary,
-} from './games/closest/machine.ts';
+  initRound,
+  reduceRound,
+  restartRound,
+  roundItem,
+  skipRound,
+  suddenDeathWinner,
+  summarizeRound,
+  type GameRoundState,
+} from './games/round.ts';
 import { planRounds } from './plan.ts';
 import type { GameId, MatchConfig, PerPlayer, PlayerId, RoundItem } from './types.ts';
 
@@ -28,8 +28,7 @@ export type MatchPhase =
   | 'finished'
   | 'abandoned';
 
-/** État d'une manche en cours. Union élargie à l'étape 3 (Bac Éclair). */
-export type GameRoundState = ClosestRoundState;
+export type { GameRoundState } from './games/round.ts';
 
 export interface RoundRecord {
   readonly round: number;
@@ -56,8 +55,6 @@ export interface MatchState {
   readonly usedItemIds: readonly string[];
 }
 
-const SUPPORTED_GAMES: readonly GameId[] = ['year', 'estim'];
-
 export function initialMatchState(config: MatchConfig, seed: number): MatchState {
   return {
     config,
@@ -83,7 +80,15 @@ export function roundMultiplier(state: MatchState): number {
 }
 
 function summarize(round: GameRoundState): RoundSummary {
-  return summarizeClosest(round);
+  return summarizeRound(round);
+}
+
+function roundSettings(state: MatchState, multiplier: number) {
+  return {
+    multiplier,
+    exactBonus: state.config.rules.exactBonus,
+    together: state.config.rules.bacTogether,
+  };
 }
 
 /** Score total : manches terminées + manche en cours (la mort subite n'ajoute aucun point). */
@@ -135,13 +140,14 @@ export function leader(state: MatchState): PlayerId | null {
 /** Vrai si l'état courant est chronométré et doit repartir du début après une fermeture (§10.3). */
 export function needsRestart(state: MatchState): boolean {
   const inRound = state.phase === 'playing' || state.phase === 'suddenDeath';
-  return inRound && needsRestartClosest(state.current as GameRoundState);
+  const current = state.current as GameRoundState;
+  return inRound && restartRound(current) !== current;
 }
 
 /** Item affiché à l'écran, s'il y en a un. */
 export function activeItem(state: MatchState): RoundItem | null {
   const inRound = state.phase === 'playing' || state.phase === 'suddenDeath';
-  return inRound && state.current ? currentItem(state.current) : null;
+  return inRound && state.current ? roundItem(state.current) : null;
 }
 
 function finishRound(state: MatchState, round: GameRoundState): MatchState {
@@ -158,8 +164,8 @@ function finishRound(state: MatchState, round: GameRoundState): MatchState {
 }
 
 function finishSuddenDeath(state: MatchState, round: GameRoundState): MatchState {
-  const winner = (round.results[0] as GameRoundState['results'][number]).outcome.winner;
-  if (winner === 'A' || winner === 'B') {
+  const winner = suddenDeathWinner(round);
+  if (winner) {
     return { ...state, phase: 'finished', current: round, winner, wonBySuddenDeath: true };
   }
   return {
@@ -186,16 +192,14 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
 
     case 'ROUND_STARTED': {
       const valid =
-        state.phase === 'roundIntro' &&
-        event.round === state.roundIndex &&
-        SUPPORTED_GAMES.includes(event.game) &&
-        event.items.length > 0;
+        state.phase === 'roundIntro' && event.round === state.roundIndex && event.items.length > 0;
       if (!valid) return state;
       const plan = state.plan.map((g, i) => (i === state.roundIndex ? event.game : g));
-      const current = initClosestRound(event.game as GameRoundState['kind'], event.items, {
-        multiplier: roundMultiplier(state),
-        exactBonus: state.config.rules.exactBonus,
-      });
+      const current = initRound(
+        event.game,
+        event.items,
+        roundSettings(state, roundMultiplier(state)),
+      );
       return {
         ...state,
         phase: 'playing',
@@ -209,11 +213,8 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
       return state.phase === 'roundRecap' ? afterRecap(state) : state;
 
     case 'SUDDEN_DEATH_STARTED': {
-      if (state.phase !== 'suddenDeathIntro' || !SUPPORTED_GAMES.includes(event.game)) return state;
-      const current = initClosestRound(event.game as GameRoundState['kind'], [event.item], {
-        multiplier: 1,
-        exactBonus: state.config.rules.exactBonus,
-      });
+      if (state.phase !== 'suddenDeathIntro') return state;
+      const current = initRound(event.game, [event.item], roundSettings(state, 1));
       return {
         ...state,
         phase: 'suddenDeath',
@@ -225,14 +226,14 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
     case 'ITEM_SKIPPED': {
       if ((state.phase !== 'playing' && state.phase !== 'suddenDeath') || !state.current)
         return state;
-      const current = skipClosest(state.current, event.replacement);
+      const current = skipRound(state.current, event.replacement);
       if (current === state.current) return state;
       return { ...state, current, usedItemIds: [...state.usedItemIds, event.replacement.id] };
     }
 
     case 'TURN_RESTARTED': {
       if (!needsRestart(state)) return state;
-      return { ...state, current: restartClosest(state.current as GameRoundState) };
+      return { ...state, current: restartRound(state.current as GameRoundState) };
     }
 
     case 'MATCH_ABANDONED':
@@ -241,10 +242,11 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
         : { ...state, phase: 'abandoned' };
 
     case 'year':
-    case 'estim': {
+    case 'estim':
+    case 'bac': {
       const inRound = state.phase === 'playing' || state.phase === 'suddenDeath';
-      if (!inRound || !state.current || state.current.kind !== event.type) return state;
-      const current = reduceClosest(state.current, event.action);
+      if (!inRound || !state.current) return state;
+      const current = reduceRound(state.current, event.type, event.action);
       if (current === state.current) return state;
       if (!current.done) return { ...state, current };
       return state.phase === 'playing'

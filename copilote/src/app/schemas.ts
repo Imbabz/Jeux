@@ -71,6 +71,7 @@ export type SeenStore = z.infer<typeof seenSchema>;
 export const settingsSchema = z.object({
   schemaVersion: z.literal(1),
   thinkSeconds: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15)]),
+  bacSeconds: z.union([z.literal(10), z.literal(15), z.literal(20)]).default(15),
   sound: z.boolean(),
   haptics: z.boolean(),
   avoidSeen: z.boolean(),
@@ -79,6 +80,7 @@ export const settingsSchema = z.object({
   lastSetup: z
     .object({
       names: z.tuple([z.string(), z.string()]),
+      games: z.array(z.enum(['bac', 'year', 'estim'])).default(['bac', 'year', 'estim']),
       driver: z.enum(['A', 'B', 'none']),
       packs: z.array(z.string()),
       difficulty: z.enum(['easy', 'mixed', 'hard']),
@@ -92,6 +94,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 export const DEFAULT_SETTINGS: Settings = {
   schemaVersion: 1,
   thinkSeconds: 10,
+  bacSeconds: 15,
   sound: true,
   haptics: true,
   avoidSeen: true,

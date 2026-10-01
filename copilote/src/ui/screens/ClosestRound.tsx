@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { actions } from '../../app/session.ts';
-import type { YearContentItem } from '../../content/index.ts';
 import {
   currentItem,
   type ClosestAction,
@@ -13,20 +12,33 @@ import { haptics, sound } from '../../services/index.ts';
 import { Button, GhostButton } from '../components/Button.tsx';
 import { Card, CategoryChip, FlipCard, GameBanner } from '../components/Card.tsx';
 import { SkipIcon } from '../components/icons.tsx';
-import { YearNumpad } from '../components/Numpad.tsx';
-import { YearRuler } from '../components/RevealRuler.tsx';
+import { EstimNumpad, YearNumpad } from '../components/Numpad.tsx';
+import { LogRuler, YearRuler } from '../components/RevealRuler.tsx';
 import { useTimeline } from '../hooks/useClock.ts';
-import { scoreLine, yearGapLabel } from '../format.ts';
+import { formatQuantity, ratioLabel, scoreLine, yearGapLabel } from '../format.ts';
 import { PLAYER_THEME } from '../theme/games.ts';
 
 /**
- * Déroulé d'une question « Quelle année ? » (GAME_DESIGN §8.1).
+ * Déroulé d'une question « au plus proche » : Quelle année ? et Estimation (GAME_DESIGN §8 et §9).
  * Le copilote lit la carte, l'app chronomètre et bipe ; le verso n'est rendu qu'après « Révéler ».
  */
 
+/** Ce que l'écran affiche d'un item, quel que soit le jeu. */
+export interface CardView {
+  readonly chip: string;
+  readonly text: string;
+  readonly context: string;
+  /** Unité (Estimation) ; absente pour les années. */
+  readonly unit?: string;
+  /** Chiffres pré-remplis du pavé (indice de siècle). */
+  readonly prefill?: string;
+  /** Réponse telle qu'affichée au verso. */
+  readonly answerLabel: string;
+}
+
 interface Props {
   round: ClosestRoundState;
-  items: ReadonlyMap<string, YearContentItem>;
+  view: CardView;
   names: PerPlayer<string>;
   totals: PerPlayer<number>;
   paused: boolean;
@@ -34,40 +46,50 @@ interface Props {
   suddenDeath: boolean;
 }
 
-const send = (action: ClosestAction) => actions.dispatch({ type: 'year', action });
+const sendFor = (round: ClosestRoundState) => (action: ClosestAction) =>
+  actions.dispatch({ type: round.kind, action });
 
-export function YearRound(props: Props) {
-  const { round, items } = props;
+export function ClosestRound(props: Props) {
+  const { round, view } = props;
   const item = currentItem(round);
-  const data = items.get(item.id);
+  const send = sendFor(round);
   // Chaque état est remonté (key) : ses chronos repartent de zéro.
   const key = `${round.index}-${item.id}-${round.phase}`;
-  if (!data) return <p className="p-4 text-bac">Question introuvable : {item.id}</p>;
 
   switch (round.phase) {
     case 'read':
     case 'think':
     case 'countdown':
-      return <QuestionPhase key={key} {...props} data={data} />;
+      return <QuestionPhase key={key} {...props} />;
     case 'inputA':
     case 'inputB': {
       const player: PlayerId = round.phase === 'inputA' ? 'A' : 'B';
+      const onSubmit = (value: number | null) => send({ type: 'INPUT', player, value });
       return (
-        <div key={key} className="flex h-full flex-col gap-3">
-          <Recall data={data} />
-          <YearNumpad
-            player={player}
-            name={props.names[player]}
-            prefill={data.centuryHint}
-            onSubmit={(value) => send({ type: 'INPUT', player, value })}
-          />
+        <div key={key} className="flex h-full flex-col gap-2">
+          <Recall view={view} />
+          {round.kind === 'estim' ? (
+            <EstimNumpad
+              player={player}
+              name={props.names[player]}
+              unit={view.unit ?? ''}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <YearNumpad
+              player={player}
+              name={props.names[player]}
+              prefill={view.prefill ?? ''}
+              onSubmit={onSubmit}
+            />
+          )}
         </div>
       );
     }
     case 'ready':
-      return <ReadyPhase key={key} round={round} data={data} names={props.names} />;
+      return <ReadyPhase key={key} round={round} view={view} names={props.names} />;
     case 'revealed':
-      return <RevealedPhase key={key} {...props} data={data} />;
+      return <RevealedPhase key={key} {...props} />;
   }
 }
 
@@ -77,50 +99,42 @@ function questionLabel(round: ClosestRoundState, suddenDeath: boolean) {
 
 function QuestionFront({
   round,
-  data,
+  view,
   suddenDeath,
   footer,
 }: {
   round: ClosestRoundState;
-  data: YearContentItem;
+  view: CardView;
   suddenDeath: boolean;
   footer?: ReactNode;
 }) {
   return (
     <Card className="flex h-full flex-col">
-      <GameBanner game="year" right={questionLabel(round, suddenDeath)} />
+      <GameBanner game={round.kind} right={questionLabel(round, suddenDeath)} />
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-5 text-center">
-        <CategoryChip>{data.category}</CategoryChip>
-        <p className="font-display text-lg font-bold text-balance">{data.text}</p>
+        <CategoryChip>{view.chip}</CategoryChip>
+        <p className="font-display text-lg font-bold text-balance">{view.text}</p>
       </div>
       {footer ? <div className="flex min-h-14 items-center px-3 pb-2">{footer}</div> : null}
     </Card>
   );
 }
 
-function SkipButton({ disabled }: { disabled?: boolean }) {
+function SkipButton() {
   return (
-    <GhostButton
-      icon={<SkipIcon size={20} />}
-      onClick={actions.skip}
-      disabled={disabled || !actions.canSkip()}
-    >
+    <GhostButton icon={<SkipIcon size={20} />} onClick={actions.skip} disabled={!actions.canSkip()}>
       Passer
     </GhostButton>
   );
 }
 
-function QuestionPhase({
-  round,
-  data,
-  paused,
-  thinkSeconds,
-  suddenDeath,
-}: Props & { data: YearContentItem }) {
+function QuestionPhase({ round, view, paused, thinkSeconds, suddenDeath }: Props) {
   const phase = round.phase;
+  const send = sendFor(round);
   const thinkMs = thinkSeconds * 1000;
   const steps = useMemo(() => {
-    if (phase === 'think') return [{ at: thinkMs, run: () => send({ type: 'THINK_DONE' }) }];
+    const go = (action: ClosestAction) => actions.dispatch({ type: round.kind, action });
+    if (phase === 'think') return [{ at: thinkMs, run: () => go({ type: 'THINK_DONE' }) }];
     if (phase === 'countdown') {
       const tick = () => {
         sound.beep('tick');
@@ -137,29 +151,29 @@ function QuestionPhase({
             haptics.pulse(60);
           },
         },
-        { at: 3700, run: () => send({ type: 'COUNTDOWN_DONE' }) },
+        { at: 3700, run: () => go({ type: 'COUNTDOWN_DONE' }) },
       ];
     }
     return [];
-  }, [phase, thinkMs]);
+  }, [phase, thinkMs, round.kind]);
   const elapsed = useTimeline(!paused && phase !== 'read', steps);
-
   const countdownLabel =
     elapsed < 1000 ? '3' : elapsed < 2000 ? '2' : elapsed < 3000 ? '1' : 'Annoncez !';
+  const bar = round.kind === 'estim' ? 'bg-estim' : 'bg-year';
 
   return (
     <div className="flex h-full flex-col gap-3">
       <div className="relative min-h-0 flex-1">
         <QuestionFront
           round={round}
-          data={data}
+          view={view}
           suddenDeath={suddenDeath}
           footer={
             phase === 'think' ? (
               <div className="flex w-full flex-col gap-1 px-1">
                 <div className="h-2 overflow-hidden rounded-chip bg-line">
                   <div
-                    className="h-full rounded-chip bg-year"
+                    className={`h-full rounded-chip ${bar}`}
                     style={{
                       width: `${Math.max(0, 100 - (elapsed / Math.max(thinkMs, 1)) * 100)}%`,
                     }}
@@ -201,57 +215,57 @@ function QuestionPhase({
   );
 }
 
-function Recall({ data }: { data: YearContentItem }) {
+function Recall({ view }: { view: CardView }) {
   return (
     <p className="truncate px-1 text-sm text-ink-soft">
-      <span className="font-semibold">{data.category} :</span> {data.text}
+      <span className="font-semibold">{view.chip} :</span> {view.text}
     </p>
   );
 }
 
-function ProposalTag({
-  player,
-  name,
-  value,
-}: {
-  player: PlayerId;
-  name: string;
-  value: number | null;
-}) {
+function formatProposal(round: ClosestRoundState, value: number | null | undefined) {
+  if (value === null || value === undefined) return '—';
+  return round.kind === 'estim' ? formatQuantity(value) : String(value);
+}
+
+function ProposalTag({ player, name, label }: { player: PlayerId; name: string; label: string }) {
   const theme = PLAYER_THEME[player];
   return (
     <div
-      className={`flex flex-1 flex-col items-center rounded-card py-3 shadow-card ${theme.bg} ${theme.text}`}
+      className={`flex min-w-0 flex-1 flex-col items-center rounded-card px-2 py-3 shadow-card ${theme.bg} ${theme.text}`}
     >
       <span className="text-sm font-bold">{name} dit</span>
-      <span className="font-display text-xl font-black tabular-nums">{value ?? '—'}</span>
+      <span className="max-w-full truncate font-display text-xl font-black tabular-nums">
+        {label}
+      </span>
     </div>
   );
 }
 
 function ReadyPhase({
   round,
-  data,
+  view,
   names,
 }: {
   round: ClosestRoundState;
-  data: YearContentItem;
+  view: CardView;
   names: PerPlayer<string>;
 }) {
+  const send = sendFor(round);
   return (
     <div className="flex h-full flex-col gap-3">
       <Card className="flex flex-1 flex-col">
-        <GameBanner game="year" />
+        <GameBanner game={round.kind} />
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
-          <CategoryChip>{data.category}</CategoryChip>
-          <p className="font-display text-lg font-bold text-balance">{data.text}</p>
+          <CategoryChip>{view.chip}</CategoryChip>
+          <p className="font-display text-lg font-bold text-balance">{view.text}</p>
         </div>
       </Card>
       <div className="flex gap-3">
-        <ProposalTag player="A" name={names.A} value={round.inputs.A ?? null} />
-        <ProposalTag player="B" name={names.B} value={round.inputs.B ?? null} />
+        <ProposalTag player="A" name={names.A} label={formatProposal(round, round.inputs.A)} />
+        <ProposalTag player="B" name={names.B} label={formatProposal(round, round.inputs.B)} />
       </div>
-      <Button size="xl" block variant="year" onClick={() => send({ type: 'REVEAL' })}>
+      <Button size="xl" block variant={round.kind} onClick={() => send({ type: 'REVEAL' })}>
         Révéler
       </Button>
     </div>
@@ -263,17 +277,11 @@ function verdict(result: ClosestResult, names: PerPlayer<string>): string {
   if (winner === 'none') return 'Personne ne marque';
   if (winner === 'tie')
     return points.A > 1 ? `Égalité : +${points.A} chacun` : 'Égalité : un point chacun';
-  const pts = points[winner];
-  return `+${pts} pour ${names[winner]}`;
+  return `+${points[winner]} pour ${names[winner]}`;
 }
 
-function RevealedPhase({
-  round,
-  data,
-  names,
-  totals,
-  suddenDeath,
-}: Props & { data: YearContentItem }) {
+function RevealedPhase({ round, view, names, totals, suddenDeath }: Props) {
+  const send = sendFor(round);
   const result = round.results[round.results.length - 1] as ClosestResult;
   const last = round.index + 1 >= round.items.length;
   const { outcome, inputs } = result;
@@ -283,15 +291,26 @@ function RevealedPhase({
     const id = requestAnimationFrame(() => setFlipped(true));
     return () => cancelAnimationFrame(id);
   }, []);
-  const front = <QuestionFront round={round} data={data} suddenDeath={suddenDeath} />;
+  const estim = round.kind === 'estim';
+  const gapText = (p: PlayerId) =>
+    estim
+      ? ratioLabel(outcome.gap[p], outcome.exact[p])
+      : yearGapLabel(outcome.gap[p], outcome.exact[p]);
+  const front = <QuestionFront round={round} view={view} suddenDeath={suddenDeath} />;
   const back = (
     <Card className="flex h-full flex-col overflow-hidden">
-      <GameBanner game="year" right={questionLabel(round, suddenDeath)} />
+      <GameBanner game={round.kind} right={questionLabel(round, suddenDeath)} />
       <div className="flex min-h-0 flex-1 flex-col gap-1.5 px-4 pt-2 pb-3">
-        <p className="animate-pop text-center font-display text-2xl font-black tabular-nums">
-          {result.item.answer}
+        <p
+          className={`animate-pop text-center font-display font-black tabular-nums text-balance ${estim ? 'text-xl' : 'text-2xl'}`}
+        >
+          {view.answerLabel}
         </p>
-        <YearRuler answer={result.item.answer} proposals={inputs} names={names} />
+        {estim ? (
+          <LogRuler answer={result.item.answer} proposals={inputs} names={names} />
+        ) : (
+          <YearRuler answer={result.item.answer} proposals={inputs} names={names} />
+        )}
         <div className="flex flex-col gap-1">
           {(['A', 'B'] as const).map((p) => (
             <div
@@ -303,11 +322,13 @@ function RevealedPhase({
                 aria-hidden="true"
               />
               <span className="min-w-0 truncate font-bold">{names[p]}</span>
-              <span className="font-bold tabular-nums">{inputs[p] ?? '—'}</span>
+              <span className="truncate font-bold tabular-nums">
+                {formatProposal(round, inputs[p])}
+              </span>
               <span
                 className={`ml-auto font-semibold whitespace-nowrap ${outcome.exact[p] ? 'text-estim-deep' : 'text-ink-soft'}`}
               >
-                {yearGapLabel(outcome.gap[p], outcome.exact[p])}
+                {gapText(p)}
               </span>
             </div>
           ))}
@@ -317,7 +338,7 @@ function RevealedPhase({
           {suddenDeath ? '' : ` · ${scoreLine(names, totals)}`}
         </p>
         <p className="mt-auto text-center text-sm leading-snug text-ink-soft italic text-balance">
-          {data.context}
+          {view.context}
         </p>
       </div>
     </Card>
