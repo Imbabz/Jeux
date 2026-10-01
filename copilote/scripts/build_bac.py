@@ -6,6 +6,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from bac_items import ITEMS
 from bac_words import load
 from fact_check import apply
+from bac_review import REMOVED, RENAMED
 
 COMMON = 'ABCDEFGHIJLMNOPRSTUV'
 MIN_WORDS = 3
@@ -43,6 +44,24 @@ def merged(item_id):
         letters.setdefault(letter, {})
         for word in ws:
             letters[letter].setdefault(plain(word), [word, genders.get(word, '')])
+    removed = {plain(w) for w in REMOVED.get(item_id, [])}
+    renamed = {plain(a): b for a, b in RENAMED.get(item_id, {}).items()}
+    found = set()
+    for letter, entries in list(letters.items()):
+        for key in list(entries):
+            if key in removed:
+                found.add(key)
+                del entries[key]
+            elif key in renamed:
+                found.add(key)
+                word, note = entries.pop(key)
+                new = renamed[key]
+                # Reste sous la même lettre si l'initiale le permet, sinon passe sous la sienne.
+                target = letter if letter in initials(new) else min(initials(new))
+                letters.setdefault(target, {}).setdefault(plain(new), [new, note])
+    stale = (removed | set(renamed)) - found
+    if stale:
+        raise SystemExit(f"{item_id} : relecture obsolète, mots introuvables {sorted(stale)}")
     return {l: sorted(e.values(), key=lambda x: plain(x[0])) for l, e in letters.items()}
 
 

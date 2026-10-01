@@ -210,3 +210,33 @@ ALLOWLIST = {
         velours, voile, denim, lycra, viscose, néoprène, polaire, rayonne, tergal, vinyle, jean, liège,
         osier, rotin, paille"""),
 }
+
+
+# Intrus que WOLF rattache à tort à des catégories concrètes (mauvais sens d'un homonyme).
+GLOBAL_JUNK = _w("""accès, amérique, arabe, assaut, attaque, attentat, baie, bambin, barrage, basse, bébé, brahmane,
+    canine, carne, castration, charge, citation, comment, commune, cric, cul, diversion, enfant, femelle,
+    gallois, gris, hart, humanité, laurier, localisation, mademoiselle, meurtrier, monde, myrmidon, nounou,
+    oseille, pacemaker, palefrenier, pêcheur, peintre, pilotage, sceau, secrétariat, seul, suisse, supporter,
+    tambour, thonier, traverse, vielle, yearling, marmot, magot, sagouin, skunks, rhino, oiselet, tarpan,
+    amphibie, chanteur, vampire, adjudant, cardinal, monarque, moniteur, once, amiral, empereur, militaire,
+    ministre, soldat, travailleur, ouvrier, valet, reine, petit, jeune, homme, humain, géant, dragon""")
+
+# Animaux domestiques ou d'élevage : exclus de « Un animal sauvage ».
+DOMESTIC = _w("""âne, ânesse, bardot, baudet, bélier, bique, bouc, brebis, canari, cheval, chèvre, chevreau, chien,
+    chat, chiot, chaton, cobaye, cochon, coq, dinde, dindon, étalon, furet, génisse, hamster, jument, lama,
+    alpaga, mouton, mule, mulet, oie, pintade, poney, porc, poule, poulet, poussin, taureau, truie, vache,
+    veau, zébu, yack, yak, angora, perruche, poisson rouge, cochon d'Inde, gerbille, chinchilla, lapin,
+    pigeon, colombe, mustang, destrier, abyssin, alsacien, barzoï, beagle, berger, bichon, bouledogue, briard,
+    caniche, cocker, colley, corniaud, dalmatien, dogue, épagneul, fox-terrier, husky, lévrier, mastiff,
+    pékinois, retriever, saint-bernard, shetland, siamois, teckel, terrier, chapon, verrat, pourceau, jars,
+    canard, chat-tigre, lapereau, oison, pigeonneau, louveteau, lionceau, ourson, faon, hase, souris, rat,
+    archéoptéryx, aurochs, diplodocus, dodo, dronte, iguanodon, mammouth, mastodonte, ptérodactyle,
+    stégosaure, tyrannosaure, dinosaure, fauve, chameau, dromadaire, renne""")
+
+# Sous-classes corrigées à la main quand WordNet hésite entre deux sens.
+KIND_OVERRIDES = {
+    'éponge': 'animal marin', 'corail': 'animal marin', 'méduse': 'animal marin', 'anémone': 'animal marin',
+    'oursin': 'animal marin', 'étoile de mer': 'animal marin', 'hippocampe': 'poisson',
+    'dauphin': 'mammifère', 'biche': 'mammifère', 'colombe': 'oiseau', 'pigeon': 'oiseau',
+    'ramier': 'oiseau', 'tourterelle': 'oiseau', 'dodo': 'oiseau', 'dronte': 'oiseau',
+}

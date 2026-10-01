@@ -6,7 +6,7 @@ import collections, json, pathlib, re, sys, unicodedata
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import sources as S
 from categories import WORDNET
-from review import ALLOWLIST, BLOCKLIST
+from review import ALLOWLIST, BLOCKLIST, DOMESTIC, GLOBAL_JUNK, KIND_OVERRIDES
 
 HERE = pathlib.Path(__file__).parent
 COMMON = 'ABCDEFGHIJLMNOPRSTUV'
@@ -47,14 +47,30 @@ def wordnet_lists(lex, wolf):
                         if not e or e['freq'] < cfg['min_freq']:
                             continue
                         found[w] = label
-        block = BLOCKLIST.get(cat, set())
+        block = BLOCKLIST.get(cat, set()) | GLOBAL_JUNK
+        found = {w: KIND_OVERRIDES.get(w, label) for w, label in found.items()}
         allow = ALLOWLIST.get(cat)
         if allow is not None:
             # Liste relue : les mots validés absents de WordNet sont ajoutés avec la sous-classe par défaut.
             default = cfg['classes'][-1][0]
             found = {w: found.get(w, default) for w in allow}
         out[cat] = {w: note(lex, w, label) for w, label in found.items() if w not in block}
+    # « Un animal sauvage » : les animaux de la liste relue, hors animaux domestiques ou d'élevage,
+    # et seulement mammifères, oiseaux, reptiles et amphibiens (ce qu'on attend dans le jeu).
+    tame = set(DOMESTIC)
+    for root in ['dog.n.01', 'domestic_cat.n.01', 'domestic_animal.n.01', 'livestock.n.01', 'poultry.n.02',
+                 'domestic_fowl.n.01', 'young_mammal.n.01', 'young_bird.n.01', 'dinosaur.n.01', 'pterosaur.n.01',
+                 'mammoth.n.01', 'mastodon.n.01', 'aurochs.n.02', 'archaeopteryx.n.01', 'dodo.n.02']:
+        for syn in wolf.closure(root):
+            tame |= wolf.lemmas(syn)
+    out['bac-0092'] = {w: n for w, n in out['bac-0001'].items()
+                       if w not in tame and n.split(' · ')[-1] in {'mammifère', 'oiseau', 'reptile', 'amphibien'}}
     return out
+
+
+# Codes ISO de territoires, dépendances et régions qui ne sont pas des pays souverains.
+TERRITORIES = set('''AS AI AQ AW AX BL BM BQ BV CC CK CW CX EH FK FO GF GG GI GL GP GS GU HK HM IM IO JE KY MF
+MO MP MQ MS NC NF NU PF PM PN PR RE SH SJ SX TC TF TK UM VG VI WF YT'''.split())
 
 
 def dataset_lists(lex):
@@ -64,7 +80,7 @@ def dataset_lists(lex):
     # Villes de France : communes de plus de 10 000 habitants, avec leur département.
     out['bac-0007'] = {nom: dep for nom, pop, dep in S.communes() if pop >= 10000}
     # Pays : noms officiels en français (ISO 3166).
-    out['bac-0002'] = {name: 'pays' for name in S.countries().values()}
+    out['bac-0002'] = {name: 'pays' for code, name in S.countries().items() if code not in TERRITORIES}
     # Prénoms et noms de famille les plus portés en France.
     out['bac-0003'] = {n: 'prénom' for n in names.top(S.first_names(), 1200)}
     out['bac-0042'] = {n: 'nom de famille' for n in names.top(S.last_names(), 1500)}

@@ -2475,7 +2475,7 @@
 ],
 [
 "agneau",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "agouti",
@@ -2543,7 +2543,7 @@
 ],
 [
 "anémone",
-"n.f. · animal"
+"n.f. · animal marin"
 ],
 [
 "angora",
@@ -2583,7 +2583,7 @@
 ],
 [
 "asticot",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "aurochs",
@@ -2685,7 +2685,7 @@
 ],
 [
 "biche",
-"n.f. · poisson"
+"n.f. · mammifère"
 ],
 [
 "bichon",
@@ -2915,7 +2915,7 @@
 ],
 [
 "chaton",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "chauve-souris",
@@ -2923,7 +2923,7 @@
 ],
 [
 "chenille",
-"n.f. · animal"
+"n.f. · animal marin"
 ],
 [
 "cheval",
@@ -3015,7 +3015,7 @@
 ],
 [
 "cochonnet",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "cocker",
@@ -3051,7 +3051,7 @@
 ],
 [
 "corail",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "corbeau",
@@ -3129,7 +3129,7 @@
 ],
 [
 "dauphin",
-"n.m. · poisson"
+"n.m. · mammifère"
 ],
 [
 "destrier",
@@ -3251,7 +3251,7 @@
 ],
 [
 "éponge",
-"n.f. · animal"
+"n.f. · animal marin"
 ],
 [
 "escargot",
@@ -3391,7 +3391,7 @@
 ],
 [
 "goret",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "gorille",
@@ -3581,7 +3581,7 @@
 ],
 [
 "lamproie",
-"n.f. · animal"
+"n.f. · animal marin"
 ],
 [
 "langouste",
@@ -3767,7 +3767,7 @@
 ],
 [
 "méduse",
-"n.f. · animal"
+"n.f. · animal marin"
 ],
 [
 "merlan",
@@ -3882,10 +3882,6 @@
 "n.m. · oiseau"
 ],
 [
-"oiselet",
-"n.m. · oiseau"
-],
-[
 "oison",
 "n.m. · oiseau"
 ],
@@ -3939,7 +3935,7 @@
 ],
 [
 "oursin",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "ourson",
@@ -4101,7 +4097,7 @@
 ],
 [
 "porcelet",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "pou",
@@ -4109,7 +4105,7 @@
 ],
 [
 "poulain",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "poule",
@@ -4121,7 +4117,7 @@
 ],
 [
 "pouliche",
-"n.f. · animal"
+"n.f. · animal marin"
 ],
 [
 "poulpe",
@@ -4407,7 +4403,7 @@
 ],
 [
 "têtard",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "tétras",
@@ -4481,7 +4477,7 @@
 ],
 [
 "veau",
-"n.m. · animal"
+"n.m. · animal marin"
 ],
 [
 "ver",
@@ -4550,10 +4546,6 @@
 "pays"
 ],
 [
-"Åland",
-"pays"
-],
-[
 "Albanie",
 "pays"
 ],
@@ -4574,14 +4566,6 @@
 "pays"
 ],
 [
-"Anguilla",
-"pays"
-],
-[
-"Antarctique",
-"pays"
-],
-[
 "Antigua-et-Barbuda",
 "pays"
 ],
@@ -4595,10 +4579,6 @@
 ],
 [
 "Arménie",
-"pays"
-],
-[
-"Aruba",
 "pays"
 ],
 [
@@ -4644,10 +4624,6 @@
 "pays"
 ],
 [
-"Bermudes",
-"pays"
-],
-[
 "Bhoutan",
 "pays"
 ],
@@ -4657,10 +4633,6 @@
 ],
 [
 "Bolivie",
-"pays"
-],
-[
-"Bonaire, Saint-Eustache et Saba",
 "pays"
 ],
 [
@@ -4752,10 +4724,6 @@
 [
 "Cuba",
 "pays"
-],
-[
-"Curaçao",
-"pays"
 ]
 ],
 "D": [
@@ -4838,15 +4806,7 @@
 "pays"
 ],
 [
-"Géorgie du Sud-et-les Îles Sandwich du Sud",
-"pays"
-],
-[
 "Ghana",
-"pays"
-],
-[
-"Gibraltar",
 "pays"
 ],
 [
@@ -4858,23 +4818,7 @@
 "pays"
 ],
 [
-"Groenland",
-"pays"
-],
-[
-"Guadeloupe",
-"pays"
-],
-[
-"Guam",
-"pays"
-],
-[
 "Guatemala",
-"pays"
-],
-[
-"Guernesey",
 "pays"
 ],
 [
@@ -4892,10 +4836,6 @@
 [
 "Guyana",
 "pays"
-],
-[
-"Guyane française",
-"pays"
 ]
 ],
 "H": [
@@ -4908,85 +4848,17 @@
 "pays"
 ],
 [
-"Hong Kong",
-"pays"
-],
-[
 "Hongrie",
 "pays"
 ]
 ],
 "I": [
 [
-"Île Bouvet",
-"pays"
-],
-[
-"Île Christmas",
-"pays"
-],
-[
-"Île de Man",
-"pays"
-],
-[
-"Île Norfolk",
-"pays"
-],
-[
-"Îles Caïmans",
-"pays"
-],
-[
-"Îles Cocos",
-"pays"
-],
-[
-"Îles Cook",
-"pays"
-],
-[
-"Îles Féroé",
-"pays"
-],
-[
-"Îles Heard-et-MacDonald",
-"pays"
-],
-[
-"Îles Malouines",
-"pays"
-],
-[
-"Îles Mariannes du Nord",
-"pays"
-],
-[
 "Îles Marshall",
 "pays"
 ],
 [
-"Îles mineures éloignées des États-Unis",
-"pays"
-],
-[
-"Îles Pitcairn",
-"pays"
-],
-[
 "Îles Salomon",
-"pays"
-],
-[
-"Îles Turques-et-Caïques",
-"pays"
-],
-[
-"Îles vierges américaines",
-"pays"
-],
-[
-"Îles vierges britanniques",
 "pays"
 ],
 [
@@ -5029,10 +4901,6 @@
 ],
 [
 "Japon",
-"pays"
-],
-[
-"Jersey",
 "pays"
 ],
 [
@@ -5106,10 +4974,6 @@
 ],
 "M": [
 [
-"Macao",
-"pays"
-],
-[
 "Macédoine du Nord",
 "pays"
 ],
@@ -5142,19 +5006,11 @@
 "pays"
 ],
 [
-"Martinique",
-"pays"
-],
-[
 "Maurice",
 "pays"
 ],
 [
 "Mauritanie",
-"pays"
-],
-[
-"Mayotte",
 "pays"
 ],
 [
@@ -5179,10 +5035,6 @@
 ],
 [
 "Monténégro",
-"pays"
-],
-[
-"Montserrat",
 "pays"
 ],
 [
@@ -5220,15 +5072,7 @@
 "pays"
 ],
 [
-"Niué",
-"pays"
-],
-[
 "Norvège",
-"pays"
-],
-[
-"Nouvelle-Calédonie",
 "pays"
 ],
 [
@@ -5237,10 +5081,6 @@
 ]
 ],
 "O": [
-[
-"Océan Indien Britannique",
-"pays"
-],
 [
 "Oman",
 "pays"
@@ -5296,14 +5136,6 @@
 "pays"
 ],
 [
-"Polynésie française",
-"pays"
-],
-[
-"Porto Rico",
-"pays"
-],
-[
 "Portugal",
 "pays"
 ]
@@ -5340,10 +5172,6 @@
 "pays"
 ],
 [
-"Réunion",
-"pays"
-],
-[
 "Roumanie",
 "pays"
 ],
@@ -5366,31 +5194,11 @@
 ],
 "S": [
 [
-"Sahara occidental",
-"pays"
-],
-[
-"Saint-Barthélemy",
-"pays"
-],
-[
 "Saint-Christophe-et-Niévès",
 "pays"
 ],
 [
 "Saint-Marin",
-"pays"
-],
-[
-"Saint-Martin (partie française)",
-"pays"
-],
-[
-"Saint-Martin (partie néerlandaise)",
-"pays"
-],
-[
-"Saint-Pierre-et-Miquelon",
 "pays"
 ],
 [
@@ -5402,19 +5210,11 @@
 "pays"
 ],
 [
-"Sainte-Hélène",
-"pays"
-],
-[
 "Sainte-Lucie",
 "pays"
 ],
 [
 "Samoa",
-"pays"
-],
-[
-"Samoa américaines",
 "pays"
 ],
 [
@@ -5478,10 +5278,6 @@
 "pays"
 ],
 [
-"Svalbard et Île Jan Mayen",
-"pays"
-],
-[
 "Syrie",
 "pays"
 ]
@@ -5500,10 +5296,6 @@
 "pays"
 ],
 [
-"Terres australes françaises",
-"pays"
-],
-[
 "Thaïlande",
 "pays"
 ],
@@ -5513,10 +5305,6 @@
 ],
 [
 "Togo",
-"pays"
-],
-[
-"Tokelau",
 "pays"
 ],
 [
@@ -5565,12 +5353,6 @@
 ],
 [
 "Vietnam",
-"pays"
-]
-],
-"W": [
-[
-"Wallis-et-Futuna",
 "pays"
 ]
 ],
@@ -10628,10 +10410,6 @@
 "n.m. · métier"
 ],
 [
-"chanteur",
-"n.m. · arts et spectacle"
-],
-[
 "chapelier",
 "n.m. · commerce"
 ],
@@ -11140,19 +10918,7 @@
 "n.m. · artisanat"
 ],
 [
-"militaire",
-"n. · artisanat"
-],
-[
 "mineur",
-"n.m. · métier"
-],
-[
-"ministre",
-"n. · artisanat"
-],
-[
-"moniteur",
 "n.m. · métier"
 ],
 [
@@ -11176,10 +10942,6 @@
 [
 "notaire",
 "n.m. · artisanat"
-],
-[
-"nounou",
-"n.f. · métier"
 ]
 ],
 "O": [
@@ -11210,10 +10972,6 @@
 [
 "ostéopathe",
 "n. · métier"
-],
-[
-"ouvrier",
-"n.m. · métier"
 ]
 ],
 "P": [
@@ -11230,16 +10988,8 @@
 "n.m. · métier"
 ],
 [
-"pêcheur",
-"n.m. · artisanat"
-],
-[
 "pédiatre",
 "n. · santé"
-],
-[
-"peintre",
-"n. · artisanat"
 ],
 [
 "pharmacien",
@@ -11388,10 +11138,6 @@
 [
 "sociologue",
 "n. · sciences"
-],
-[
-"soldat",
-"n.m. · artisanat"
 ],
 [
 "sommelier",
@@ -11543,10 +11289,6 @@
 ]
 ],
 "B": [
-[
-"baie",
-"n.f. · fruit"
-],
 [
 "banane",
 "n.f. · fruit"
@@ -11822,10 +11564,6 @@
 [
 "orange",
 "n. · fruit"
-],
-[
-"oseille",
-"n.f. · légume"
 ]
 ],
 "P": [
@@ -16545,7 +16283,7 @@
 ],
 [
 "corail",
-"n.m. · couleur"
+"n.m. · animal marin"
 ],
 [
 "cuivre",
@@ -16573,12 +16311,6 @@
 "F": [
 [
 "fuchsia",
-"n.m. · couleur"
-]
-],
-"G": [
-[
-"gris",
 "n.m. · couleur"
 ]
 ],
@@ -16746,10 +16478,6 @@
 [
 "banjo",
 "n.m. · à cordes"
-],
-[
-"basse",
-"n.f. · instrument"
 ],
 [
 "basson",
@@ -16948,10 +16676,6 @@
 ],
 "T": [
 [
-"tambour",
-"n.m. · percussion"
-],
-[
 "tambourin",
 "n.m. · percussion"
 ],
@@ -17089,10 +16813,6 @@
 ]
 ],
 "C": [
-[
-"canine",
-"n.f. · os"
-],
 [
 "carotide",
 "n.f. · partie du corps"
@@ -18261,7 +17981,7 @@
 ],
 [
 "bartavelle",
-"n.f. · gallinacé"
+"n.f. · oiseau"
 ],
 [
 "bécasse",
@@ -18323,7 +18043,7 @@
 ],
 [
 "chapon",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "chardonneret",
@@ -18355,7 +18075,7 @@
 ],
 [
 "colombe",
-"n.f. · gallinacé"
+"n.f. · oiseau"
 ],
 [
 "colvert",
@@ -18367,7 +18087,7 @@
 ],
 [
 "coq",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "corbeau",
@@ -18401,19 +18121,19 @@
 "D": [
 [
 "dinde",
-"n.f. · gallinacé"
+"n.f. · oiseau"
 ],
 [
 "dindon",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "dodo",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "dronte",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ]
 ],
 "E": [
@@ -18453,7 +18173,7 @@
 "F": [
 [
 "faisan",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "faucon",
@@ -18619,7 +18339,7 @@
 "P": [
 [
 "paon",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "pélican",
@@ -18627,7 +18347,7 @@
 ],
 [
 "perdrix",
-"n.f. · gallinacé"
+"n.f. · oiseau"
 ],
 [
 "perroquet",
@@ -18663,11 +18383,11 @@
 ],
 [
 "pigeon",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "pigeonneau",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "pingouin",
@@ -18679,7 +18399,7 @@
 ],
 [
 "pintade",
-"n.f. · gallinacé"
+"n.f. · oiseau"
 ],
 [
 "pivert",
@@ -18695,15 +18415,15 @@
 ],
 [
 "poule",
-"n.f. · gallinacé"
+"n.f. · oiseau"
 ],
 [
 "poulet",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "poussin",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "puffin",
@@ -18713,7 +18433,7 @@
 "R": [
 [
 "ramier",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "roitelet",
@@ -18757,7 +18477,7 @@
 ],
 [
 "tétras",
-"n.m. · gallinacé"
+"n.m. · oiseau"
 ],
 [
 "toucan",
@@ -19702,12 +19422,6 @@
 "n.m. · conifère"
 ]
 ],
-"L": [
-[
-"laurier",
-"n.m. · arbre"
-]
-],
 "M": [
 [
 "magnolia",
@@ -19873,7 +19587,7 @@
 ],
 [
 "anémone",
-"n.f. · fleur"
+"n.f. · animal marin"
 ],
 [
 "aster",
@@ -20615,10 +20329,6 @@
 ],
 [
 "couteau",
-"n.m. · outil"
-],
-[
-"cric",
 "n.m. · outil"
 ],
 [
@@ -38302,12 +38012,6 @@
 "n.m. · créature"
 ]
 ],
-"D": [
-[
-"dragon",
-"n.m. · créature"
-]
-],
 "E": [
 [
 "elfe",
@@ -38333,10 +38037,6 @@
 ]
 ],
 "G": [
-[
-"géant",
-"n.m. · créature"
-],
 [
 "gobelin",
 "n.m. · créature"
@@ -38444,10 +38144,6 @@
 ],
 "V": [
 [
-"vampire",
-"n.m. · créature"
-],
-[
 "vouivre",
 "n.f. · créature"
 ]
@@ -38490,10 +38186,6 @@
 [
 "anglais",
 "n.m. · langue"
-],
-[
-"arabe",
-"n. · langue"
 ],
 [
 "araméen",
@@ -38617,10 +38309,6 @@
 ],
 [
 "galicien",
-"n.m. · langue"
-],
-[
-"gallois",
 "n.m. · langue"
 ],
 [
@@ -38892,10 +38580,6 @@
 "bac-0092": {
 "A": [
 [
-"accès",
-"n.m. · mammifère"
-],
-[
 "agouti",
 "n.m. · mammifère"
 ],
@@ -38908,20 +38592,8 @@
 "n. · oiseau"
 ],
 [
-"aiglefin",
-"n.m. · poisson"
-],
-[
-"aiglon",
-"n.m. · oiseau"
-],
-[
 "aigrette",
 "n.f. · oiseau"
-],
-[
-"albacore",
-"n.m. · poisson"
 ],
 [
 "albatros",
@@ -38932,44 +38604,12 @@
 "n.m. · reptile"
 ],
 [
-"alose",
-"n.f. · poisson"
-],
-[
 "alouette",
 "n.f. · oiseau"
 ],
 [
-"alpaga",
-"n.m. · mammifère"
-],
-[
-"amérique",
-"n.f. · mammifère"
-],
-[
 "anaconda",
 "n.m. · reptile"
-],
-[
-"anchois",
-"n.m. · poisson"
-],
-[
-"âne",
-"n.m. · mammifère"
-],
-[
-"ânesse",
-"n.f. · mammifère"
-],
-[
-"angora",
-"n.m. · mammifère"
-],
-[
-"anguille",
-"n.f. · poisson"
 ],
 [
 "antilope",
@@ -38980,36 +38620,12 @@
 "n.m. · oiseau"
 ],
 [
-"arabe",
-"n. · mammifère"
-],
-[
-"archéoptéryx",
-"n.m. · oiseau"
-],
-[
 "argus",
 "n.m. · oiseau"
 ],
 [
 "aspic",
 "n.m. · reptile"
-],
-[
-"assaut",
-"n.m. · mammifère"
-],
-[
-"attaque",
-"n.f. · mammifère"
-],
-[
-"attentat",
-"n.m. · mammifère"
-],
-[
-"aurochs",
-"n.m. · mammifère"
 ],
 [
 "autruche",
@@ -39034,10 +38650,6 @@
 "n.m. · mammifère"
 ],
 [
-"baie",
-"n.f. · mammifère"
-],
-[
 "balbuzard",
 "n.m. · oiseau"
 ],
@@ -39046,40 +38658,12 @@
 "n.f. · mammifère"
 ],
 [
-"baliste",
-"n.f. · poisson"
-],
-[
-"bambin",
-"n.m. · poisson"
-],
-[
-"barbue",
-"n.f. · poisson"
-],
-[
-"bardot",
-"n.m. · mammifère"
-],
-[
 "barge",
 "n.f. · oiseau"
 ],
 [
-"barracuda",
-"n.m. · poisson"
-],
-[
 "bartavelle",
 "n.f. · oiseau"
-],
-[
-"basse",
-"n.f. · poisson"
-],
-[
-"baudet",
-"n.m. · mammifère"
 ],
 [
 "bécasse",
@@ -39094,24 +38678,16 @@
 "n.m. · oiseau"
 ],
 [
-"bélier",
-"n.m. · mammifère"
-],
-[
 "bergeronnette",
 "n.f. · oiseau"
 ],
 [
 "biche",
-"n.f. · poisson"
+"n.f. · mammifère"
 ],
 [
 "bihoreau",
 "n.m. · oiseau"
-],
-[
-"bique",
-"n.f. · mammifère"
 ],
 [
 "bison",
@@ -39130,28 +38706,8 @@
 "n.m. · mammifère"
 ],
 [
-"bouc",
-"n.m. · mammifère"
-],
-[
 "bouquetin",
 "n.m. · mammifère"
-],
-[
-"brahmane",
-"n.m. · mammifère"
-],
-[
-"brebis",
-"n.f. · mammifère"
-],
-[
-"brème",
-"n.f. · poisson"
-],
-[
-"brochet",
-"n.m. · poisson"
 ],
 [
 "bruant",
@@ -39171,10 +38727,6 @@
 ]
 ],
 "C": [
-[
-"cabillaud",
-"n.m. · poisson"
-],
 [
 "cacatoès",
 "n.m. · oiseau"
@@ -39196,14 +38748,6 @@
 "n.m. · mammifère"
 ],
 [
-"canari",
-"n.m. · oiseau"
-],
-[
-"canine",
-"n.f. · mammifère"
-],
-[
 "caracal",
 "n.m. · mammifère"
 ],
@@ -39214,18 +38758,6 @@
 [
 "caribou",
 "n.m. · mammifère"
-],
-[
-"carne",
-"n.f. · mammifère"
-],
-[
-"carpe",
-"n. · poisson"
-],
-[
-"carrelet",
-"n.m. · poisson"
 ],
 [
 "casoar",
@@ -39240,27 +38772,11 @@
 "n.m. · mammifère"
 ],
 [
-"castration",
-"n.f. · mammifère"
-],
-[
 "cerf",
 "n.m. · mammifère"
 ],
 [
-"cerf-volant",
-"n.m. · oiseau"
-],
-[
-"chabot",
-"n.m. · poisson"
-],
-[
 "chacal",
-"n.m. · mammifère"
-],
-[
-"chameau",
 "n.m. · mammifère"
 ],
 [
@@ -39272,40 +38788,16 @@
 "n.m. · oiseau"
 ],
 [
-"charge",
-"n.f. · mammifère"
-],
-[
 "chat-huant",
 "n.m. · oiseau"
-],
-[
-"chat-tigre",
-"n.m. · mammifère"
 ],
 [
 "chauve-souris",
 "n.f. · mammifère"
 ],
 [
-"cheval",
-"n.m. · mammifère"
-],
-[
 "chevêche",
 "n.f. · oiseau"
-],
-[
-"chevesne",
-"n.m. · poisson"
-],
-[
-"chèvre",
-"n.f. · mammifère"
-],
-[
-"chevreau",
-"n.m. · mammifère"
 ],
 [
 "chevreuil",
@@ -39313,14 +38805,6 @@
 ],
 [
 "chimpanzé",
-"n.m. · mammifère"
-],
-[
-"chinchard",
-"n.m. · poisson"
-],
-[
-"chinchilla",
 "n.m. · mammifère"
 ],
 [
@@ -39336,24 +38820,12 @@
 "n.f. · oiseau"
 ],
 [
-"citation",
-"n.f. · mammifère"
-],
-[
 "civette",
 "n.f. · mammifère"
 ],
 [
-"cobaye",
-"n.m. · mammifère"
-],
-[
 "cobra",
 "n.m. · reptile"
-],
-[
-"cochon",
-"n.m. · mammifère"
 ],
 [
 "colibri",
@@ -39364,23 +38836,7 @@
 "n.m. · oiseau"
 ],
 [
-"comment",
-"n.m. · mammifère"
-],
-[
-"commune",
-"n.f. · amphibien"
-],
-[
 "condor",
-"n.m. · oiseau"
-],
-[
-"congre",
-"n.m. · poisson"
-],
-[
-"coq",
 "n.m. · oiseau"
 ],
 [
@@ -39420,24 +38876,12 @@
 "n.f. · oiseau"
 ],
 [
-"cric",
-"n.m. · mammifère"
-],
-[
 "crocodile",
 "n.m. · reptile"
 ],
 [
 "crotale",
 "n.m. · reptile"
-],
-[
-"cul",
-"n.m. · mammifère"
-],
-[
-"cygne",
-"n.m. · oiseau"
 ]
 ],
 "D": [
@@ -39446,60 +38890,12 @@
 "n.m. · mammifère"
 ],
 [
-"daine",
-"n.f. · mammifère"
-],
-[
 "dauphin",
-"n.m. · poisson"
-],
-[
-"destrier",
 "n.m. · mammifère"
-],
-[
-"dhole",
-"n.m. · mammifère"
-],
-[
-"dindon",
-"n.m. · oiseau"
 ],
 [
 "dingo",
 "n.m. · mammifère"
-],
-[
-"dinosaure",
-"n.m. · reptile"
-],
-[
-"diplodocus",
-"n.m. · reptile"
-],
-[
-"dipneuste",
-"n.m. · poisson"
-],
-[
-"diversion",
-"n.f. · poisson"
-],
-[
-"dodo",
-"n.m. · oiseau"
-],
-[
-"dorade",
-"n.f. · poisson"
-],
-[
-"dromadaire",
-"n.m. · mammifère"
-],
-[
-"dronte",
-"n.m. · oiseau"
 ],
 [
 "dugong",
@@ -39540,10 +38936,6 @@
 "n.m. · oiseau"
 ],
 [
-"enfant",
-"n. · mammifère"
-],
-[
 "engoulevent",
 "n.m. · oiseau"
 ],
@@ -39556,18 +38948,6 @@
 "n.m. · oiseau"
 ],
 [
-"espadon",
-"n.m. · poisson"
-],
-[
-"esturgeon",
-"n.m. · poisson"
-],
-[
-"étalon",
-"n.m. · mammifère"
-],
-[
 "étourneau",
 "n.m. · oiseau"
 ]
@@ -39578,28 +38958,12 @@
 "n.m. · oiseau"
 ],
 [
-"faon",
-"n.m. · mammifère"
-],
-[
 "faucon",
 "n.m. · oiseau"
 ],
 [
-"fauve",
-"n.m. · mammifère"
-],
-[
-"femelle",
-"n.f. · mammifère"
-],
-[
 "flamant",
 "n.m. · oiseau"
-],
-[
-"flétan",
-"n.m. · poisson"
 ],
 [
 "fouine",
@@ -39612,21 +38976,9 @@
 [
 "fourmilier",
 "n.m. · mammifère"
-],
-[
-"furet",
-"n.m. · mammifère"
 ]
 ],
 "G": [
-[
-"gallois",
-"n.m. · mammifère"
-],
-[
-"gardon",
-"n.m. · poisson"
-],
 [
 "gavial",
 "n.m. · reptile"
@@ -39642,14 +38994,6 @@
 [
 "gecko",
 "n.m. · reptile"
-],
-[
-"génisse",
-"n.f. · mammifère"
-],
-[
-"gerbille",
-"n.f. · mammifère"
 ],
 [
 "gerboise",
@@ -39684,20 +39028,12 @@
 "n.m. · mammifère"
 ],
 [
-"goujon",
-"n.m. · poisson"
-],
-[
 "grèbe",
 "n.m. · oiseau"
 ],
 [
 "grenouille",
 "n.f. · amphibien"
-],
-[
-"gris",
-"n.m. · mammifère"
 ],
 [
 "grive",
@@ -39720,31 +39056,11 @@
 "n.m. · oiseau"
 ],
 [
-"guppy",
-"n.m. · poisson"
-],
-[
 "gypaète",
 "n.m. · oiseau"
 ]
 ],
 "H": [
-[
-"hamster",
-"n.m. · mammifère"
-],
-[
-"hareng",
-"n.m. · poisson"
-],
-[
-"hart",
-"n.f. · mammifère"
-],
-[
-"hase",
-"n.f. · mammifère"
-],
 [
 "hérisson",
 "n.m. · mammifère"
@@ -39762,24 +39078,12 @@
 "n.m. · oiseau"
 ],
 [
-"hippocampe",
-"n.m. · poisson"
-],
-[
 "hippopotame",
-"n.m. · mammifère"
-],
-[
-"hongre",
 "n.m. · mammifère"
 ],
 [
 "huîtrier",
 "n.m. · oiseau"
-],
-[
-"humanité",
-"n.f. · mammifère"
 ],
 [
 "huppe",
@@ -39800,10 +39104,6 @@
 "n.m. · reptile"
 ],
 [
-"iguanodon",
-"n.m. · reptile"
-],
-[
 "impala",
 "n.m. · mammifère"
 ],
@@ -39816,14 +39116,6 @@
 [
 "jaguar",
 "n.m. · mammifère"
-],
-[
-"jars",
-"n.m. · oiseau"
-],
-[
-"jument",
-"n.f. · mammifère"
 ]
 ],
 "K": [
@@ -39846,23 +39138,7 @@
 "n.m. · oiseau"
 ],
 [
-"lama",
-"n.m. · mammifère"
-],
-[
 "lamantin",
-"n.m. · mammifère"
-],
-[
-"lapereau",
-"n.m. · mammifère"
-],
-[
-"lapin",
-"n.m. · mammifère"
-],
-[
-"laurier",
 "n.m. · mammifère"
 ],
 [
@@ -39894,14 +39170,6 @@
 "n.m. · mammifère"
 ],
 [
-"lionceau",
-"n.m. · mammifère"
-],
-[
-"localisation",
-"n.f. · mammifère"
-],
-[
 "loir",
 "n.m. · mammifère"
 ],
@@ -39910,20 +39178,12 @@
 "n.m. · oiseau"
 ],
 [
-"lotte",
-"n.f. · poisson"
-],
-[
 "loup",
 "n.m. · mammifère"
 ],
 [
 "loutre",
 "n.f. · mammifère"
-],
-[
-"louveteau",
-"n.m. · mammifère"
 ],
 [
 "lynx",
@@ -39944,14 +39204,6 @@
 "n.f. · oiseau"
 ],
 [
-"mademoiselle",
-"n.f. · poisson"
-],
-[
-"magot",
-"n.m. · mammifère"
-],
-[
 "mainate",
 "n.m. · oiseau"
 ],
@@ -39964,10 +39216,6 @@
 "n.m. · reptile"
 ],
 [
-"mammouth",
-"n.m. · mammifère"
-],
-[
 "manchot",
 "n.m. · oiseau"
 ],
@@ -39976,24 +39224,8 @@
 "n.f. · mammifère"
 ],
 [
-"maquereau",
-"n.m. · poisson"
-],
-[
-"mara",
-"n.m. · mammifère"
-],
-[
 "marabout",
 "n.m. · oiseau"
-],
-[
-"margay",
-"n.m. · mammifère"
-],
-[
-"marmot",
-"n.m. · mammifère"
 ],
 [
 "marmotte",
@@ -40016,28 +39248,12 @@
 "n.f. · mammifère"
 ],
 [
-"maskinongé",
-"n.m. · poisson"
-],
-[
-"mastodonte",
-"n.m. · mammifère"
-],
-[
-"merlan",
-"n.m. · poisson"
-],
-[
 "merle",
 "n.m. · oiseau"
 ],
 [
 "mésange",
 "n.f. · oiseau"
-],
-[
-"meurtrier",
-"n.m. · mammifère"
 ],
 [
 "milan",
@@ -40048,24 +39264,8 @@
 "n.m. · oiseau"
 ],
 [
-"môle",
-"n. · poisson"
-],
-[
-"mole",
-"n.f. · mammifère"
-],
-[
-"monde",
-"n.m. · mammifère"
-],
-[
 "morse",
 "n.m. · mammifère"
-],
-[
-"morue",
-"n.f. · poisson"
 ],
 [
 "mouette",
@@ -40080,36 +39280,12 @@
 "n.m. · mammifère"
 ],
 [
-"mouton",
-"n.m. · mammifère"
-],
-[
-"mule",
-"n.f. · mammifère"
-],
-[
-"mulet",
-"n.m. · mammifère"
-],
-[
 "mulot",
 "n.m. · mammifère"
 ],
 [
-"murène",
-"n.f. · poisson"
-],
-[
 "musaraigne",
 "n.f. · mammifère"
-],
-[
-"mustang",
-"n.m. · mammifère"
-],
-[
-"myrmidon",
-"n.m. · mammifère"
 ]
 ],
 "N": [
@@ -40124,10 +39300,6 @@
 [
 "nasique",
 "n.m. · mammifère"
-],
-[
-"nounou",
-"n.f. · mammifère"
 ]
 ],
 "O": [
@@ -40137,14 +39309,6 @@
 ],
 [
 "oiseau-mouche",
-"n.m. · oiseau"
-],
-[
-"oiselet",
-"n.m. · oiseau"
-],
-[
-"oison",
 "n.m. · oiseau"
 ],
 [
@@ -40184,10 +39348,6 @@
 "n.m. · mammifère"
 ],
 [
-"oseille",
-"n.f. · mammifère"
-],
-[
 "otarie",
 "n.f. · mammifère"
 ],
@@ -40200,23 +39360,11 @@
 "n.m. · mammifère"
 ],
 [
-"ourson",
-"n.m. · mammifère"
-],
-[
 "outarde",
 "n.f. · oiseau"
 ]
 ],
 "P": [
-[
-"pacemaker",
-"n.m. · mammifère"
-],
-[
-"palefrenier",
-"n.m. · mammifère"
-],
 [
 "panda",
 "n.m. · mammifère"
@@ -40224,10 +39372,6 @@
 [
 "panthère",
 "n.f. · mammifère"
-],
-[
-"paon",
-"n.m. · oiseau"
 ],
 [
 "paresseux",
@@ -40238,20 +39382,8 @@
 "n.m. · mammifère"
 ],
 [
-"pêcheur",
-"n.m. · mammifère"
-],
-[
-"peintre",
-"n. · mammifère"
-],
-[
 "pélican",
 "n.m. · oiseau"
-],
-[
-"perche",
-"n.f. · poisson"
 ],
 [
 "perdrix",
@@ -40260,10 +39392,6 @@
 [
 "perroquet",
 "n.m. · oiseau"
-],
-[
-"perruche",
-"n.f. · oiseau"
 ],
 [
 "pétrel",
@@ -40298,14 +39426,6 @@
 "n.f. · oiseau"
 ],
 [
-"pigeonneau",
-"n.m. · oiseau"
-],
-[
-"pilotage",
-"n.m. · mammifère"
-],
-[
 "pingouin",
 "n.m. · oiseau"
 ],
@@ -40314,20 +39434,8 @@
 "n.m. · oiseau"
 ],
 [
-"pintade",
-"n.f. · oiseau"
-],
-[
-"piranha",
-"n.m. · poisson"
-],
-[
 "pivert",
 "n.m. · oiseau"
-],
-[
-"plie",
-"n.f. · poisson"
 ],
 [
 "plongeon",
@@ -40338,32 +39446,8 @@
 "n.m. · oiseau"
 ],
 [
-"poisson-chat",
-"n.m. · poisson"
-],
-[
-"poney",
-"n.m. · mammifère"
-],
-[
-"porc",
-"n.m. · mammifère"
-],
-[
 "porc-épic",
 "n.m. · mammifère"
-],
-[
-"pourceau",
-"n.m. · mammifère"
-],
-[
-"poussin",
-"n.m. · oiseau"
-],
-[
-"ptérodactyle",
-"n.m. · reptile"
 ],
 [
 "puffin",
@@ -40384,10 +39468,6 @@
 ],
 "R": [
 [
-"raie",
-"n.f. · poisson"
-],
-[
 "rainette",
 "n.f. · amphibien"
 ],
@@ -40396,27 +39476,11 @@
 "n.m. · oiseau"
 ],
 [
-"rat",
-"n.m. · mammifère"
-],
-[
 "renard",
 "n.m. · mammifère"
 ],
 [
-"renne",
-"n.m. · mammifère"
-],
-[
-"requin",
-"n.m. · poisson"
-],
-[
 "rhésus",
-"n.m. · mammifère"
-],
-[
-"rhino",
 "n.m. · mammifère"
 ],
 [
@@ -40446,20 +39510,8 @@
 ],
 "S": [
 [
-"sagouin",
-"n.m. · mammifère"
-],
-[
-"saint-pierre",
-"n.m. · poisson"
-],
-[
 "salamandre",
 "n.f. · amphibien"
-],
-[
-"sandre",
-"n.m. · poisson"
 ],
 [
 "sanglier",
@@ -40470,76 +39522,20 @@
 "n.f. · oiseau"
 ],
 [
-"sardine",
-"n.f. · poisson"
-],
-[
 "sarigue",
 "n.f. · mammifère"
-],
-[
-"saumon",
-"n.m. · poisson"
-],
-[
-"scare",
-"n.m. · poisson"
-],
-[
-"sceau",
-"n.m. · mammifère"
-],
-[
-"secrétariat",
-"n.m. · mammifère"
 ],
 [
 "serpent",
 "n.m. · reptile"
 ],
 [
-"seul",
-"n.m. · poisson"
-],
-[
 "singe",
 "n.m. · mammifère"
 ],
 [
-"skunks",
-"n.m. · mammifère"
-],
-[
-"souris",
-"n. · mammifère"
-],
-[
-"spatule",
-"n.f. · oiseau"
-],
-[
-"sprat",
-"n.m. · poisson"
-],
-[
-"squale",
-"n.m. · poisson"
-],
-[
-"stégosaure",
-"n.m. · reptile"
-],
-[
 "sterne",
 "n.f. · oiseau"
-],
-[
-"suisse",
-"n. · mammifère"
-],
-[
-"supporter",
-"n.m. · mammifère"
 ],
 [
 "suricate",
@@ -40564,28 +39560,12 @@
 "n.m. · mammifère"
 ],
 [
-"tambour",
-"n.m. · poisson"
-],
-[
-"tanche",
-"n.f. · poisson"
-],
-[
 "tangara",
 "n.m. · oiseau"
 ],
 [
 "tapir",
 "n.m. · mammifère"
-],
-[
-"tarpan",
-"n.m. · mammifère"
-],
-[
-"tarpon",
-"n.m. · poisson"
 ],
 [
 "tatou",
@@ -40596,32 +39576,8 @@
 "n.f. · mammifère"
 ],
 [
-"taureau",
-"n.m. · mammifère"
-],
-[
 "tétras",
 "n.m. · oiseau"
-],
-[
-"thon",
-"n.m. · poisson"
-],
-[
-"thonier",
-"n.m. · poisson"
-],
-[
-"tigre",
-"n.m. · mammifère"
-],
-[
-"tisserand",
-"n.m. · oiseau"
-],
-[
-"torpille",
-"n.f. · poisson"
 ],
 [
 "tortue",
@@ -40632,43 +39588,11 @@
 "n.m. · oiseau"
 ],
 [
-"traverse",
-"n.f. · poisson"
-],
-[
 "triton",
 "n.m. · amphibien"
-],
-[
-"truie",
-"n.f. · mammifère"
-],
-[
-"truite",
-"n.f. · poisson"
-],
-[
-"turbot",
-"n.m. · poisson"
-],
-[
-"tyrannosaure",
-"n.m. · reptile"
 ]
 ],
 "V": [
-[
-"vache",
-"n.f. · mammifère"
-],
-[
-"vairon",
-"n.m. · poisson"
-],
-[
-"vampire",
-"n.m. · mammifère"
-],
 [
 "vanneau",
 "n.m. · oiseau"
@@ -40676,14 +39600,6 @@
 [
 "vautour",
 "n.m. · oiseau"
-],
-[
-"verrat",
-"n.m. · mammifère"
-],
-[
-"vielle",
-"n.f. · poisson"
 ],
 [
 "vigogne",
@@ -40708,27 +39624,9 @@
 "n.m. · mammifère"
 ]
 ],
-"Y": [
-[
-"yack",
-"n.m. · mammifère"
-],
-[
-"yak",
-"n.m. · mammifère"
-],
-[
-"yearling",
-"n.m. · mammifère"
-]
-],
 "Z": [
 [
 "zèbre",
-"n.m. · mammifère"
-],
-[
-"zébu",
 "n.m. · mammifère"
 ],
 [
@@ -41310,10 +40208,6 @@
 ],
 "L": [
 [
-"laurier",
-"n.m. · herbe"
-],
-[
 "livèche",
 "n.f. · herbe"
 ]
@@ -41344,10 +40238,6 @@
 [
 "origan",
 "n.m. · herbe"
-],
-[
-"oseille",
-"n.f. · herbe"
 ]
 ],
 "P": [
@@ -41712,10 +40602,6 @@
 [
 "oignon",
 "n.m. · légume"
-],
-[
-"oseille",
-"n.f. · légume"
 ]
 ],
 "P": [

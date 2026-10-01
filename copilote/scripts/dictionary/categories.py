@@ -7,17 +7,12 @@ WORDNET = {
     # pour que « papillon » soit un insecte et pas la race de chien du même nom).
     'bac-0001': dict(min_freq=0.05, classes=[
         ('crustacé', ['crustacean.n.01']), ('arachnide', ['arachnid.n.01']), ('insecte', ['insect.n.01']),
-        ('mollusque', ['mollusk.n.01']), ('oiseau', ['bird.n.01']), ('poisson', ['fish.n.01']),
-        ('reptile', ['reptile.n.01']), ('amphibien', ['amphibian.n.03']), ('ver', ['worm.n.01']),
-        ('mammifère', ['mammal.n.01']), ('animal', ['animal.n.01'])]),
-    'bac-0092': dict(min_freq=0.05, classes=[
-        ('oiseau', ['bird.n.01']), ('reptile', ['reptile.n.01']), ('amphibien', ['amphibian.n.03']),
-        ('poisson', ['fish.n.01']), ('mammifère', ['mammal.n.01'])],
-        exclude_roots=['domestic_animal.n.01', 'livestock.n.01', 'dog.n.01', 'domestic_cat.n.01', 'poultry.n.02']),
+        ('mollusque', ['mollusk.n.01']), ('oiseau', ['bird.n.01']), ('mammifère', ['mammal.n.01']),
+        ('reptile', ['reptile.n.01']), ('amphibien', ['amphibian.n.03']), ('poisson', ['fish.n.01']),
+        ('ver', ['worm.n.01']), ('animal marin', ['animal.n.01'])]),
     'bac-0013': dict(min_freq=0.02, classes=[
         ('rapace', ['bird_of_prey.n.01', 'owl.n.01']), ('passereau', ['passerine.n.01']),
-        ('oiseau aquatique', ['aquatic_bird.n.01']), ('gallinacé', ['gallinaceous_bird.n.01']),
-        ('oiseau', ['bird.n.01'])]),
+        ('oiseau aquatique', ['aquatic_bird.n.01']), ('oiseau', ['bird.n.01'])]),
     'bac-0004': dict(min_freq=0.1, classes=[
         ('santé', ['health_professional.n.01', 'medical_practitioner.n.01', 'nurse.n.01']),
         ('artisanat', ['craftsman.n.03', 'skilled_worker.n.01']),
