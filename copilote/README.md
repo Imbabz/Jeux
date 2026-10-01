@@ -47,6 +47,6 @@ Le déploiement passe par **Vercel**. Le projet `copilote` (équipe Imbabz) est 
 
 GitHub Pages continue de servir le dépôt pour les autres jeux. `/Jeux/copilote/` y affiche des sources non buildées : on utilise l'URL Vercel.
 
-**Installer sur iPhone** : Safari → Partager → « Sur l'écran d'accueil ». L'app fonctionne ensuite hors-ligne.
+**Installer sur iPhone** : ouvrir l'URL de production dans Safari → Partager → « Sur l'écran d'accueil ». L'app s'ouvre alors en plein écran, avec son icône, et fonctionne hors-ligne. Les icônes PNG (iOS ignore le SVG) se régénèrent avec `node scripts/build_icons.mjs` après modification de `public/icon*.svg`.
 
 Astuce de test : `?seed=42` dans l'URL rend une partie reproductible.

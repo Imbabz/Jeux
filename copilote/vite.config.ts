@@ -24,13 +24,20 @@ export default defineConfig({
         background_color: '#F7F1E5',
         theme_color: '#F7F1E5',
         icons: [
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          {
+            src: 'icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-          { src: 'icon-maskable.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
         ],
       },
       workbox: {
         // Contenu, polices et code précachés : l'app doit tourner sans réseau en voiture.
-        globPatterns: ['**/*.{js,css,html,svg,woff2,json}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
         navigateFallback: '/index.html',
         // Seuls les sous-ensembles latins des polices sont utiles (français) : inutile de précacher le reste.
         globIgnores: ['**/*-cyrillic*', '**/*-greek*', '**/*-vietnamese*'],
