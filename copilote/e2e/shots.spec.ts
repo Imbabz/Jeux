@@ -151,3 +151,23 @@ test('styleguide', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: 'e2e/screenshots/00-styleguide.png', fullPage: true });
 });
+
+test('réglages : temps par mot en saisie libre', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText(/^v\d+\.\d+\.\d+ · /)).toBeVisible();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  const field = page.getByLabel('Temps par mot, en secondes');
+  await field.tap();
+  await page.keyboard.type('12');
+  await expect(field).toHaveValue('12');
+  await page.getByRole('button', { name: 'Une seconde de plus' }).click();
+  await expect(field).toHaveValue('13');
+  await page.getByRole('button', { name: 'Une seconde de moins' }).click();
+  await page.getByRole('button', { name: 'Une seconde de moins' }).click();
+  await expect(field).toHaveValue('11');
+  await page.screenshot({ path: 'e2e/screenshots/08b-reglages-secondes.png' });
+  await page.getByRole('button', { name: 'Terminé' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  await expect(page.getByLabel('Temps par mot, en secondes')).toHaveValue('11');
+});

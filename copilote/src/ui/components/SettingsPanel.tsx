@@ -57,14 +57,35 @@ export function BacSecondsField() {
   const [text, setText] = useState(String(settings.bacWordSeconds));
   const value = Number(text);
   const valid = /^\d+$/.test(text) && value >= BAC_SECONDS_MIN && value <= BAC_SECONDS_MAX;
+  const save = (n: number) => {
+    const clamped = Math.min(BAC_SECONDS_MAX, Math.max(BAC_SECONDS_MIN, n));
+    setText(String(clamped));
+    actions.saveSettings({ bacWordSeconds: clamped });
+  };
+  const step =
+    'flex size-12 shrink-0 items-center justify-center rounded-key border border-line bg-card font-display text-xl font-black active:bg-line disabled:opacity-35';
   return (
-    <label className="flex flex-col gap-1">
-      <span className="flex items-center gap-2">
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-label="Une seconde de moins"
+          className={step}
+          disabled={settings.bacWordSeconds <= BAC_SECONDS_MIN}
+          onClick={() => save(settings.bacWordSeconds - 1)}
+        >
+          −
+        </button>
         <input
           aria-label="Temps par mot, en secondes"
+          type="text"
           inputMode="numeric"
           pattern="[0-9]*"
+          enterKeyHint="done"
           value={text}
+          // Tout le contenu est sélectionné au toucher : le chiffre tapé remplace l'ancien.
+          onFocus={(e) => e.currentTarget.select()}
+          onPointerUp={(e) => e.currentTarget.select()}
           onChange={(e) => {
             const next = e.target.value.replace(/\D/g, '').slice(0, 2);
             setText(next);
@@ -73,20 +94,32 @@ export function BacSecondsField() {
               actions.saveSettings({ bacWordSeconds: n });
             }
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+          }}
           onBlur={() => {
             if (!valid) setText(String(settings.bacWordSeconds));
           }}
-          className={`min-h-12 w-24 rounded-key border bg-table px-3 text-center font-display text-xl font-black tabular-nums ${
+          className={`min-h-12 w-16 min-w-0 rounded-key border bg-table text-center font-display text-xl font-black tabular-nums ${
             valid ? 'border-line' : 'border-bac'
           }`}
         />
-        <span className="text-md font-semibold">secondes par mot</span>
-      </span>
+        <button
+          type="button"
+          aria-label="Une seconde de plus"
+          className={step}
+          disabled={settings.bacWordSeconds >= BAC_SECONDS_MAX}
+          onClick={() => save(settings.bacWordSeconds + 1)}
+        >
+          +
+        </button>
+        <span className="text-md font-semibold">s par mot</span>
+      </div>
       {valid ? null : (
         <span className="text-xs font-semibold text-bac">
           Entre {BAC_SECONDS_MIN} et {BAC_SECONDS_MAX} secondes.
         </span>
       )}
-    </label>
+    </div>
   );
 }

@@ -6,12 +6,21 @@ import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    // Identifiant du build (commit Vercel ou date) : affiché sur l'accueil pour savoir quelle version tourne.
+    __APP_BUILD__: JSON.stringify(
+      (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7) ||
+        new Date().toISOString().slice(0, 16).replace('T', ' '),
+    ),
+  },
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // L'enregistrement est fait à la main (src/pwa.ts) pour vérifier les mises à jour au retour dans l'app.
+      injectRegister: false,
       includeAssets: ['icon.svg'],
       manifest: {
         name: 'Copilote',

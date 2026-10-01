@@ -7,7 +7,7 @@ import { Sheet } from '../components/Overlay.tsx';
 import { SettingsPanel } from '../components/SettingsPanel.tsx';
 import { Token } from '../components/Token.tsx';
 import { scoreLine } from '../format.ts';
-import { APP_VERSION } from '../version.ts';
+import { APP_BUILD, APP_VERSION } from '../version.ts';
 
 export function Home() {
   const { record } = useSession();
@@ -46,7 +46,9 @@ export function Home() {
         <Button block variant="card" onClick={() => setSettingsOpen(true)}>
           Réglages
         </Button>
-        <p className="pt-4 text-center text-xs text-ink-soft tabular-nums">v{APP_VERSION}</p>
+        <p className="pt-4 text-center text-xs text-ink-soft tabular-nums">
+          v{APP_VERSION} · {APP_BUILD}
+        </p>
       </div>
       {settingsOpen ? (
         <Sheet title="Réglages" onClose={() => setSettingsOpen(false)}>
