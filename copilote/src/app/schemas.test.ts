@@ -12,7 +12,7 @@ const record: MatchRecord = {
     difficulty: 'mixed',
     rounds: 6,
     questionsPerRound: 5,
-    rules: { exactBonus: true, doubleFinalRound: true, bacTogether: 'replay', rareLetters: false },
+    rules: { exactBonus: true, doubleFinalRound: true, rareLetters: false },
   },
   events: [
     { type: 'OPENING_DONE', at: 1 },

@@ -23,6 +23,8 @@ export const yearItemSchema = z
     centuryHint: z.string().regex(/^\d{2}$/),
     difficulty: difficultySchema,
     context: z.string().min(1).max(160),
+    /** Indice facultatif, révélé à la demande du copilote (lieu, contexte…). */
+    hint: z.string().min(1).max(90).optional(),
   })
   .refine((item) => String(item.year).startsWith(item.centuryHint), {
     message: 'centuryHint doit être le début de year',
@@ -44,6 +46,8 @@ export const estimItemSchema = z.object({
   context: z.string().min(1).max(160),
   /** Année de référence d'une valeur qui évolue (population, record…). */
   referenceYear: z.number().int().min(1900).max(2026).optional(),
+  /** Indice facultatif, révélé à la demande du copilote (lieu, contexte…). */
+  hint: z.string().min(1).max(90).optional(),
 });
 export type EstimContentItem = z.infer<typeof estimItemSchema>;
 
@@ -53,5 +57,7 @@ export const bacItemSchema = z.object({
   label: z.string().min(1).max(56),
   difficulty: difficultySchema,
   excludedLetters: z.array(z.string().regex(LETTER)),
+  /** Mots acceptés par lettre, affichés au copilote pour valider (liste indicative, pas stricte). */
+  words: z.record(z.string().regex(LETTER), z.array(z.string().min(1))).default({}),
 });
 export type BacContentItem = z.infer<typeof bacItemSchema>;

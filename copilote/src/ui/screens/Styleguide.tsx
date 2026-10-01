@@ -255,9 +255,18 @@ export function Styleguide() {
         {(
           [
             ['face cachée', { hidden: true, progress: 0, alert: false }],
-            ['décompte', { hidden: false, progress: 1, alert: false, countdown: '2' }],
-            ['chrono en cours', { hidden: false, progress: 0.6, alert: false }],
-            ['alerte (≤ 5 s)', { hidden: false, progress: 0.2, alert: true }],
+            ['annonce', { hidden: false, progress: 1, alert: false }],
+            ['chrono du mot', { hidden: false, progress: 0.6, alert: false }],
+            ['alerte (≤ 2 s)', { hidden: false, progress: 0.2, alert: true }],
+            [
+              'liste des mots',
+              {
+                hidden: false,
+                progress: 0.6,
+                alert: false,
+                words: ['Baleine', 'Blaireau', 'Bison'],
+              },
+            ],
             ['temps écoulé', { hidden: false, progress: 0, alert: false, dimmed: true }],
           ] as const
         ).map(([name, state]) => (

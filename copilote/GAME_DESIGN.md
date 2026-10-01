@@ -11,7 +11,7 @@
 | D0 | **Voix de synthèse** | ✅ **Supprimée.** C'est le **copilote** (le passager) qui lit tout à voix haute. L'app est le paquet de cartes, le chrono, les bips et le tableau des scores. |
 | D1 | Les événements portent les items tirés et leurs réponses (§6.2) | ✅ |
 | D2 | Annuler retire aussi les saisies (§6.4) | ✅ |
-| D3 | Plafond de 3 rejeux par tour de Bac Éclair : le tour est clos sans point (§7.2) | 🎲 réglage par défaut, à revoir en jouant |
+| D3 | ~~Plafond de 3 rejeux par tour de Bac Éclair~~ | ⛔ caduc : le Bac Éclair se joue en alternance (D8) |
 | D4 | Années comprises entre 1000 et 2025 en v1 (§8.2) | ✅ |
 | D5 | Courbes de difficulté pour Q = 3 et Q = 7 (§4.3) | ✅ |
 | D6 | Seuil de 10 lettres pour les catégories Écosse et Belgique du Bac Éclair (CONTENT_GUIDE §6) | 🎲 réglage par défaut, à revoir en jouant |
@@ -19,6 +19,10 @@
 | A | Le score est mis en évidence après chaque point, pour que le copilote l'annonce | ✅ adapté sans voix (§17) |
 | B | Les deux propositions sont affichées en grand avant la révélation | ✅ adapté sans voix (§17) |
 | C | Temps de grâce pour le conducteur au Bac Éclair | 🎲 non en v1, à revoir en jouant |
+| D8 | **Bac Éclair en alternance** (retour de partie test) : plus de « 3, 2, 1 » ni de course au buzzer. Chacun son tour donne un mot, chrono court par mot ; celui qui sèche perd la carte (§7) | ✅ |
+| D9 | **Listes de mots acceptés** par catégorie et par lettre, affichables par le copilote. Indicatives : le copilote peut valider un autre mot. Une lettre n'est jouable que si sa liste compte au moins 3 mots (CONTENT_GUIDE §6) | ✅ |
+| D10 | **Ajustement manuel des scores** (menu de partie) : événement `SCORE_ADJUSTED`, annulable comme une décision (§6.3) | ✅ |
+| D11 | **Indice facultatif** sur les questions d'Estimation (et d'Année si renseigné), révélé à la demande du copilote (§9) | ✅ |
 
 ---
 
@@ -120,10 +124,8 @@ Résultat : chaque jeu apparaît ⌊N/k⌋ ou ⌈N/k⌉ fois, et jamais deux man
 
 | Jeu | Situation | Points A | Points B |
 |---|---|---|---|
-| Bac Éclair | A tape en premier (mot valable) | 1·m | 0 |
-| Bac Éclair | « Ensemble ! », mode *rejoué* (défaut) | — | — (tour rejoué) |
-| Bac Éclair | « Ensemble ! », mode *1 pt chacun* | 1·m | 1·m |
-| Bac Éclair | Personne (après le chrono) | 0 | 0 |
+| Bac Éclair | B sèche (chrono écoulé, répétition ou mot refusé) | 1·m | 0 |
+| Partie | Ajustement manuel du copilote | ±1 | ±1 |
 | Année / Estim. | A plus proche, pas exact | 1·m | 0 |
 | Année / Estim. | A exact, B non | (b ? 2 : 1)·m | 0 |
 | Année / Estim. | Même écart, aucun exact | 1·m | 1·m |
@@ -143,7 +145,6 @@ Résultat : chaque jeu apparaît ⌊N/k⌋ ou ⌈N/k⌉ fois, et jamais deux man
 Ces paramètres sont **copiés dans `config` au lancement** et ne changent plus jusqu'à la fin :
 - bonus exact ;
 - dernière manche double ;
-- comportement d'« Ensemble ! » ;
 - lettres rares ;
 - difficulté ;
 - format.
@@ -202,6 +203,7 @@ Chaque événement porte `at: number`, l'horodatage fourni par l'app. Le journal
 | `SUDDEN_DEATH_STARTED { game, item }` | tap sur l'écran de mort subite | question de départage |
 | `ITEM_SKIPPED { replacement }` | copilote (Passer) | item remplacé, 0 point |
 | `TURN_RESTARTED` | app (reprise après fermeture) | un tour chronométré repart du début (§10.3) |
+| `SCORE_ADJUSTED { player, delta }` | copilote (Menu → Ajuster les scores) | ±1 au total du joueur ; c'est une décision, donc annulable (D10) |
 | `MATCH_ABANDONED` | copilote (Menu, confirmé) | fin sans vainqueur, palmarès inchangé |
 | `DEBUG_*` | debug | voir §12 |
 
@@ -222,44 +224,38 @@ Exemples :
 
 ---
 
-## 7. Jeu 1 : Bac Éclair *(étape 3)*
+## 7. Jeu 1 : Bac Éclair *(étape 3, refondu en alternance — D8)*
 
-> **Une lettre, une catégorie : le premier qui donne un mot valable marque.**
+> **Une lettre, une catégorie : chacun son tour donne un mot. Le premier qui sèche perd la carte.**
 
-### 7.1 Machine à états (un tour)
+### 7.1 Machine à états (une carte)
 
 ```
-hidden ──FLIP──► countdown ──COUNTDOWN_DONE──► running
-                                                  │
-                     ┌──────────BUZZ(A|B)─────────┤
-                     │      BUZZ(both)──► (rejoué | 1 pt chacun)
-                     │                            │ TIMER_EXPIRED
-                     ▼                            ▼
-                 resolved ◄──BUZZ(A|B) / NOBODY── timeout
-                     │
-                     ├─CONTESTED (≤ 3 s)──► hidden (même catégorie, nouvelle lettre)
-                     └─NEXT──► tour suivant | fin de manche
+hidden ──FLIP──► announce ──START──► turn ──WORD──► turn (l'autre joueur, chrono relancé)
+                                       │  ▲
+                         TIMER_EXPIRED │  │ WORD (mot dit pile au buzzer)
+                                       ▼  │
+                                     timeout
+                     MISS (depuis turn ou timeout) ──► resolved ──NEXT──► carte suivante | fin
 ```
 
 | État | Le copilote… | Écran | Sorties |
 |---|---|---|---|
-| `hidden` | annonce « Attention… » | LetterCard **face cachée** (dos rouge) : « Touchez pour retourner » | `FLIP` |
-| `countdown` | lit la catégorie et la lettre : « Un animal… en B ! » | La carte se retourne : catégorie et lettre géante. Le décompte « 3 · 2 · 1 » s'affiche avec un bip court par temps, puis un bip aigu sur « top ». Les boutons joueurs sont **inactifs** : un mot dit avant « top » ne compte pas. | `COUNTDOWN_DONE` |
-| `running` | joue, et tape le gagnant | L'anneau se vide (15 s par défaut) et passe en alerte à 5 s, avec un bip court ; bip long à 0. Boutons **[Joueur A] [Joueur B] [Ensemble !]** | `BUZZ`, `TIMER_EXPIRED` |
-| `timeout` | tranche un mot dit pile au buzzer | Anneau vide. Boutons **[Joueur A] [Joueur B] [Personne]** | `BUZZ(A\|B)`, `NOBODY` |
-| `resolved` | annonce « Point pour Léa, 4 à 2 ! » | Bandeau du gagnant et **score en grand** (proposition A). **[Contesté]** reste visible 3 s, puis **[Suivant]** | `CONTESTED`, `NEXT` |
+| `hidden` | annonce « Attention… » | LetterCard **face cachée** : « Touchez pour retourner » | `FLIP` |
+| `announce` | lit à son rythme « Un animal… en B ! », sans chrono | Catégorie et lettre géante. Bouton **[À Léa de commencer]** aux couleurs du joueur. | `START` |
+| `turn` | écoute le mot du joueur et le juge | Anneau du chrono **par mot** (6 s par défaut, réglable 4 à 10 s), alerte et bips à 2 s et 1 s, bip long à 0. Pastille « À Tom ! · 3 mots ». Boutons **[✗ Raté] [✓ Validé]**. | `WORD`, `MISS`, `TIMER_EXPIRED` |
+| `timeout` | tranche un mot dit pile au buzzer | « Temps écoulé pour Tom ! ». Mêmes boutons. | `WORD`, `MISS` |
+| `resolved` | annonce « Tom sèche après 4 mots : point pour Léa ! » | Verdict et **score en grand** (proposition A). **[Carte suivante]** | `NEXT` |
 
-> 🎲 **Avance du copilote** : le copilote découvre la lettre à peine une seconde avant le conducteur, le temps de la lire. Le décompte de 3 s compense en grande partie. On verra en jouant.
+- **Qui commence** : le premier joueur alterne d'une manche à l'autre (A en manche 1, B en manche 2…), puis d'une carte à l'autre dans la manche. Chacun ouvre donc autant de cartes.
+- **Liste des mots acceptés** (D9) : un lien « Mots acceptés (n) » sur la carte affiche, à la place de l'anneau, la liste de la lettre en cours (le chrono reste visible en barre). Elle reste ouverte d'un mot à l'autre et se referme à la carte suivante. La liste est **indicative** : le copilote peut valider un mot absent.
+- **Contester** : il n'y a plus de bouton dédié ; « Annuler » retire le dernier mot validé ou le dernier « Raté ».
 
 ### 7.2 Règles de résolution
 
-- **Premier tap gagnant.** Les taps suivants sont ignorés : un événement invalide dans l'état courant est ignoré, sans planter.
-- **« Ensemble ! »** :
-  - mode *rejoué* (défaut) : retour en `hidden`, avec la même catégorie et une nouvelle lettre ;
-  - mode *1 pt chacun* : `resolved`, avec +1 pour chacun.
-- **Contesté** (règle d'or n° 3) : le point est annulé, et on revient en `hidden` avec la même catégorie et une nouvelle lettre.
-- 🎲 **Plafond de rejeux** : au 3e rejeu consécutif d'un même tour, le tour est clos sans point (« Trop de rejeux ») et on passe au suivant.
-- **Auto-avance** : `NEXT` part automatiquement `max(3 s, délai d'auto-avance)` après la résolution. Cela laisse toujours les 3 s de contestation.
+- **Raté** si le joueur : laisse filer le chrono, répète un mot déjà dit, ou donne un mot que le copilote refuse.
+- Le **gagnant** de la carte est l'autre joueur : `1·m` point. Il n'y a ni égalité ni « personne » : une carte se termine toujours par un raté.
+- Le nombre de mots validés est gardé dans le résultat (verdict « après 4 mots »).
 
 ### 7.3 Tirage
 
@@ -267,12 +263,13 @@ hidden ──FLIP──► countdown ──COUNTDOWN_DONE──► running
 - **Lettre** : pondérée par la fréquence des initiales en français (annexe A). Sont exclues :
   - K, Q, W, X, Y et Z, sauf si les lettres rares sont activées ;
   - les `excludedLetters` de la catégorie ;
-  - la lettre du tour précédent, rejeux compris.
-- La lettre est tirée avec la sous-graine `(seed, manche, question, n° de rejeu)` et inscrite dans l'événement.
+  - les lettres dont la liste de mots acceptés compte moins de 3 mots (une carte doit tenir un échange) ;
+  - la lettre de la carte précédente.
+- La lettre est tirée avec la sous-graine `(seed, n° d'événement)` et inscrite dans l'événement.
 
 ### 7.4 Passer
 
-« Passer » remplace la catégorie par une autre, avec une nouvelle lettre. Le tour reste le même et ne rapporte aucun point.
+« Passer » (avant le début de l'échange) remplace la catégorie par une autre, avec une nouvelle lettre. La carte reste la même et ne rapporte aucun point.
 
 ---
 
@@ -325,6 +322,7 @@ La machine à états est **identique** à celle de Quelle année ? Les différen
 | Numpad | Chiffres et **virgule**, avec des multiplicateurs **[mille] [million] [milliard]** en pastilles exclusives. L'aperçu se formate en direct (« 6,5 millions »). Au plus 2 décimales. [Valider] est inactif si la valeur vaut 0. |
 | Révélation | La réponse formatée (« ≈ 6,7 millions »), le ratio de chacun (« ×1,3 » ou « exact ! ») et une réglette en **échelle logarithmique** de ÷100 à ×100, avec une flèche au-delà |
 | Mesure | Ratio, avec produits croisés (§5.2) |
+| Indice (D11) | Bouton **[Indice]** sous l'énoncé quand l'item en a un : il révèle une aide (lieu, point de comparaison) sans donner la réponse. Le copilote décide de le lire ou non ; l'indice reste affiché jusqu'à la saisie. |
 
 ---
 
@@ -400,7 +398,7 @@ Les actions de debug qui modifient la partie sont des **événements** et des **
 
 ## 13. Durées estimées
 
-Hypothèses : réflexion de 10 s, Bac de 15 s.
+Hypothèses : réflexion de 10 s, Bac en alternance d'environ 25 s par carte (4 mots de 6 s au plus).
 
 | Séquence | Détail | Durée |
 |---|---|---|

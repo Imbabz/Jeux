@@ -61,8 +61,11 @@ Les ids sont **stables** et ne sont jamais réutilisés : on supprime un item, o
   label: 'Un animal',         // affiché et lu par le copilote : « Un animal… en B ! »
   difficulty: 1,
   excludedLetters: ['X'],     // lettres quasi impossibles POUR CETTE CATÉGORIE (rares comprises)
+  words: { B: ['baleine', 'bison', …], … },  // mots acceptés par lettre, montrés au copilote
 }
 ```
+
+Les listes `words` sont rédigées dans `scripts/bac_words/` (un bloc « L: mot, mot, … » par lettre) et fusionnées par `scripts/build_bac.py`. En alternance, une carte demande plusieurs mots : **une lettre n'est jouable que si sa liste compte au moins 3 mots** (sinon elle passe dans `excludedLetters`), et une catégorie n'est gardée que si elle offre au moins 8 lettres jouables. Les listes sont **indicatives** : le copilote peut valider un mot absent.
 
 ### 4.2 Quelle année ? (`year.json`)
 
@@ -104,7 +107,8 @@ Les ids sont **stables** et ne sont jamais réutilisés : on supprime un item, o
 | `answer` | Une valeur **stable** de préférence. Sinon, on renseigne `referenceYear` et on arrondit à 2 ou 3 chiffres significatifs. |
 | `answerLabel` | Facultatif. Par défaut, l'app formate `answer` et l'unité (« ≈ 11,8 millions d'habitants » si `referenceYear` est présent). À n'utiliser que si ce format ne convient pas. |
 | `context` | Une phrase de 160 caractères au maximum, vraie et vérifiable. Elle ne répète pas la réponse : elle ajoute quelque chose. |
-| `excludedLetters` | Une lettre est **autorisée** seulement si un non-spécialiste trouve au moins **2 mots** en 10 secondes. |
+| `hint` | Facultatif, 90 caractères au maximum, révélé à la demande. Un bon indice aide à **raisonner** (lieu, ordre de grandeur, point de comparaison) sans donner la réponse : « Pont ferroviaire en acier près d'Édimbourg, en Écosse, ouvert en 1890. » Rédigés dans `scripts/hints.py`. |
+| `excludedLetters` | Une lettre est **autorisée** seulement si deux joueurs peuvent enchaîner plusieurs mots : au moins **3 mots** dans la liste `words`. |
 
 ---
 
@@ -239,6 +243,8 @@ Les ids sont **stables** et ne sont jamais réutilisés : on supprime un item, o
 ---
 
 ## 6. 🎲 L'exception des packs Écosse et Belgique (Bac Éclair) : réglage par défaut, à revoir en jouant
+
+> Depuis l'alternance (D8), la règle commune est **8 lettres jouables minimum**, chacune avec 3 mots acceptés ; l'exception ci-dessous n'a plus d'effet sur le test.
 
 Exiger **25 catégories à au moins 15 lettres jouables** pour l'Écosse et la Belgique pousse vers des catégories soit trop pointues, soit hors sujet. Deux solutions sont possibles, et je propose de **combiner les deux** :
 

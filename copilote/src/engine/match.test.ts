@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { MatchEventBody } from './events.ts';
+import { undoLastDecision, type MatchEventBody } from './events.ts';
 import type { BacAction } from './games/bac/machine.ts';
 import {
   activeItem,
+  canAdjust,
   currentRoundPoints,
   exactCount,
   initialMatchState,
@@ -312,59 +313,97 @@ describe('partie avec Bac Éclair', () => {
     rules: { ...baseConfig.rules, doubleFinalRound: false },
   };
   const bac = (action: BacAction): MatchEventBody => ({ type: 'bac', action });
-  const turn = (letter: string, who: 'A' | 'B' | null): MatchEventBody[] => [
+  /** Une carte : `words` mots validés en alternance, puis celui qui parle sèche. */
+  const turn = (letter: string, words: number): MatchEventBody[] => [
     bac({ type: 'FLIP', letter }),
-    bac({ type: 'COUNTDOWN_DONE' }),
-    ...(who
-      ? [bac({ type: 'BUZZ', who })]
-      : [bac({ type: 'TIMER_EXPIRED' }), bac({ type: 'NOBODY' })]),
+    bac({ type: 'START' }),
+    ...Array.from({ length: words }, () => bac({ type: 'WORD' })),
+    bac({ type: 'MISS' }),
     bac({ type: 'NEXT' }),
   ];
-  const bacRound = (round: number, winners: ('A' | 'B' | null)[]): MatchEventBody[] => [
-    { type: 'ROUND_STARTED', round, game: 'bac', items: [item(1), item(2), item(3)] },
-    ...turn('A', winners[0] ?? null),
-    ...turn('B', winners[1] ?? null),
-    ...turn('C', winners[2] ?? null),
+  const letters = ['A', 'B', 'C'];
+  const bacRound = (round: number, words: number[]): MatchEventBody[] => [
+    {
+      type: 'ROUND_STARTED',
+      round,
+      game: 'bac',
+      items: words.map((_, i) => item(i + 1)),
+    },
+    ...words.flatMap((w, i) => turn(letters[i] as string, w)),
     { type: 'ROUND_RECAP_DONE' },
   ];
 
-  it('joue une partie complète et reprend un tour au décompte', () => {
+  it('joue une partie complète, alterne qui ouvre et reprend un échange à l’annonce', () => {
+    // Manche 1 (A ouvre) : A, B, A sèchent → B, A, B. Manche 2 (B ouvre) : A, B, A.
+    // Manche 3 (A ouvre) : un mot puis A sèche → B… on choisit 1, 0, 1 mots → A, A, A.
     const s = run(
       [
         { type: 'OPENING_DONE' },
-        ...bacRound(0, ['A', 'A', 'A']),
-        ...bacRound(1, ['B', 'B', 'B']),
-        ...bacRound(2, ['A', 'A', null]),
+        ...bacRound(0, [0, 0, 0]),
+        ...bacRound(1, [0, 0, 0]),
+        ...bacRound(2, [1, 0, 1]),
       ],
       bacConfig,
     );
-    expect(totals(s)).toEqual({ A: 5, B: 3 });
+    expect(s.rounds.map((r) => r.points)).toEqual([
+      { A: 1, B: 2 },
+      { A: 2, B: 1 },
+      { A: 3, B: 0 },
+    ]);
+    expect(totals(s)).toEqual({ A: 6, B: 3 });
     expect(s).toMatchObject({ phase: 'finished', winner: 'A' });
-    const running = run(
+    const inTurn = run(
       [
         { type: 'OPENING_DONE' },
         { type: 'ROUND_STARTED', round: 0, game: 'bac', items: [item(1)] },
         bac({ type: 'FLIP', letter: 'A' }),
-        bac({ type: 'COUNTDOWN_DONE' }),
+        bac({ type: 'START' }),
       ],
       bacConfig,
     );
-    expect(needsRestart(running)).toBe(true);
-    expect(reduceMatch(running, { type: 'TURN_RESTARTED' }).current?.phase).toBe('countdown');
+    expect(needsRestart(inTurn)).toBe(true);
+    expect(reduceMatch(inTurn, { type: 'TURN_RESTARTED' }).current?.phase).toBe('announce');
   });
 
-  it('départage une égalité par un tour de Bac Éclair', () => {
+  it('départage une égalité par une carte de Bac Éclair', () => {
     const tied: MatchEventBody[] = [
       { type: 'OPENING_DONE' },
-      ...bacRound(0, ['A', 'A', null]),
-      ...bacRound(1, ['B', 'B', null]),
-      ...bacRound(2, [null, null, null]),
+      ...bacRound(0, [0, 0]),
+      ...bacRound(1, [0, 0]),
+      ...bacRound(2, [0, 0]),
     ];
+    expect(totals(run(tied, bacConfig))).toEqual({ A: 3, B: 3 });
     expect(run(tied, bacConfig).phase).toBe('suddenDeathIntro');
     const sd = run(
-      [...tied, { type: 'SUDDEN_DEATH_STARTED', game: 'bac', item: item(7) }, ...turn('D', 'B')],
+      [...tied, { type: 'SUDDEN_DEATH_STARTED', game: 'bac', item: item(7) }, ...turn('D', 0)],
       bacConfig,
     );
     expect(sd).toMatchObject({ phase: 'finished', winner: 'B', wonBySuddenDeath: true });
+  });
+});
+
+describe('ajustement manuel des scores', () => {
+  const adjust = (player: 'A' | 'B', delta: number): MatchEventBody => ({
+    type: 'SCORE_ADJUSTED',
+    player,
+    delta,
+  });
+
+  it('ajoute ou retire des points au total, annulable comme une décision', () => {
+    const events: MatchEventBody[] = [{ type: 'OPENING_DONE' }, adjust('A', 2), adjust('B', -1)];
+    const s = run(events);
+    expect(s.adjustments).toEqual({ A: 2, B: -1 });
+    expect(totals(s)).toEqual({ A: 2, B: -1 });
+    expect(totals(run(undoLastDecision(events)))).toEqual({ A: 2, B: 0 });
+  });
+
+  it('refuse un ajustement nul, non entier, ou une fois la partie finie', () => {
+    const s = run([{ type: 'OPENING_DONE' }]);
+    expect(reduceMatch(s, adjust('A', 0))).toBe(s);
+    expect(reduceMatch(s, adjust('A', 0.5))).toBe(s);
+    const finished: MatchState = { ...s, phase: 'finished' };
+    expect(reduceMatch(finished, adjust('A', 1))).toBe(finished);
+    expect(canAdjust(finished)).toBe(false);
+    expect(canAdjust(s)).toBe(true);
   });
 });

@@ -40,6 +40,11 @@ async function typeEstim(page: Page, digits: string, multiplier?: string) {
 }
 
 async function playClosest(page: Page, game: 'year' | 'estim') {
+  const hint = page.getByRole('button', { name: 'Indice' });
+  if (await hint.isVisible()) {
+    await hint.click();
+    await once(page, `${game}-0-indice`);
+  }
   await once(page, `${game}-1-lecture`);
   await page.getByRole('button', { name: /C’est lu/ }).click();
   await once(page, `${game}-2-reflexion`);
@@ -69,18 +74,36 @@ async function playBac(page: Page, turn: number) {
   await once(page, 'bac-1-face-cachee');
   await page.getByRole('button', { name: 'Retourner la carte' }).first().click();
   await page.waitForTimeout(500);
-  await once(page, 'bac-2-decompte');
-  await page
-    .getByRole('button', { name: 'Ensemble !' })
-    .and(page.locator(':enabled'))
-    .waitFor({ timeout: 6000 });
-  await page.waitForTimeout(1200);
+  await once(page, 'bac-2-annonce');
+  await page.getByRole('button', { name: /de commencer/ }).click();
+  await page.waitForTimeout(800);
   await once(page, 'bac-3-chrono');
-  await page.getByRole('button', { name: turn % 2 === 0 ? 'Léa' : 'Tom', exact: true }).click();
-  await once(page, 'bac-4-resolu');
+  // Un mot validé, puis on ouvre la liste des mots acceptés.
+  await page.getByRole('button', { name: 'Validé' }).click();
+  await page.getByRole('button', { name: /Mots acceptés/ }).click();
+  await once(page, 'bac-4-liste');
+  if (turn % 2 === 0) await page.getByRole('button', { name: /Raté/ }).click();
+  else {
+    await page.getByText(/Temps écoulé/).waitFor({ timeout: 15000 });
+    await once(page, 'bac-5-temps-ecoule');
+    await page.getByRole('button', { name: /Raté/ }).click();
+  }
+  await once(page, 'bac-6-resolu');
   await page
-    .getByRole('button', { name: /Tour suivant|Fin de la manche|Voir le résultat/ })
+    .getByRole('button', { name: /Carte suivante|Fin de la manche|Voir le résultat/ })
     .click();
+}
+
+async function adjustScores(page: Page) {
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page.getByRole('button', { name: 'Ajuster les scores' }).click();
+  await page.getByRole('button', { name: 'Ajouter un point à Léa' }).click();
+  await once(page, '07-ajuster-scores');
+  await page.getByRole('button', { name: 'Terminé' }).click();
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  await once(page, '08-reglages');
+  await page.getByRole('button', { name: 'Terminé' }).click();
 }
 
 test('accueil, configuration, partie Express avec les trois jeux', async ({ page }) => {
@@ -104,6 +127,7 @@ test('accueil, configuration, partie Express avec les trois jeux', async ({ page
     const heading = await page.getByRole('heading', { level: 1 }).textContent();
     await shot(page, `04-intro-manche-${round + 1}`);
     await page.getByRole('button', { name: 'Première question' }).click();
+    if (round === 0) await adjustScores(page);
     const game = heading?.includes('Bac')
       ? 'bac'
       : heading?.includes('Estimation')

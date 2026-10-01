@@ -85,7 +85,6 @@ export function Setup() {
       rules: {
         exactBonus: settings.exactBonus,
         doubleFinalRound: settings.doubleFinalRound,
-        bacTogether: 'replay',
         rareLetters: false,
       },
     };

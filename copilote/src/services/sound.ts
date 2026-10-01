@@ -1,6 +1,10 @@
 /**
  * Bips WebAudio générés (aucun fichier audio) — GAME_DESIGN §10.1.
- * L'AudioContext doit être créé/réveillé dans un geste utilisateur (tap « Lancer ») sur iOS.
+ * Sur iOS :
+ * - l'AudioContext ne démarre que dans un geste utilisateur, et Safari le suspend
+ *   (état « interrupted ») après une mise en veille ou un appel : on le réveille à chaque tap ;
+ * - par défaut, le bouton silencieux coupe WebAudio : la session audio passe en « playback »
+ *   (Safari 17+), comme un lecteur de musique, pour que les bips sortent aussi via CarPlay/Bluetooth.
  */
 
 export type BeepKind = 'tick' | 'go' | 'alert' | 'end';
@@ -21,9 +25,13 @@ function getContext(): AudioContext | null {
     window.AudioContext ??
     (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Ctor) return null;
+  const nav = navigator as Navigator & { audioSession?: { type: string } };
+  if (nav.audioSession) nav.audioSession.type = 'playback';
   context = new Ctor();
   return context;
 }
+
+let listening = false;
 
 export const sound = {
   setEnabled(value: boolean) {
@@ -41,10 +49,27 @@ export const sound = {
     src.connect(ctx.destination);
     src.start(0);
   },
+  /** Réveille l'audio à chaque tap, n'importe où dans l'app (à appeler une fois au démarrage). */
+  listen() {
+    if (listening) return;
+    listening = true;
+    const wake = () => {
+      if (!enabled || context?.state === 'running') return;
+      sound.unlock();
+    };
+    for (const type of ['pointerdown', 'touchend', 'click'] as const) {
+      document.addEventListener(type, wake, { capture: true, passive: true });
+    }
+  },
   beep(kind: BeepKind) {
     if (!enabled) return;
     const ctx = getContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx) return;
+    if (ctx.state !== 'running') {
+      // Hors geste, resume() peut échouer : ce bip est perdu, le prochain tap réveillera l'audio.
+      void ctx.resume().catch(() => undefined);
+      return;
+    }
     const { freq, ms, type } = BEEPS[kind];
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();

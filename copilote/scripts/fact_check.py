@@ -31,8 +31,8 @@ OVERRIDES = {
     # Sources : fr.wikipedia (Anvers) — 562 002 habitants au 1er janvier 2025, après la fusion avec Borsbeek.
     'est-0082': {'context': "Le beffroi, haut de 83 mètres, penche d'environ un mètre depuis des siècles."},
     # Sources : fr.wikipedia (Beffroi de Bruges : 1,19 m), visitbruges.be.
-    'est-0084': {'context': "Installés en 2010, ils représentent chacun un pays de l'Union européenne de l'époque."},
-    # Sources : atlasobscura.com, sax.dinant.be — 28 pays en 2010, avant le Brexit.
+    'est-0084': {'context': "Chacun est peint aux couleurs d'un pays européen, devant son drapeau."},
+    # Sources : atlasobscura.com, sax.dinant.be — installés en 2010 ; 28 saxophones alors que l'UE comptait 27 pays : on reste général.
     'est-0102': {'answer': 650000},
     # Sources : National Records of Scotland, estimations mi-2024 (Glasgow City 650 300).
     'est-0103': {'answer': 530000},
@@ -58,6 +58,10 @@ OVERRIDES = {
     'bac-0035': {'add_excluded': 'U'}, 'bac-0087': {'add_excluded': 'U'}, 'bac-0089': {'add_excluded': 'U'},
     'bac-0090': {'add_excluded': 'U'}, 'bac-0091': {'add_excluded': 'U'}, 'bac-0097': {'add_excluded': 'U'},
     'bac-0098': {'add_excluded': 'U'}, 'bac-0111': {'add_excluded': 'U'},
+    # Packs complétés : deux catégories écartées (pays d'Amérique, Tintin) faute de mots en alternance.
+    'bac-0019': {'packs': ['general', 'belgium', 'sport', 'food', 'pop']},
+    'bac-0013': {'packs': ['general', 'history-science', 'scotland', 'geo-travel']},
+    'bac-0092': {'packs': ['geo-travel', 'scotland', 'history-science']},
 }
 REMOVED = {
     'est-0101',
@@ -66,6 +70,7 @@ REMOVED = {
 
 
 def apply(items):
+    from hints import HINTS
     # Applique les corrections par id ; les ids restent stables (une suppression laisse un trou).
     out = []
     for item in items:
@@ -76,5 +81,7 @@ def apply(items):
         item = {**item, **fix}
         if extra:
             item['excludedLetters'] = item['excludedLetters'] + [l for l in extra if l not in item['excludedLetters']]
+        if item['id'] in HINTS:
+            item['hint'] = HINTS[item['id']]
         out.append(item)
     return out

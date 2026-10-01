@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { actions, useSession } from '../../app/session.ts';
 import { replay, totals } from '../../engine/index.ts';
 import { Button } from '../components/Button.tsx';
 import { PlayIcon } from '../components/icons.tsx';
+import { Sheet } from '../components/Overlay.tsx';
+import { SettingsPanel } from '../components/SettingsPanel.tsx';
 import { Token } from '../components/Token.tsx';
 import { scoreLine } from '../format.ts';
 import { APP_VERSION } from '../version.ts';
 
 export function Home() {
   const { record } = useSession();
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const resumable = record ? replay(record.config, record.seed, record.events) : null;
   const names = record
     ? { A: record.config.players.A.name, B: record.config.players.B.name }
@@ -39,8 +43,19 @@ export function Home() {
         <Button size="lg" block variant={resumable ? 'card' : 'primary'} onClick={actions.goSetup}>
           {resumable ? 'Nouvelle partie' : 'Jouer'}
         </Button>
+        <Button block variant="card" onClick={() => setSettingsOpen(true)}>
+          Réglages
+        </Button>
         <p className="pt-4 text-center text-xs text-ink-soft tabular-nums">v{APP_VERSION}</p>
       </div>
+      {settingsOpen ? (
+        <Sheet title="Réglages" onClose={() => setSettingsOpen(false)}>
+          <SettingsPanel />
+          <Button block className="sticky bottom-0" onClick={() => setSettingsOpen(false)}>
+            Terminé
+          </Button>
+        </Sheet>
+      ) : null}
     </main>
   );
 }

@@ -11,7 +11,7 @@ import {
   summarizeRound,
 } from './round.ts';
 
-const settings = { multiplier: 1, exactBonus: true, together: 'replay' as const };
+const settings = { multiplier: 1, exactBonus: true, first: 'A' as const };
 
 describe('interface commune des mini-jeux', () => {
   it('crée la bonne machine selon le jeu', () => {
