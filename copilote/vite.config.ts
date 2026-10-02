@@ -5,18 +5,31 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
 
+// Identifiant du build (commit Vercel ou date) : affiché sur l'accueil pour savoir quelle version tourne,
+// et publié dans version.json pour que l'app installée détecte une nouvelle version à l'ouverture.
+const BUILD =
+  (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7) ||
+  new Date().toISOString().slice(0, 16).replace('T', ' ');
+
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    // Identifiant du build (commit Vercel ou date) : affiché sur l'accueil pour savoir quelle version tourne.
-    __APP_BUILD__: JSON.stringify(
-      (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7) ||
-        new Date().toISOString().slice(0, 16).replace('T', ' '),
-    ),
+    __APP_BUILD__: JSON.stringify(BUILD),
   },
   plugins: [
     react(),
     tailwindcss(),
+    {
+      name: 'copilote-version',
+      apply: 'build',
+      generateBundle() {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'version.json',
+          source: JSON.stringify({ version: pkg.version, build: BUILD }),
+        });
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       // L'enregistrement est fait à la main (src/pwa.ts) pour vérifier les mises à jour au retour dans l'app.
@@ -49,7 +62,8 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
         navigateFallback: '/index.html',
         // Seuls les sous-ensembles latins des polices sont utiles (français) : inutile de précacher le reste.
-        globIgnores: ['**/*-cyrillic*', '**/*-greek*', '**/*-vietnamese*'],
+        // version.json est toujours lu sur le réseau : c'est lui qui annonce une nouvelle version.
+        globIgnores: ['**/*-cyrillic*', '**/*-greek*', '**/*-vietnamese*', 'version.json'],
       },
     }),
   ],
