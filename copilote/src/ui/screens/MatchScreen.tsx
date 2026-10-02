@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { actions, useSession } from '../../app/session.ts';
 import type { Content } from '../../content/index.ts';
 import {
+  canAdjust,
   currentRoundPoints,
   exactCount,
   isFinalRound,
@@ -19,6 +20,7 @@ import { Card } from '../components/Card.tsx';
 import { GameIcon, PlayIcon, UndoIcon } from '../components/icons.tsx';
 import { ConfirmDialog, Overlay, Sheet } from '../components/Overlay.tsx';
 import { ScoreBar } from '../components/ScoreBar.tsx';
+import { SettingsPanel } from '../components/SettingsPanel.tsx';
 import { Token, TokenRow } from '../components/Token.tsx';
 import { plural, scoreLine } from '../format.ts';
 import { GAME_THEME, PLAYER_THEME } from '../theme/games.ts';
@@ -29,7 +31,7 @@ import { ClosestRound, type CardView } from './ClosestRound.tsx';
 /** Écran de partie : choisit la vue selon la phase de la partie (GAME_DESIGN §3). */
 export function MatchScreen() {
   const { match, content, paused, settings } = useSession();
-  const [menu, setMenu] = useState(false);
+  const [menu, setMenu] = useState<'main' | 'scores' | 'settings' | null>(null);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const index = useMemo(() => buildIndex(content), [content]);
   if (!match || !content) return null;
@@ -56,28 +58,80 @@ export function MatchScreen() {
           </Card>
         </Overlay>
       ) : null}
-      {menu ? (
-        <Sheet title="Menu" onClose={() => setMenu(false)}>
+      {menu === 'main' ? (
+        <Sheet title="Menu" onClose={() => setMenu(null)}>
           <Button
             variant="card"
             block
             onClick={() => {
-              setMenu(false);
+              setMenu(null);
               actions.setPaused(false);
             }}
           >
             Reprendre la partie
+          </Button>
+          {canAdjust(match) ? (
+            <Button variant="card" block onClick={() => setMenu('scores')}>
+              Ajuster les scores
+            </Button>
+          ) : null}
+          <Button variant="card" block onClick={() => setMenu('settings')}>
+            Réglages
           </Button>
           <Button
             variant="card"
             block
             className="text-bac"
             onClick={() => {
-              setMenu(false);
+              setMenu(null);
               setConfirmAbandon(true);
             }}
           >
             Abandonner la partie
+          </Button>
+        </Sheet>
+      ) : null}
+      {menu === 'scores' ? (
+        <Sheet title="Ajuster les scores" onClose={() => setMenu(null)}>
+          <p className="px-1 text-sm text-ink-soft">
+            Pour un point marqué hors jeu ou une erreur de saisie. « Annuler » retire le dernier
+            ajustement.
+          </p>
+          {(['A', 'B'] as const).map((p) => (
+            <div key={p} className="flex items-center gap-3 rounded-key bg-card p-2">
+              <Initial player={p} name={names[p]} />
+              <span className="min-w-0 flex-1 truncate font-bold">{names[p]}</span>
+              <Button
+                variant="card"
+                className="w-14 px-0"
+                aria-label={`Retirer un point à ${names[p]}`}
+                onClick={() => actions.adjustScore(p, -1)}
+              >
+                −1
+              </Button>
+              <span className="w-10 text-center font-display text-xl font-black tabular-nums">
+                {score[p]}
+              </span>
+              <Button
+                variant={p === 'A' ? 'playerA' : 'playerB'}
+                className="w-14 px-0"
+                aria-label={`Ajouter un point à ${names[p]}`}
+                onClick={() => actions.adjustScore(p, 1)}
+              >
+                +1
+              </Button>
+            </div>
+          ))}
+          <Button block onClick={() => setMenu(null)}>
+            Terminé
+          </Button>
+        </Sheet>
+      ) : null}
+      {menu === 'settings' ? (
+        <Sheet title="Réglages" onClose={() => setMenu(null)}>
+          <SettingsPanel />
+          <Button block className="sticky bottom-0" onClick={() => setMenu(null)}>
+            Terminé
           </Button>
         </Sheet>
       ) : null}
@@ -99,7 +153,7 @@ export function MatchScreen() {
 
   const openMenu = () => {
     actions.setPaused(false);
-    setMenu(true);
+    setMenu('main');
   };
 
   const shell = (children: ReactNode, badge: 'double' | 'sudden' | null = null) => (
@@ -144,15 +198,17 @@ export function MatchScreen() {
       const round = match.current;
       if (!round) return null;
       const itemId = round.items[round.index]?.id ?? '';
+      const bacItem = round.kind === 'bac' ? index.bac.get(itemId) : undefined;
       const body =
         round.kind === 'bac' ? (
           <BacRound
             round={round}
-            label={index.bac.get(itemId)?.label ?? itemId}
+            label={bacItem?.label ?? itemId}
+            itemId={itemId}
             names={names}
             totals={score}
             paused={paused}
-            bacSeconds={settings.bacSeconds}
+            wordSeconds={settings.bacWordSeconds}
             suddenDeath={suddenDeath}
           />
         ) : (
@@ -439,8 +495,8 @@ function cardView(index: ContentIndex, kind: 'year' | 'estim', id: string): Card
       chip: item.category,
       text: item.text,
       context: item.context,
-      prefill: item.centuryHint,
       answerLabel: String(item.year),
+      ...(item.hint ? { hint: item.hint } : {}),
     };
   }
   const item = index.estim.get(id);
@@ -454,5 +510,6 @@ function cardView(index: ContentIndex, kind: 'year' | 'estim', id: string): Card
     answerLabel:
       item.answerLabel ??
       estimAnswerLabel(item.answer, item.unit, item.referenceYear !== undefined),
+    ...(item.hint ? { hint: item.hint } : {}),
   };
 }

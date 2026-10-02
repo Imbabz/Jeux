@@ -1,194 +1,231 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { actions } from '../../app/session.ts';
 import type { BacAction, BacResult, BacRoundState, PerPlayer } from '../../engine/index.ts';
 import { haptics, sound } from '../../services/index.ts';
-import { Button, GhostButton, PlayerButton } from '../components/Button.tsx';
-import { BoltIcon, SkipIcon, UndoIcon } from '../components/icons.tsx';
+import { Button, GhostButton } from '../components/Button.tsx';
+import { DictionaryPanel } from '../components/DictionaryPanel.tsx';
+import { BoltIcon, CheckIcon, SkipIcon } from '../components/icons.tsx';
+import { useBacEntries } from '../hooks/useDictionary.ts';
 import { useTimeline } from '../hooks/useClock.ts';
-import { scoreLine } from '../format.ts';
+import { plural, scoreLine } from '../format.ts';
+import { PLAYER_THEME } from '../theme/games.ts';
 
 /**
- * Déroulé d'un tour de Bac Éclair (GAME_DESIGN §7.1).
- * Le copilote retourne la carte et lit « Un animal… en B ! » pendant le décompte ; l'app chronomètre et bipe.
+ * Déroulé d'une carte de Bac Éclair en alternance (GAME_DESIGN §7.1).
+ * Le copilote retourne la carte, lit « Un animal… en B ! » à son rythme, puis lance l'échange :
+ * chacun son tour donne un mot, avec un chrono court par mot. Celui qui sèche perd la carte.
  */
 
 interface Props {
   round: BacRoundState;
+  /** Id de la catégorie, pour retrouver ses entrées dans le dictionnaire. */
+  itemId: string;
   label: string;
   names: PerPlayer<string>;
   totals: PerPlayer<number>;
   paused: boolean;
-  bacSeconds: number;
+  wordSeconds: number;
   suddenDeath: boolean;
 }
 
 const send = (action: BacAction) => actions.dispatch({ type: 'bac', action });
-const CONTEST_WINDOW = 3000;
+const other = (p: 'A' | 'B') => (p === 'A' ? 'B' : 'A');
 
 function verdict(result: BacResult, names: PerPlayer<string>): string {
-  if (result.voided) return 'Trop de rejeux : tour sans point';
-  if (result.winner === 'none') return 'Personne ne marque';
-  if (result.winner === 'both') return `Ensemble : +${result.points.A} chacun`;
-  return `Point pour ${names[result.winner]} !`;
+  const loser = names[other(result.winner)];
+  const after = result.words > 0 ? ` après ${plural(result.words, 'mot', 'mots')}` : '';
+  return `${loser} sèche${after} : point pour ${names[result.winner]} !`;
 }
 
 export function BacRound(props: Props) {
   const { round } = props;
-  // Chaque état est remonté (key) : ses chronos repartent de zéro.
-  return <BacPhase key={`${round.index}-${round.replays}-${round.phase}`} {...props} />;
+  // La liste reste ouverte d'un mot à l'autre ; elle se referme à chaque nouvelle carte.
+  const [list, setList] = useState({ index: round.index, open: false });
+  const showList = list.index === round.index && list.open;
+  const toggleList = () => setList({ index: round.index, open: !showList });
+  // Chaque état est remonté (key) : le chrono repart de zéro à chaque nouveau mot.
+  return (
+    <BacPhase
+      key={`${round.index}-${round.phase}-${round.words}`}
+      {...props}
+      showList={showList}
+      toggleList={toggleList}
+    />
+  );
 }
 
-function BacPhase({ round, label, names, totals, paused, bacSeconds, suddenDeath }: Props) {
+function BacPhase({
+  round,
+  itemId,
+  label,
+  names,
+  totals,
+  paused,
+  wordSeconds,
+  suddenDeath,
+  showList,
+  toggleList,
+}: Props & { showList: boolean; toggleList: () => void }) {
   const phase = round.phase;
-  const bacMs = bacSeconds * 1000;
+  const entries = useBacEntries(itemId, round.letter);
+  const turnMs = wordSeconds * 1000;
   const steps = useMemo(() => {
-    if (phase === 'countdown') {
-      const tick = () => {
-        sound.beep('tick');
-        haptics.pulse(20);
-      };
-      return [
-        { at: 0, run: tick },
-        { at: 1000, run: tick },
-        { at: 2000, run: tick },
-        {
-          at: 3000,
-          run: () => {
-            sound.beep('go');
-            haptics.pulse(60);
-            send({ type: 'COUNTDOWN_DONE' });
-          },
+    if (phase !== 'turn') return [];
+    return [
+      // Bips d'alerte à 2 s et 1 s de la fin, seulement si le chrono est assez long pour ça.
+      ...[2000, 1000]
+        .filter((before) => turnMs - before >= 1000)
+        .map((before) => ({ at: turnMs - before, run: () => sound.beep('alert') })),
+      {
+        at: turnMs,
+        run: () => {
+          sound.beep('end');
+          haptics.pulse(120);
+          send({ type: 'TIMER_EXPIRED' });
         },
-      ];
-    }
-    if (phase === 'running') {
-      return [
-        { at: Math.max(0, bacMs - 5000), run: () => sound.beep('alert') },
-        {
-          at: bacMs,
-          run: () => {
-            sound.beep('end');
-            haptics.pulse(120);
-            send({ type: 'TIMER_EXPIRED' });
-          },
-        },
-      ];
-    }
-    return [];
-  }, [phase, bacMs]);
-  const timed = phase === 'countdown' || phase === 'running' || phase === 'resolved';
-  const elapsed = useTimeline(!paused && timed, steps);
+      },
+    ];
+  }, [phase, turnMs]);
+  const elapsed = useTimeline(!paused && phase === 'turn', steps);
 
   const last = round.results[round.results.length - 1];
-  const remaining =
-    phase === 'running' ? Math.max(0, bacMs - elapsed) : phase === 'countdown' ? bacMs : 0;
-  const countdown =
-    phase === 'countdown' ? String(3 - Math.min(2, Math.floor(elapsed / 1000))) : null;
+  const remaining = phase === 'turn' ? Math.max(0, turnMs - elapsed) : 0;
   const questionLabel = suddenDeath ? 'Décisive' : `${round.index + 1}/${round.items.length}`;
-  const canSkip = phase !== 'resolved' && phase !== 'timeout' && actions.canSkip();
+  const canSkip = phase === 'hidden' || phase === 'announce' ? actions.canSkip() : false;
   const isLast = round.index + 1 >= round.items.length;
+  const speaker = round.speaker;
+  const speakerTheme = PLAYER_THEME[speaker];
 
   let buttons: ReactNode;
   if (phase === 'hidden') {
     buttons = (
-      <Button
-        size="xl"
-        block
-        className="bg-bac [--btn-deep:var(--color-bac-deep)]"
-        onClick={actions.flipBac}
-      >
+      <Button size="xl" block variant="bac" onClick={actions.flipBac}>
         Retourner la carte
       </Button>
     );
-  } else if (phase === 'resolved') {
-    const contestable = last && last.winner !== 'none' && elapsed < CONTEST_WINDOW;
+  } else if (phase === 'announce') {
     buttons = (
-      <div className="flex flex-col gap-2">
-        <Button size="lg" block onClick={() => send({ type: 'NEXT' })}>
-          {suddenDeath ? 'Voir le résultat' : isLast ? 'Fin de la manche' : 'Tour suivant'}
-        </Button>
-        <div className="flex min-h-12 justify-center">
-          {contestable ? (
-            <GhostButton
-              icon={<UndoIcon size={20} />}
-              tone="danger"
-              onClick={() => send({ type: 'CONTESTED' })}
-            >
-              Contesté ! ({Math.ceil((CONTEST_WINDOW - elapsed) / 1000)})
-            </GhostButton>
-          ) : null}
-        </div>
-      </div>
+      <Button
+        size="xl"
+        block
+        variant={speaker === 'A' ? 'playerA' : 'playerB'}
+        onClick={() => {
+          sound.beep('go');
+          send({ type: 'START' });
+        }}
+      >
+        {round.words > 0 ? `À ${names[speaker]} de reprendre` : `À ${names[speaker]} de commencer`}
+      </Button>
+    );
+  } else if (phase === 'resolved') {
+    buttons = (
+      <Button size="lg" block onClick={() => send({ type: 'NEXT' })}>
+        {suddenDeath ? 'Voir le résultat' : isLast ? 'Fin de la manche' : 'Carte suivante'}
+      </Button>
     );
   } else {
-    const active = phase === 'running' || phase === 'timeout';
     buttons = (
-      <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-3">
-          <PlayerButton
-            player="A"
-            name={names.A}
-            size="xl"
-            disabled={!active}
-            onClick={() => send({ type: 'BUZZ', who: 'A' })}
-          />
-          <PlayerButton
-            player="B"
-            name={names.B}
-            size="xl"
-            disabled={!active}
-            onClick={() => send({ type: 'BUZZ', who: 'B' })}
-          />
-        </div>
-        {phase === 'timeout' ? (
-          <Button variant="neutral" block onClick={() => send({ type: 'NOBODY' })}>
-            Personne
-          </Button>
-        ) : (
-          <Button
-            variant="neutral"
-            block
-            disabled={!active}
-            onClick={() => send({ type: 'BUZZ', who: 'both' })}
-          >
-            Ensemble !
-          </Button>
-        )}
+      <div className="grid grid-cols-2 gap-3">
+        <Button size="xl" variant="neutral" onClick={() => send({ type: 'MISS' })}>
+          ✗ Raté
+        </Button>
+        <Button
+          size="xl"
+          variant={speaker === 'A' ? 'playerA' : 'playerB'}
+          icon={<CheckIcon size={24} />}
+          onClick={() => send({ type: 'WORD' })}
+        >
+          Validé
+        </Button>
       </div>
     );
   }
 
+  const status: ReactNode =
+    phase === 'resolved' && last ? (
+      <div className="flex flex-col items-center gap-0.5 rounded-key bg-white/15 px-3 py-2 text-center">
+        <span className="text-md font-bold">{verdict(last, names)}</span>
+        {suddenDeath ? null : (
+          <span className="text-sm font-semibold">{scoreLine(names, totals)}</span>
+        )}
+      </div>
+    ) : phase === 'turn' || phase === 'timeout' ? (
+      <div
+        className={`flex items-center gap-2 rounded-chip px-4 py-2 text-md font-bold ${speakerTheme.bg} ${speakerTheme.text}`}
+      >
+        {phase === 'timeout' ? `Temps écoulé pour ${names[speaker]} !` : `À ${names[speaker]} !`}
+        {round.words > 0 ? (
+          <span className="text-sm font-semibold opacity-80">
+            · {plural(round.words, 'mot', 'mots')}
+          </span>
+        ) : null}
+      </div>
+    ) : canSkip ? (
+      <GhostButton icon={<SkipIcon size={20} />} tone="inverse" onClick={actions.skip}>
+        Passer
+      </GhostButton>
+    ) : null;
+
+  const progress = phase === 'turn' ? remaining / turnMs : phase === 'announce' ? 1 : 0;
+  const alert = phase === 'turn' && remaining <= 2000;
+
   return (
     <div className="flex h-full flex-col gap-3">
-      <LetterCard
-        hidden={phase === 'hidden'}
-        label={label}
-        letter={round.letter}
-        progress={phase === 'running' ? remaining / bacMs : phase === 'countdown' ? 1 : 0}
-        alert={phase === 'running' && remaining <= 5000}
-        dimmed={phase === 'timeout'}
-        countdown={countdown}
-        corner={questionLabel}
-        onFlip={phase === 'hidden' ? actions.flipBac : undefined}
-        footer={
-          phase === 'resolved' && last ? (
-            <div className="flex flex-col items-center gap-0.5 rounded-key bg-white/15 px-3 py-2 text-center">
-              <span className="text-md font-bold">{verdict(last, names)}</span>
-              {suddenDeath ? null : (
-                <span className="text-sm font-semibold">{scoreLine(names, totals)}</span>
-              )}
+      {showList && round.letter ? (
+        // Dictionnaire ouvert : il prend toute la hauteur, la carte se réduit à un bandeau.
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
+          <div className="flex shrink-0 flex-col gap-1 rounded-card bg-bac px-3 py-1.5 text-white shadow-card">
+            <div className="flex items-center gap-2">
+              <span className="font-display text-xl leading-none font-black">{round.letter}</span>
+              <span className="line-clamp-2 min-w-0 flex-1 text-sm leading-tight font-bold tracking-wide uppercase">
+                {label}
+              </span>
+              <button
+                type="button"
+                onClick={toggleList}
+                aria-label="Fermer le dictionnaire"
+                className="min-h-9 shrink-0 rounded-chip bg-white/20 px-3 text-sm font-bold"
+              >
+                ✕ Fermer
+              </button>
             </div>
-          ) : phase === 'timeout' ? (
-            <p className="text-center text-md font-bold">
-              Temps écoulé ! Un mot dit pile au buzzer ?
-            </p>
-          ) : canSkip ? (
-            <GhostButton icon={<SkipIcon size={20} />} tone="inverse" onClick={actions.skip}>
-              Passer
-            </GhostButton>
-          ) : null
-        }
-      />
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-chip bg-white/25">
+                <div
+                  className={`h-full ${alert ? 'bg-ink' : 'bg-white'}`}
+                  style={{ width: `${Math.round(progress * 100)}%` }}
+                />
+              </div>
+              {phase === 'turn' || phase === 'timeout' ? (
+                <span
+                  className={`shrink-0 rounded-chip px-2.5 py-0.5 text-xs font-bold ${speakerTheme.bg} ${speakerTheme.text}`}
+                >
+                  {phase === 'timeout' ? 'Temps écoulé' : `À ${names[speaker]}`}
+                  {round.words > 0 ? ` · ${plural(round.words, 'mot', 'mots')}` : ''}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <DictionaryPanel entries={entries} letter={round.letter} />
+        </div>
+      ) : (
+        <LetterCard
+          hidden={phase === 'hidden'}
+          label={label}
+          letter={round.letter}
+          progress={progress}
+          alert={alert}
+          dimmed={phase === 'timeout'}
+          corner={questionLabel}
+          onFlip={phase === 'hidden' ? actions.flipBac : undefined}
+          onToggleWords={phase === 'hidden' ? undefined : toggleList}
+          wordCount={entries?.length ?? null}
+          footer={status}
+        />
+      )}
+      {phase === 'resolved' && showList && last ? (
+        <p className="text-center text-sm font-bold">{verdict(last, names)}</p>
+      ) : null}
       {buttons}
     </div>
   );
@@ -202,9 +239,10 @@ export function LetterCard({
   progress,
   alert,
   dimmed = false,
-  countdown = null,
   corner,
   onFlip,
+  onToggleWords,
+  wordCount = null,
   footer,
 }: {
   hidden: boolean;
@@ -213,9 +251,11 @@ export function LetterCard({
   progress: number;
   alert: boolean;
   dimmed?: boolean;
-  countdown?: string | null;
   corner?: string;
   onFlip?: (() => void) | undefined;
+  onToggleWords?: (() => void) | undefined;
+  /** Nombre d'entrées pour la lettre (`null` pendant le chargement). */
+  wordCount?: number | null;
   footer?: ReactNode;
 }) {
   const R = 84;
@@ -281,18 +321,21 @@ export function LetterCard({
             >
               {letter}
             </span>
-            {countdown ? (
-              <span
-                key={countdown}
-                className="absolute -right-3 -bottom-1 flex size-14 animate-pop items-center justify-center rounded-chip bg-ink font-display text-xl font-black"
-              >
-                {countdown}
-              </span>
-            ) : null}
           </div>
         </div>
       )}
-      <div className="flex min-h-14 items-center justify-center px-3 pb-3">{footer}</div>
+      <div className="flex min-h-14 flex-col items-center justify-center gap-1 px-3 pb-3">
+        {footer}
+        {onToggleWords ? (
+          <button
+            type="button"
+            onClick={onToggleWords}
+            className="min-h-10 rounded-chip bg-white/15 px-4 text-sm font-bold"
+          >
+            📖 Dictionnaire{wordCount === null ? '' : ` · ${wordCount} mots`}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

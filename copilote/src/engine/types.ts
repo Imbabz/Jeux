@@ -22,7 +22,6 @@ export interface PlayerConfig {
 export interface MatchRules {
   readonly exactBonus: boolean;
   readonly doubleFinalRound: boolean;
-  readonly bacTogether: 'replay' | 'both';
   readonly rareLetters: boolean;
 }
 

@@ -15,6 +15,15 @@ const closestAction = z.discriminatedUnion('type', [
   z.object({ type: z.literal('NEXT') }),
 ]);
 
+const bacAction = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('FLIP'), letter: z.string().regex(/^[A-Z]$/) }),
+  z.object({ type: z.literal('START') }),
+  z.object({ type: z.literal('WORD') }),
+  z.object({ type: z.literal('TIMER_EXPIRED') }),
+  z.object({ type: z.literal('MISS') }),
+  z.object({ type: z.literal('NEXT') }),
+]);
+
 const at = z.number();
 
 export const matchEventSchema = z.discriminatedUnion('type', [
@@ -30,9 +39,16 @@ export const matchEventSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('SUDDEN_DEATH_STARTED'), game: gameId, item: roundItem, at }),
   z.object({ type: z.literal('ITEM_SKIPPED'), replacement: roundItem, at }),
   z.object({ type: z.literal('TURN_RESTARTED'), at }),
+  z.object({
+    type: z.literal('SCORE_ADJUSTED'),
+    player: playerId,
+    delta: z.number().int(),
+    at,
+  }),
   z.object({ type: z.literal('MATCH_ABANDONED'), at }),
   z.object({ type: z.literal('year'), action: closestAction, at }),
   z.object({ type: z.literal('estim'), action: closestAction, at }),
+  z.object({ type: z.literal('bac'), action: bacAction, at }),
 ]);
 
 const playerConfig = z.object({ name: z.string(), driver: z.boolean() });
@@ -47,7 +63,6 @@ export const matchConfigSchema = z.object({
   rules: z.object({
     exactBonus: z.boolean(),
     doubleFinalRound: z.boolean(),
-    bacTogether: z.enum(['replay', 'both']),
     rareLetters: z.boolean(),
   }),
 });
@@ -68,10 +83,15 @@ export const seenSchema = z.object({
 });
 export type SeenStore = z.infer<typeof seenSchema>;
 
+/** Bornes du temps par mot du Bac Éclair, saisi librement dans les réglages. */
+export const BAC_SECONDS_MIN = 2;
+export const BAC_SECONDS_MAX = 60;
+
 export const settingsSchema = z.object({
   schemaVersion: z.literal(1),
   thinkSeconds: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15)]),
-  bacSeconds: z.union([z.literal(10), z.literal(15), z.literal(20)]).default(15),
+  /** Bac Éclair : temps laissé à chaque joueur pour donner son mot. */
+  bacWordSeconds: z.number().int().min(BAC_SECONDS_MIN).max(BAC_SECONDS_MAX).catch(6).default(6),
   sound: z.boolean(),
   haptics: z.boolean(),
   avoidSeen: z.boolean(),
@@ -94,7 +114,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 export const DEFAULT_SETTINGS: Settings = {
   schemaVersion: 1,
   thinkSeconds: 10,
-  bacSeconds: 15,
+  bacWordSeconds: 6,
   sound: true,
   haptics: true,
   avoidSeen: true,

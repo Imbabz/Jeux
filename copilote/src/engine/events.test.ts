@@ -29,9 +29,10 @@ describe('décisions et Annuler', () => {
     expect(isDecision({ type: 'estim', action: { type: 'READ' } })).toBe(false);
     expect(isDecision({ type: 'ITEM_SKIPPED', replacement: item(1) })).toBe(true);
     expect(isDecision({ type: 'ROUND_RECAP_DONE' })).toBe(false);
-    expect(isDecision({ type: 'bac', action: { type: 'BUZZ', who: 'A' } })).toBe(true);
-    expect(isDecision({ type: 'bac', action: { type: 'NOBODY' } })).toBe(true);
-    expect(isDecision({ type: 'bac', action: { type: 'CONTESTED' } })).toBe(true);
+    expect(isDecision({ type: 'bac', action: { type: 'WORD' } })).toBe(true);
+    expect(isDecision({ type: 'bac', action: { type: 'MISS' } })).toBe(true);
+    expect(isDecision({ type: 'bac', action: { type: 'START' } })).toBe(false);
+    expect(isDecision({ type: 'SCORE_ADJUSTED', player: 'A', delta: 1 })).toBe(true);
     expect(isDecision({ type: 'bac', action: { type: 'FLIP', letter: 'A' } })).toBe(false);
     expect(eventLabel({ type: 'bac', action: { type: 'NEXT' } })).toBe('bac/NEXT');
   });

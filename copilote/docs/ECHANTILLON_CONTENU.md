@@ -2,7 +2,7 @@
 
 Tirage aléatoire de 20 items par jeu (graine fixe). Signale-moi tout item douteux : il sera corrigé ou supprimé.
 
-Volumes : 250 « Quelle année ? », 202 Estimations, 120 catégories de Bac Éclair. Les sources : `scripts/*_items.py` (contenu) et `scripts/build_*.py` (génération du JSON). Les corrections de la seconde vérification, sources à l'appui, sont dans `scripts/fact_check.py`.
+Volumes : 250 « Quelle année ? », 202 Estimations, 118 catégories de Bac Éclair (7 000 mots acceptés). Les sources : `scripts/*_items.py` (contenu) et `scripts/build_*.py` (génération du JSON). Les corrections de la seconde vérification, sources à l'appui, sont dans `scripts/fact_check.py`.
 
 
 ## Quelle année ?
@@ -57,25 +57,24 @@ Volumes : 250 « Quelle année ? », 202 Estimations, 120 catégories de Bac Éc
 
 ## Bac Éclair
 
-| id | Catégorie | Diff. | Lettres exclues | Packs |
-|---|---|---|---|---|
-| bac-0006 | Un fruit ou un légume | 1 | J U W X Z | general, food |
-| bac-0039 | Un outil | 2 | I J N O U Q W X Y Z | general, history-science |
-| bac-0100 | Un légume | 2 | D I J U V Q W X Y | food |
-| bac-0004 | Un métier | 1 | W X Y | general, history-science |
-| bac-0106 | Un personnage de Tintin | 3 | E F G I J O P U V K Q W X Y | belgium, pop |
-| bac-0111 | Quelque chose qu’on trouve dans un château | 2 | Q X Y Z | scotland, history-science |
-| bac-0035 | Quelque chose qu’on peut ouvrir | 2 | Q W X Y Z | general |
-| bac-0061 | Un monstre ou une créature fantastique | 2 | I J R U Q W X Y | pop, scotland |
-| bac-0077 | Un sportif français ou une sportive française | 2 | U Q W X Y | sport |
-| bac-0093 | Un fromage | 2 | I J U K Q W X Y Z | food, belgium |
-| bac-0118 | Un mot lié à l’histoire | 2 | Q W X Y Z | history-science, belgium |
-| bac-0113 | Un personnage historique | 1 | U Q X | history-science, general |
-| bac-0050 | Un jeu de société ou un jeu de cartes | 2 | F H I N V Q W X Y Z | pop, general |
-| bac-0092 | Un animal sauvage | 1 | — | geo-travel, scotland |
-| bac-0101 | Un mot lié à la cuisine | 1 | Q W X Y Z | food, scotland |
-| bac-0055 | Une chanson | 2 | — | pop, belgium |
-| bac-0051 | Un jeu vidéo | 2 | — | pop |
-| bac-0094 | Un poisson ou un fruit de mer | 2 | I J N U Q W X Y Z | food, scotland |
-| bac-0103 | Une bière belge | 3 | E I N U K Q X Y | belgium, food |
-| bac-0074 | Un coureur ou une coureuse cycliste | 3 | U Q W X Y | sport, belgium |
+| id | Catégorie | Diff. | Lettres jouables | Exemple de liste | Packs |
+|---|---|---|---|---|---|
+| bac-0006 | Un fruit ou un légume | 1 | A B C D E F G H L M N O P R S T | A : abricot, airelle, amande, ananas, artichaut, asperge | general, food |
+| bac-0039 | Un outil | 2 | A B C D E F G H L M P R S T V | A : agrafeuse, alène, arrache-clou | general, history-science |
+| bac-0100 | Un légume | 2 | A B C E F G H L M P R S T | A : ail, artichaut, asperge, aubergine | food |
+| bac-0004 | Un métier | 1 | A B C D E F G H I J L M N O P R S T U V | A : acteur, agriculteur, ambulancier, apiculteur, architecte, artisan | general, history-science |
+| bac-0111 | Quelque chose qu’on trouve dans un château | 2 | A B C D E F G H J L M P R S T V | A : arbalète, archer, armure | scotland, history-science |
+| bac-0035 | Quelque chose qu’on peut ouvrir | 2 | A B C D E F G H J L M P R S T V | A : abri, album, appartement, armoire | general |
+| bac-0061 | Un monstre ou une créature fantastique | 2 | A B C D E F G H L M N O P S T V | A : abominable homme des neiges, Alien, Anubis | pop, scotland |
+| bac-0077 | Un sportif français ou une sportive française | 2 | A B C D F G H J L M P R S T | A : Alain Prost, Amélie Mauresmo, Antoine Dupont | sport |
+| bac-0093 | Un fromage | 2 | A B C D E F G H L M N O P R S T V | A : abondance, appenzell, asiago | food, belgium |
+| bac-0118 | Un mot lié à l’histoire | 2 | A B C D E F G H I L N R S T V | A : Antiquité, archéologie, armée | history-science, belgium |
+| bac-0113 | Un personnage historique | 1 | A B C D F G H J L M N P R S | A : Alexandre le Grand, Aliénor d'Aquitaine, Attila | history-science, general |
+| bac-0050 | Un jeu de société ou un jeu de cartes | 2 | A B C D J L M P R S T | A : Aventuriers du rail, awalé, Azul | pop, general |
+| bac-0092 | Un animal sauvage | 1 | A B C D E F G H I L M N O P R S T V | A : aigle, alligator, antilope | geo-travel, scotland, history-science |
+| bac-0101 | Un mot lié à la cuisine | 1 | A B C D E F G H I J L M N O P R S T V | A : apprêter, assaisonner, assiette | food, scotland |
+| bac-0055 | Une chanson | 2 | A B C D E F G H I J L M N O P R S T U V | A : Aline, Alors on danse, Amsterdam | pop, belgium |
+| bac-0051 | Un jeu vidéo | 2 | A B C D E F G H I J L M N O P R S T | A : Age of Empires, Among Us, Animal Crossing, Assassin's Creed | pop |
+| bac-0094 | Un poisson ou un fruit de mer | 2 | A B C D E F G H L M O P R S T V | A : ablette, anchois, anguille, araignée de mer | food, scotland |
+| bac-0103 | Une bière belge | 3 | A B C D F G H J L M P R S T V | A : Abbaye d'Aulne, Achel, Affligem, Augustijn | belgium, food |
+| bac-0074 | Un coureur ou une coureuse cycliste | 3 | A B C D E F G H J L M P R S T V | A : Alaphilippe, Anquetil, Armstrong | sport, belgium |

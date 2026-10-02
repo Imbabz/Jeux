@@ -53,6 +53,8 @@ export interface MatchState {
   readonly wonBySuddenDeath: boolean;
   /** Ids des items tirés dans cette partie : jamais reposés (GAME_DESIGN §11.1). */
   readonly usedItemIds: readonly string[];
+  /** Points ajoutés ou retirés à la main par le copilote (hors jeu, erreur de saisie…). */
+  readonly adjustments: PerPlayer<number>;
 }
 
 export function initialMatchState(config: MatchConfig, seed: number): MatchState {
@@ -68,6 +70,7 @@ export function initialMatchState(config: MatchConfig, seed: number): MatchState
     winner: null,
     wonBySuddenDeath: false,
     usedItemIds: [],
+    adjustments: { A: 0, B: 0 },
   };
 }
 
@@ -83,19 +86,27 @@ function summarize(round: GameRoundState): RoundSummary {
   return summarizeRound(round);
 }
 
-function roundSettings(state: MatchState, multiplier: number) {
-  return {
-    multiplier,
-    exactBonus: state.config.rules.exactBonus,
-    together: state.config.rules.bacTogether,
-  };
+function roundSettings(state: MatchState, multiplier: number, first: PlayerId) {
+  return { multiplier, exactBonus: state.config.rules.exactBonus, first };
 }
 
-/** Score total : manches terminées + manche en cours (la mort subite n'ajoute aucun point). */
+/** On alterne qui ouvre le Bac Éclair d'une manche (ou d'une tentative de mort subite) à l'autre. */
+const opener = (n: number): PlayerId => (n % 2 === 0 ? 'A' : 'B');
+
+/**
+ * Score total : manches terminées + manche en cours + ajustements manuels
+ * (la mort subite n'ajoute aucun point).
+ */
 export function totals(state: MatchState): PerPlayer<number> {
   const live =
     state.phase === 'playing' && state.current ? summarize(state.current).points : { A: 0, B: 0 };
-  return state.rounds.reduce((acc, r) => ({ A: acc.A + r.points.A, B: acc.B + r.points.B }), live);
+  const base = { A: live.A + state.adjustments.A, B: live.B + state.adjustments.B };
+  return state.rounds.reduce((acc, r) => ({ A: acc.A + r.points.A, B: acc.B + r.points.B }), base);
+}
+
+/** Un ajustement manuel est possible tant que la partie n'est pas terminée. */
+export function canAdjust(state: MatchState): boolean {
+  return state.phase !== 'finished' && state.phase !== 'abandoned';
 }
 
 /** Points marqués dans la manche en cours (ou qui vient de se terminer). */
@@ -198,7 +209,7 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
       const current = initRound(
         event.game,
         event.items,
-        roundSettings(state, roundMultiplier(state)),
+        roundSettings(state, roundMultiplier(state), opener(state.roundIndex)),
       );
       return {
         ...state,
@@ -214,7 +225,11 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
 
     case 'SUDDEN_DEATH_STARTED': {
       if (state.phase !== 'suddenDeathIntro') return state;
-      const current = initRound(event.game, [event.item], roundSettings(state, 1));
+      const current = initRound(
+        event.game,
+        [event.item],
+        roundSettings(state, 1, opener(state.suddenDeathAttempts)),
+      );
       return {
         ...state,
         phase: 'suddenDeath',
@@ -234,6 +249,15 @@ export function reduceMatch(state: MatchState, event: MatchEventBody): MatchStat
     case 'TURN_RESTARTED': {
       if (!needsRestart(state)) return state;
       return { ...state, current: restartRound(state.current as GameRoundState) };
+    }
+
+    case 'SCORE_ADJUSTED': {
+      if (!canAdjust(state) || !Number.isInteger(event.delta) || event.delta === 0) return state;
+      const adjustments = {
+        ...state.adjustments,
+        [event.player]: state.adjustments[event.player] + event.delta,
+      };
+      return { ...state, adjustments };
     }
 
     case 'MATCH_ABANDONED':

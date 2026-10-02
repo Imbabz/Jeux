@@ -40,6 +40,11 @@ async function typeEstim(page: Page, digits: string, multiplier?: string) {
 }
 
 async function playClosest(page: Page, game: 'year' | 'estim') {
+  const hint = page.getByRole('button', { name: 'Indice' });
+  if (await hint.isVisible()) {
+    await hint.click();
+    await once(page, `${game}-0-indice`);
+  }
   await once(page, `${game}-1-lecture`);
   await page.getByRole('button', { name: /C’est lu/ }).click();
   await once(page, `${game}-2-reflexion`);
@@ -69,18 +74,36 @@ async function playBac(page: Page, turn: number) {
   await once(page, 'bac-1-face-cachee');
   await page.getByRole('button', { name: 'Retourner la carte' }).first().click();
   await page.waitForTimeout(500);
-  await once(page, 'bac-2-decompte');
-  await page
-    .getByRole('button', { name: 'Ensemble !' })
-    .and(page.locator(':enabled'))
-    .waitFor({ timeout: 6000 });
-  await page.waitForTimeout(1200);
+  await once(page, 'bac-2-annonce');
+  await page.getByRole('button', { name: /de commencer/ }).click();
+  await page.waitForTimeout(800);
   await once(page, 'bac-3-chrono');
-  await page.getByRole('button', { name: turn % 2 === 0 ? 'Léa' : 'Tom', exact: true }).click();
-  await once(page, 'bac-4-resolu');
+  // Un mot validé, puis on ouvre la liste des mots acceptés.
+  await page.getByRole('button', { name: 'Validé' }).click();
+  await page.getByRole('button', { name: /Dictionnaire/ }).click();
+  await once(page, 'bac-4-liste');
+  if (turn % 2 === 0) await page.getByRole('button', { name: /Raté/ }).click();
+  else {
+    await page.getByText(/Temps écoulé/).waitFor({ timeout: 15000 });
+    await once(page, 'bac-5-temps-ecoule');
+    await page.getByRole('button', { name: /Raté/ }).click();
+  }
+  await once(page, 'bac-6-resolu');
   await page
-    .getByRole('button', { name: /Tour suivant|Fin de la manche|Voir le résultat/ })
+    .getByRole('button', { name: /Carte suivante|Fin de la manche|Voir le résultat/ })
     .click();
+}
+
+async function adjustScores(page: Page) {
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page.getByRole('button', { name: 'Ajuster les scores' }).click();
+  await page.getByRole('button', { name: 'Ajouter un point à Léa' }).click();
+  await once(page, '07-ajuster-scores');
+  await page.getByRole('button', { name: 'Terminé' }).click();
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  await once(page, '08-reglages');
+  await page.getByRole('button', { name: 'Terminé' }).click();
 }
 
 test('accueil, configuration, partie Express avec les trois jeux', async ({ page }) => {
@@ -104,6 +127,7 @@ test('accueil, configuration, partie Express avec les trois jeux', async ({ page
     const heading = await page.getByRole('heading', { level: 1 }).textContent();
     await shot(page, `04-intro-manche-${round + 1}`);
     await page.getByRole('button', { name: 'Première question' }).click();
+    if (round === 0) await adjustScores(page);
     const game = heading?.includes('Bac')
       ? 'bac'
       : heading?.includes('Estimation')
@@ -126,4 +150,73 @@ test('styleguide', async ({ page }) => {
   await page.goto('/styleguide');
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: 'e2e/screenshots/00-styleguide.png', fullPage: true });
+});
+
+test('réglages : temps par mot en saisie libre', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText(/^v\d+\.\d+\.\d+ · /)).toBeVisible();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  const field = page.getByLabel('Temps par mot, en secondes');
+  await field.tap();
+  await page.keyboard.type('12');
+  await expect(field).toHaveValue('12');
+  await page.getByRole('button', { name: 'Une seconde de plus' }).click();
+  await expect(field).toHaveValue('13');
+  await page.getByRole('button', { name: 'Une seconde de moins' }).click();
+  await page.getByRole('button', { name: 'Une seconde de moins' }).click();
+  await expect(field).toHaveValue('11');
+  await page.screenshot({ path: 'e2e/screenshots/08b-reglages-secondes.png' });
+  await page.getByRole('button', { name: 'Terminé' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  await expect(page.getByLabel('Temps par mot, en secondes')).toHaveValue('11');
+});
+
+test('dictionnaire du Bac : catégorie riche', async ({ page }) => {
+  await page.goto('/?seed=7');
+  await page.getByRole('button', { name: 'Jouer' }).click();
+  await page.getByLabel('Prénom du joueur 1').fill('Léa');
+  await page.getByLabel('Prénom du joueur 2').fill('Tom');
+  for (const g of ['Quelle année ?', 'Estimation'])
+    await page.getByText(g, { exact: true }).click();
+  // Seul le pack Général : catégories larges (animal, pays, métier…).
+  for (const p of [
+    'Écosse',
+    'Belgique',
+    'Culture pop',
+    'Sport',
+    'Histoire',
+    'Géographie',
+    'Gastronomie',
+  ])
+    await page.getByRole('button', { name: new RegExp(p) }).click();
+  await page.getByRole('radio', { name: 'Express' }).click();
+  await page.getByRole('button', { name: 'Lancer' }).click();
+  await page.getByRole('button', { name: /C’est parti/ }).click();
+  await page.getByRole('button', { name: 'Première question' }).click();
+  for (let i = 0; i < 40; i++) {
+    await page.getByRole('button', { name: 'Retourner la carte' }).first().click();
+    const label = page.getByRole('button', { name: /Dictionnaire · \d+ mots/ });
+    await label.waitFor();
+    const text = (await label.textContent()) ?? '';
+    console.log('carte :', text);
+    if (
+      await page
+        .getByText(/^(Un animal|Un métier|Un animal sauvage|Un verbe|Une ville de France)$/)
+        .isVisible()
+    )
+      break;
+    await page.getByRole('button', { name: 'Passer' }).click();
+  }
+  const flip = page.getByRole('button', { name: 'Retourner la carte' }).first();
+  if (await flip.isVisible()) await flip.click();
+  await page.getByRole('button', { name: /de commencer/ }).click();
+  await page.getByRole('button', { name: /Dictionnaire/ }).click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'e2e/screenshots/bac-7-dictionnaire.png' });
+  const chips = page.getByRole('button', { name: 'Tous' });
+  if (await chips.isVisible()) {
+    await page.getByLabel('Filtrer par famille').getByRole('button').nth(1).click();
+    await page.screenshot({ path: 'e2e/screenshots/bac-8-dictionnaire-filtre.png' });
+  }
 });

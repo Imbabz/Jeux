@@ -1,6 +1,6 @@
 import type { BacAction } from './games/bac/machine.ts';
 import type { ClosestAction } from './games/closest/machine.ts';
-import type { GameId, RoundItem } from './types.ts';
+import type { GameId, PlayerId, RoundItem } from './types.ts';
 
 /** Événements d'une partie (GAME_DESIGN §6.3). `at` est un horodatage que le reducer ne lit jamais. */
 export type MatchEventBody =
@@ -15,6 +15,7 @@ export type MatchEventBody =
   | { readonly type: 'SUDDEN_DEATH_STARTED'; readonly game: GameId; readonly item: RoundItem }
   | { readonly type: 'ITEM_SKIPPED'; readonly replacement: RoundItem }
   | { readonly type: 'TURN_RESTARTED' }
+  | { readonly type: 'SCORE_ADJUSTED'; readonly player: PlayerId; readonly delta: number }
   | { readonly type: 'MATCH_ABANDONED' }
   | { readonly type: 'year'; readonly action: ClosestAction }
   | { readonly type: 'estim'; readonly action: ClosestAction }
@@ -29,16 +30,13 @@ export type MatchEvent = MatchEventBody & { readonly at: number };
 export function isDecision(event: MatchEventBody): boolean {
   switch (event.type) {
     case 'ITEM_SKIPPED':
+    case 'SCORE_ADJUSTED':
       return true;
     case 'year':
     case 'estim':
       return event.action.type === 'INPUT' || event.action.type === 'REVEAL';
     case 'bac':
-      return (
-        event.action.type === 'BUZZ' ||
-        event.action.type === 'NOBODY' ||
-        event.action.type === 'CONTESTED'
-      );
+      return event.action.type === 'WORD' || event.action.type === 'MISS';
     default:
       return false;
   }

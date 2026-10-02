@@ -6,3 +6,4 @@ coverage
 e2e/.results
 .vercel
 e2e/screenshots
+__pycache__/

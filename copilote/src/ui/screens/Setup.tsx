@@ -12,6 +12,7 @@ import { Button, Initial } from '../components/Button.tsx';
 import { Card } from '../components/Card.tsx';
 import { ArrowLeftIcon, CarIcon, CheckIcon, GameIcon, PlayIcon } from '../components/icons.tsx';
 import { Segmented } from '../components/Segmented.tsx';
+import { BacSecondsField } from '../components/SettingsPanel.tsx';
 import { GAME_THEME } from '../theme/games.ts';
 
 const PRESETS = [
@@ -85,7 +86,6 @@ export function Setup() {
       rules: {
         exactBonus: settings.exactBonus,
         doubleFinalRound: settings.doubleFinalRound,
-        bacTogether: 'replay',
         rareLetters: false,
       },
     };
@@ -166,6 +166,14 @@ export function Setup() {
               />
             ))}
           </div>
+          {chosen.includes('bac') ? (
+            <div className="flex flex-col gap-1 pt-1">
+              <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">
+                Bac Éclair : chrono de chaque mot
+              </span>
+              <BacSecondsField />
+            </div>
+          ) : null}
         </Section>
 
         <Section title="Packs">

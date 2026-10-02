@@ -23,6 +23,8 @@ export const yearItemSchema = z
     centuryHint: z.string().regex(/^\d{2}$/),
     difficulty: difficultySchema,
     context: z.string().min(1).max(160),
+    /** Indice facultatif, révélé à la demande du copilote (lieu, contexte…). */
+    hint: z.string().min(1).max(90).optional(),
   })
   .refine((item) => String(item.year).startsWith(item.centuryHint), {
     message: 'centuryHint doit être le début de year',
@@ -44,6 +46,8 @@ export const estimItemSchema = z.object({
   context: z.string().min(1).max(160),
   /** Année de référence d'une valeur qui évolue (population, record…). */
   referenceYear: z.number().int().min(1900).max(2026).optional(),
+  /** Indice facultatif, révélé à la demande du copilote (lieu, contexte…). */
+  hint: z.string().min(1).max(90).optional(),
 });
 export type EstimContentItem = z.infer<typeof estimItemSchema>;
 
@@ -55,3 +59,16 @@ export const bacItemSchema = z.object({
   excludedLetters: z.array(z.string().regex(LETTER)),
 });
 export type BacContentItem = z.infer<typeof bacItemSchema>;
+
+/**
+ * Dictionnaire du Bac Éclair (bac-dictionary.json, chargé à la demande) : pour chaque catégorie
+ * et chaque lettre jouable, les entrées « mot, note » (« abeille », « n.f. · insecte »).
+ * Indicatif : le copilote peut valider un mot absent.
+ */
+export const dictionaryEntrySchema = z.tuple([z.string().min(1), z.string()]);
+export type DictionaryEntry = z.infer<typeof dictionaryEntrySchema>;
+export const bacDictionarySchema = z.record(
+  z.string().regex(/^bac-\d{4}$/),
+  z.record(z.string().regex(LETTER), z.array(dictionaryEntrySchema)),
+);
+export type BacDictionary = z.infer<typeof bacDictionarySchema>;

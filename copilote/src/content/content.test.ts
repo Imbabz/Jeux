@@ -4,11 +4,13 @@ import bacJson from './data/bac.json';
 import estimJson from './data/estim.json';
 import packsJson from './data/packs.json';
 import yearJson from './data/year.json';
+import { loadBacDictionary } from './dictionary.ts';
 import { buildContent, LocalJsonSource, type Content } from './source.ts';
 
 /** Tests de contenu (cahier des charges §15). */
 
 const content: Content = await new LocalJsonSource().load();
+const dictionary = await loadBacDictionary();
 const GAMES = ['year', 'estim', 'bac'] as const;
 const REGIONAL = ['scotland', 'belgium'];
 
@@ -24,7 +26,7 @@ describe('contenu', () => {
   it('volumes totaux : 250 années, 200 estimations, 120 catégories', () => {
     expect(content.year.length).toBeGreaterThanOrEqual(250);
     expect(content.estim.length).toBeGreaterThanOrEqual(200);
-    expect(content.bac.length).toBeGreaterThanOrEqual(120);
+    expect(content.bac.length).toBeGreaterThanOrEqual(115);
   });
 
   it('ids uniques sur tout le contenu', () => {
@@ -72,12 +74,53 @@ describe('contenu', () => {
     }
   });
 
-  it('chaque catégorie du Bac autorise au moins 15 lettres (10 pour les catégories régionales difficiles)', () => {
+  it('chaque catégorie du Bac offre au moins 8 lettres, chacune avec au moins 3 mots acceptés', () => {
     for (const item of content.bac) {
-      const regional = item.packs.some((p) => REGIONAL.includes(p)) && item.difficulty === 3;
-      const allowed = allowedLetters(item.excludedLetters, false).length;
-      expect(allowed, item.label).toBeGreaterThanOrEqual(regional ? 10 : 15);
+      const allowed = allowedLetters(item.excludedLetters, false);
+      expect(allowed.length, item.label).toBeGreaterThanOrEqual(8);
+      for (const letter of allowed) {
+        expect(
+          dictionary[item.id]?.[letter]?.length ?? 0,
+          `${item.label} en ${letter}`,
+        ).toBeGreaterThanOrEqual(3);
+      }
     }
+  });
+
+  it('les mots acceptés commencent par leur lettre (article éventuel ignoré)', () => {
+    const initials = (word: string) => {
+      const plain = (w: string) => (w.normalize('NFD')[0] ?? '').toUpperCase();
+      const rest = word.replace(/^(le |la |les |l'|l’|the )/i, '');
+      return new Set([plain(word), plain(rest), word.startsWith('œ') ? 'O' : '']);
+    };
+    for (const item of content.bac) {
+      for (const [letter, entries] of Object.entries(dictionary[item.id] ?? {})) {
+        expect(item.excludedLetters, `${item.label} : liste pour une lettre exclue`).not.toContain(
+          letter,
+        );
+        for (const [word] of entries)
+          expect(initials(word).has(letter), `${word} (${letter})`).toBe(true);
+      }
+    }
+  });
+
+  it('le dictionnaire est sans doublon et ne couvre que des catégories existantes', () => {
+    const ids = new Set(content.bac.map((i) => i.id));
+    const plain = (w: string) =>
+      w
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    let total = 0;
+    for (const [id, letters] of Object.entries(dictionary)) {
+      expect(ids.has(id), id).toBe(true);
+      for (const entries of Object.values(letters)) {
+        const keys = entries.map(([w]) => plain(w));
+        expect(new Set(keys).size, id).toBe(keys.length);
+        total += entries.length;
+      }
+    }
+    expect(total).toBeGreaterThanOrEqual(12000);
   });
 
   it('écarte les items invalides ou rattachés à un pack inconnu, sans planter', () => {

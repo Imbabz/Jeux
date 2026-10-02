@@ -9,7 +9,7 @@ export const baseConfig: MatchConfig = {
   difficulty: 'mixed',
   rounds: 3,
   questionsPerRound: 3,
-  rules: { exactBonus: true, doubleFinalRound: true, bacTogether: 'replay', rareLetters: false },
+  rules: { exactBonus: true, doubleFinalRound: true, rareLetters: false },
 };
 
 export const item = (n: number, answer = 1900 + n): RoundItem => ({

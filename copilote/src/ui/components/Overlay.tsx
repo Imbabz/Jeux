@@ -77,7 +77,7 @@ export function Sheet({
       <div
         role="dialog"
         aria-label={title}
-        className="flex flex-col gap-3 rounded-card bg-table p-4 shadow-sheet"
+        className="flex max-h-[85dvh] flex-col gap-3 overflow-y-auto rounded-card bg-table p-4 shadow-sheet"
       >
         <h2 className="px-1 font-display text-lg font-bold">{title}</h2>
         {children}

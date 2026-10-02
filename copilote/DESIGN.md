@@ -190,11 +190,12 @@ Annuler, Pause et Menu sont **toujours au même endroit**, dans l'ActionBar en b
 | État | Rendu |
 |---|---|
 | `hidden` | dos de carte rouge à motif d'éclairs ton sur ton, avec « Touchez pour retourner » |
-| `countdown` | lettre visible, chiffre « 3/2/1 » en surimpression |
-| `running` | anneau blanc qui se vide dans le sens horaire |
-| `alert` (≤ 5 s) | anneau `ink`, battement léger de la lettre (scale 1 → 1.04, 1 Hz) |
-| `timeout` | lettre à 60 % d'opacité, anneau vide |
-| `resolved` | lettre en place, bandeau du gagnant en bas de carte (« Point pour Léa ») |
+| `announce` | lettre visible, anneau plein (pas de chrono pendant la lecture) |
+| `turn` | anneau blanc qui se vide, **un chrono par mot**, pastille « À Tom ! · 3 mots » aux couleurs du joueur |
+| `alert` (≤ 2 s) | anneau `ink`, battement léger de la lettre (scale 1 → 1.04, 1 Hz) |
+| `timeout` | lettre à 70 % d'opacité, « Temps écoulé pour Tom ! » |
+| `resolved` | verdict en bas de carte (« Tom sèche après 4 mots : point pour Léa ! ») et score |
+| liste ouverte | l'anneau laisse place à la liste des mots acceptés (pastilles), le chrono devient une barre fine sous la catégorie |
 
 ### 3.4 Boutons
 
@@ -363,29 +364,28 @@ C'est une carte « titre » centrée : « Léa contre Tom », le palmarès de la
 
 Le copilote lit l'écran ; un tap lance la manche. Il n'y a pas d'avance automatique : l'intro attend que la lecture soit finie.
 
-### 4.5 Bac Éclair
+### 4.5 Bac Éclair (alternance)
 
 ```
-countdown / running                     timeout                      resolved
+announce                     turn                         liste ouverte
 ┌──────────────────────────┐ ┌──────────────────────────┐ ┌──────────────────────────┐
-│ (L)Léa 3   M2/6   (T)Tom 2│ │ (L)Léa 3   M2/6   (T)Tom 2│ │ (L)Léa 4 +1 M2/6 (T)Tom 2 │
+│ (L)Léa 3   M2/6   (T)Tom 2│ │ (L)Léa 3   M2/6   (T)Tom 2│ │ (L)Léa 3   M2/6   (T)Tom 2│
 │ ╭──────────────────────╮ │ │ ╭──────────────────────╮ │ │ ╭──────────────────────╮ │
-│ │⚡ BAC ÉCLAIR          │ │ │ │      UN ANIMAL       │ │ │ │      UN ANIMAL       │ │
-│ │     UN ANIMAL        │ │ │ │       ( B )          │ │ │ │        B             │ │
-│ │    ╭──────╮          │ │ │ │   Temps écoulé !     │ │ │ │ ▓ Point pour Léa ▓   │ │
-│ │   (   B    ) ◔ 9 s   │ │ │ ╰──────────────────────╯ │ │ ╰──────────────────────╯ │
-│ │    ╰──────╯          │ │ │                          │ │ (◔ Contesté)  [Suivant] │
-│ │ ⤼ Passer         ⚑   │ │ │ [(L) Léa ][(T) Tom ]     │ │                          │
-│ ╰──────────────────────╯ │ │ [      Personne       ]  │ │                          │
-│ [(L) Léa  ][(T) Tom   ]  │ │                          │ │                          │
-│ [     Ensemble !      ]  │ │                          │ │                          │
-│      ↶          ⏸        │ │      ↶          ⏸        │ │      ↶          ⏸        │
+│ │⚡ BAC ÉCLAIR      1/5 │ │ │ │      UN ANIMAL       │ │ │ │   UN ANIMAL · B      │ │
+│ │     UN ANIMAL        │ │ │ │    ╭──────╮          │ │ │ │ ▬▬▬▬▬▬▬▬▬▬▬▬▬░░░░░░  │ │
+│ │    ╭──────╮          │ │ │ │   (   B    ) ◔       │ │ │ │ (baleine)(bison)     │ │
+│ │   (   B    )         │ │ │ │    ╰──────╯          │ │ │ │ (blaireau)(biche)…   │ │
+│ │    ╰──────╯          │ │ │ │  [ À Tom ! · 3 mots ]│ │ │ │  [ À Tom ! · 3 mots ]│ │
+│ │ ⤼ Passer             │ │ │ │   Mots acceptés (9)  │ │ │ │   Masquer la liste   │ │
+│ ╰──────────────────────╯ │ │ ╰──────────────────────╯ │ │ ╰──────────────────────╯ │
+│ [ À Léa de commencer ]   │ │ [ ✗ Raté ][ ✓ Validé ]  │ │ [ ✗ Raté ][ ✓ Validé ]  │
+│      ↶     ⏸     ⋮       │ │      ↶     ⏸     ⋮       │ │      ↶     ⏸     ⋮       │
 └──────────────────────────┘ └──────────────────────────┘ └──────────────────────────┘
 ```
 
-- Les **PlayerButtons font 88 px** de haut, côte à côte (2 × 165 px avec un espace de 12 px). « Ensemble ! » est un NeutralButton de 64 px, pleine largeur.
-- En `announce` et `countdown`, les trois boutons sont visibles mais **désactivés**, ce qui évite un saut de mise en page.
-- **Budget vertical** : ScoreBar 72 + carte 340 + boutons 88 + 12 + 64 + ActionBar 64, soit 640 ≤ 667. ✅
+- Pas de décompte : le copilote lit la carte à son rythme, puis lance l'échange avec le bouton aux couleurs du joueur qui commence.
+- **[✓ Validé]** prend la couleur du joueur qui parle ; **[✗ Raté]** est neutre. Boutons de 88 px, côte à côte.
+- **Budget vertical** : ScoreBar 72 + carte 400 + boutons 88 + ActionBar 64, soit 624 ≤ 667. ✅
 
 ### 4.6 Quelle année ? et Estimation : question
 
@@ -489,7 +489,7 @@ Les cartes suivantes défilent :
 
 ### 4.14 Paramètres
 
-Une liste groupée en cartes : Sons et vibrations, Chronos, Déroulement, Bac Éclair, Règles de score, Questions vues, Affichage. Chaque ligne fait 56 px et porte un Toggle ou un SegmentedControl. Le bouton « Tester les bips » joue la séquence du décompte.
+Une liste groupée en cartes : Sons et vibrations, Chronos, Déroulement, Bac Éclair, Règles de score, Questions vues, Affichage. Chaque ligne fait 56 px et porte un Toggle ou un SegmentedControl. Le bouton « Tester le son » joue un bip (et débloque l'audio iOS dans le geste). En v1, les réglages tiennent dans un panneau (accueil et menu de partie) : bips, vibrations, temps par mot du Bac Éclair, temps de réflexion.
 
 **États** : audio bloqué (message « Activez le son du téléphone pour entendre les bips »).
 

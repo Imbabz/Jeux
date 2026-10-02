@@ -30,10 +30,16 @@ export interface CardView {
   readonly context: string;
   /** Unité (Estimation) ; absente pour les années. */
   readonly unit?: string;
-  /** Chiffres pré-remplis du pavé (indice de siècle). */
-  readonly prefill?: string;
   /** Réponse telle qu'affichée au verso. */
   readonly answerLabel: string;
+  /** Indice facultatif, révélé à la demande. */
+  readonly hint?: string;
+}
+
+/** Indice de la question : caché par défaut, le copilote le révèle s'il le juge utile. */
+interface HintState {
+  readonly shown: boolean;
+  readonly show: () => void;
 }
 
 interface Props {
@@ -53,6 +59,8 @@ export function ClosestRound(props: Props) {
   const { round, view } = props;
   const item = currentItem(round);
   const send = sendFor(round);
+  const [hintFor, setHintFor] = useState<string | null>(null);
+  const hint: HintState = { shown: hintFor === item.id, show: () => setHintFor(item.id) };
   // Chaque état est remonté (key) : ses chronos repartent de zéro.
   const key = `${round.index}-${item.id}-${round.phase}`;
 
@@ -60,14 +68,14 @@ export function ClosestRound(props: Props) {
     case 'read':
     case 'think':
     case 'countdown':
-      return <QuestionPhase key={key} {...props} />;
+      return <QuestionPhase key={key} {...props} hint={hint} />;
     case 'inputA':
     case 'inputB': {
       const player: PlayerId = round.phase === 'inputA' ? 'A' : 'B';
       const onSubmit = (value: number | null) => send({ type: 'INPUT', player, value });
       return (
         <div key={key} className="flex h-full flex-col gap-2">
-          <Recall view={view} />
+          <Recall view={view} hint={hint} />
           {round.kind === 'estim' ? (
             <EstimNumpad
               player={player}
@@ -76,18 +84,13 @@ export function ClosestRound(props: Props) {
               onSubmit={onSubmit}
             />
           ) : (
-            <YearNumpad
-              player={player}
-              name={props.names[player]}
-              prefill={view.prefill ?? ''}
-              onSubmit={onSubmit}
-            />
+            <YearNumpad player={player} name={props.names[player]} onSubmit={onSubmit} />
           )}
         </div>
       );
     }
     case 'ready':
-      return <ReadyPhase key={key} round={round} view={view} names={props.names} />;
+      return <ReadyPhase key={key} round={round} view={view} names={props.names} hint={hint} />;
     case 'revealed':
       return <RevealedPhase key={key} {...props} />;
   }
@@ -97,15 +100,28 @@ function questionLabel(round: ClosestRoundState, suddenDeath: boolean) {
   return suddenDeath ? 'Décisive' : `${round.index + 1}/${round.items.length}`;
 }
 
+function HintLine({ view, hint }: { view: CardView; hint: HintState }) {
+  if (!view.hint) return null;
+  return hint.shown ? (
+    <p className="rounded-key bg-table px-3 py-2 text-sm font-semibold text-ink">
+      Indice : {view.hint}
+    </p>
+  ) : (
+    <GhostButton onClick={hint.show}>Indice</GhostButton>
+  );
+}
+
 function QuestionFront({
   round,
   view,
   suddenDeath,
+  hint,
   footer,
 }: {
   round: ClosestRoundState;
   view: CardView;
   suddenDeath: boolean;
+  hint: HintState;
   footer?: ReactNode;
 }) {
   return (
@@ -114,6 +130,7 @@ function QuestionFront({
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-5 text-center">
         <CategoryChip>{view.chip}</CategoryChip>
         <p className="font-display text-lg font-bold text-balance">{view.text}</p>
+        <HintLine view={view} hint={hint} />
       </div>
       {footer ? <div className="flex min-h-14 items-center px-3 pb-2">{footer}</div> : null}
     </Card>
@@ -128,7 +145,14 @@ function SkipButton() {
   );
 }
 
-function QuestionPhase({ round, view, paused, thinkSeconds, suddenDeath }: Props) {
+function QuestionPhase({
+  round,
+  view,
+  paused,
+  thinkSeconds,
+  suddenDeath,
+  hint,
+}: Props & { hint: HintState }) {
   const phase = round.phase;
   const send = sendFor(round);
   const thinkMs = thinkSeconds * 1000;
@@ -168,6 +192,7 @@ function QuestionPhase({ round, view, paused, thinkSeconds, suddenDeath }: Props
           round={round}
           view={view}
           suddenDeath={suddenDeath}
+          hint={hint}
           footer={
             phase === 'think' ? (
               <div className="flex w-full flex-col gap-1 px-1">
@@ -215,10 +240,11 @@ function QuestionPhase({ round, view, paused, thinkSeconds, suddenDeath }: Props
   );
 }
 
-function Recall({ view }: { view: CardView }) {
+function Recall({ view, hint }: { view: CardView; hint: HintState }) {
   return (
     <p className="truncate px-1 text-sm text-ink-soft">
       <span className="font-semibold">{view.chip} :</span> {view.text}
+      {hint.shown && view.hint ? ` (${view.hint})` : ''}
     </p>
   );
 }
@@ -246,10 +272,12 @@ function ReadyPhase({
   round,
   view,
   names,
+  hint,
 }: {
   round: ClosestRoundState;
   view: CardView;
   names: PerPlayer<string>;
+  hint: HintState;
 }) {
   const send = sendFor(round);
   return (
@@ -259,6 +287,7 @@ function ReadyPhase({
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
           <CategoryChip>{view.chip}</CategoryChip>
           <p className="font-display text-lg font-bold text-balance">{view.text}</p>
+          <HintLine view={view} hint={hint} />
         </div>
       </Card>
       <div className="flex gap-3">
@@ -296,7 +325,14 @@ function RevealedPhase({ round, view, names, totals, suddenDeath }: Props) {
     estim
       ? ratioLabel(outcome.gap[p], outcome.exact[p])
       : yearGapLabel(outcome.gap[p], outcome.exact[p]);
-  const front = <QuestionFront round={round} view={view} suddenDeath={suddenDeath} />;
+  const front = (
+    <QuestionFront
+      round={round}
+      view={view}
+      suddenDeath={suddenDeath}
+      hint={{ shown: false, show: () => undefined }}
+    />
+  );
   const back = (
     <Card className="flex h-full flex-col overflow-hidden">
       <GameBanner game={round.kind} right={questionLabel(round, suddenDeath)} />

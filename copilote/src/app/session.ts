@@ -280,6 +280,17 @@ export const actions = {
     if (letter) dispatch({ type: 'bac', action: { type: 'FLIP', letter } });
   },
 
+  /** Ajustement manuel du score par le copilote (point hors jeu, erreur de saisie…). */
+  adjustScore(player: 'A' | 'B', delta: number) {
+    dispatch({ type: 'SCORE_ADJUSTED', player, delta });
+  },
+
+  /** Bouton « Tester le son » des réglages : débloque l'audio dans le geste et bipe. */
+  testSound() {
+    sound.unlock();
+    sound.beep('go');
+  },
+
   canUndo(): boolean {
     return snapshot.record ? canUndo(snapshot.record.events) : false;
   },

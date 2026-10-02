@@ -1,4 +1,4 @@
-import type { GameId, RoundItem } from '../types.ts';
+import type { GameId, PlayerId, RoundItem } from '../types.ts';
 import {
   bacDecider,
   initBacRound,
@@ -31,7 +31,8 @@ export type GameAction = ClosestAction | BacAction;
 export interface RoundSettings {
   readonly multiplier: number;
   readonly exactBonus: boolean;
-  readonly together: 'replay' | 'both';
+  /** Joueur qui ouvre la première carte de Bac Éclair. */
+  readonly first: PlayerId;
 }
 
 export function initRound(
